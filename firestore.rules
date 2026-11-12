@@ -29,9 +29,9 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // 操作紀錄：成員能看、能新增（只能用自己的名義），任何人都不能修改或刪除
+    // 操作紀錄：只有管理員能看；成員能新增（只能用自己的名義）；任何人都不能修改或刪除
     match /logs/{logId} {
-      allow read:   if isMember();
+      allow read:   if isAdmin();
       allow create: if isMember() && request.resource.data.uid == request.auth.uid;
     }
   }

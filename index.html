@@ -255,6 +255,21 @@ details.hist[open] summary::before{content:"▾ "}
 .toast.ok{border-color:rgba(94,224,199,.6)} .toast.err{border-color:rgba(255,107,129,.7)}
 .toast button{padding:3px 10px;font-size:12.5px}
 
+/* ---------- 使用說明 ---------- */
+.help{background:linear-gradient(135deg,rgba(94,224,199,.07),rgba(122,168,255,.06));border:1px solid rgba(122,168,255,.28);border-radius:var(--r);padding:16px 18px;margin-bottom:16px;display:none;animation:fade .2s}
+.help.show{display:block}
+.help-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.help-h b{font-size:15px}
+.help-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px 22px}
+.help h4{margin:0 0 6px;font-size:13px;color:var(--accent);font-weight:700}
+.help ol,.help ul{margin:0;padding-left:20px;color:#cdd4f0;font-size:13px;line-height:1.75}
+.help li b{color:var(--text)}
+.help .tip{margin-top:12px;font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line2);padding-top:10px}
+.admin-only{display:none !important}
+body.is-admin .admin-only{display:revert !important}
+body.is-admin a.admin-only{display:flex !important}
+.lock{font-size:11px;margin-left:auto;color:var(--gold)}
+
 /* ---------- 登入 ---------- */
 .screen{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:16px;
   background:radial-gradient(900px 500px at 15% 0%,rgba(94,224,199,.13),transparent 60%),radial-gradient(800px 500px at 100% 100%,rgba(122,168,255,.12),transparent 60%),var(--bg)}
@@ -353,10 +368,11 @@ details.hist[open] summary::before{content:"▾ "}
       <div class="grp">練功</div>
       <a href="#scan" data-v="scan"><svg><use href="#i-scan"/></svg>共鳴度辨識<span class="badge" id="bScan" style="display:none"></span></a>
       <a href="#tools" data-v="tools"><svg><use href="#i-tool"/></svg>計時工具<span class="badge hot" id="bTools" style="display:none">!</span></a>
-      <div class="grp">管理</div>
+      <div class="grp">資訊</div>
       <a href="#prices" data-v="prices"><svg><use href="#i-price"/></svg>價目表與報價</a>
-      <a href="#team" data-v="team"><svg><use href="#i-team"/></svg>成員<span class="badge hot" id="bTeam" style="display:none"></span></a>
-      <a href="#logs" data-v="logs"><svg><use href="#i-log"/></svg>操作紀錄</a>
+      <div class="grp admin-only">管理員</div>
+      <a href="#team" data-v="team" class="admin-only"><svg><use href="#i-team"/></svg>成員管理<span class="badge hot" id="bTeam" style="display:none"></span></a>
+      <a href="#logs" data-v="logs" class="admin-only"><svg><use href="#i-log"/></svg>操作紀錄</a>
     </nav>
     <div class="side-foot">
       <div class="avatar" id="meAv">?</div>
@@ -373,6 +389,7 @@ details.hist[open] summary::before{content:"▾ "}
       <div class="sub" id="pgSub"></div>
       <div class="spacer"></div>
       <span class="chip scan" id="scanChip" style="display:none" title="前往共鳴度辨識"></span>
+      <button class="ghost sm" id="btnHelp" title="使用說明">📖 說明</button>
       <span class="chip" id="syncChip"><span class="dot"></span><span id="syncTxt">已同步</span></span>
       <button class="primary sm" id="btnNewTop">＋ 新增代練單</button>
     </header>
@@ -381,6 +398,7 @@ details.hist[open] summary::before{content:"▾ "}
 
       <!-- ===== 總覽 ===== -->
       <section class="view" id="v-dashboard">
+        <div class="help" data-help="dashboard"></div>
         <div class="grid g4" id="kpis"></div>
         <div class="grid g-main" style="margin-top:16px">
           <div class="card">
@@ -406,6 +424,7 @@ details.hist[open] summary::before{content:"▾ "}
 
       <!-- ===== 代練單 ===== -->
       <section class="view" id="v-orders">
+        <div class="help" data-help="orders"></div>
         <div class="toolbar">
           <div class="search"><svg><use href="#i-search"/></svg><input id="q" placeholder="搜尋委託人、職業、備註…"></div>
           <div class="seg" id="fSeg">
@@ -428,6 +447,7 @@ details.hist[open] summary::before{content:"▾ "}
 
       <!-- ===== 辨識 ===== -->
       <section class="view" id="v-scan">
+        <div class="help" data-help="scan"></div>
         <div class="warnbox" id="noSupport">這個瀏覽器不能分享畫面，請用電腦版 <b>Chrome</b> 或 <b>Edge</b> 開啟本網站。</div>
         <div class="grid g-main">
           <div class="card">
@@ -462,6 +482,7 @@ details.hist[open] summary::before{content:"▾ "}
 
       <!-- ===== 工具 ===== -->
       <section class="view" id="v-tools">
+        <div class="help" data-help="tools"></div>
         <div class="grid g2">
           <div class="card">
             <div class="card-h"><h3>⏳ 加成 / 藥水倒數</h3><button class="sm" id="btnCustomBuff">＋ 自訂</button></div>
@@ -489,6 +510,7 @@ details.hist[open] summary::before{content:"▾ "}
 
       <!-- ===== 價目表 ===== -->
       <section class="view" id="v-prices">
+        <div class="help" data-help="prices"></div>
         <div class="grid g-main">
           <div class="card">
             <div class="card-h"><h3>💰 共鳴代練價目表 <small>每升 1 等</small></h3>
@@ -511,6 +533,7 @@ details.hist[open] summary::before{content:"▾ "}
 
       <!-- ===== 成員 ===== -->
       <section class="view" id="v-team">
+        <div class="help" data-help="team"></div>
         <div class="card">
           <div class="card-h"><h3>👥 團隊成員</h3><span class="hint" id="teamHint"></span></div>
           <div class="tbl-wrap"><table class="t" id="memberTbl"></table></div>
@@ -520,6 +543,7 @@ details.hist[open] summary::before{content:"▾ "}
 
       <!-- ===== 紀錄 ===== -->
       <section class="view" id="v-logs">
+        <div class="help" data-help="logs"></div>
         <div class="card">
           <div class="card-h"><h3>🕘 操作紀錄 <small>最近 300 筆</small></h3>
             <div class="row"><select id="logWho"><option value="">所有人</option></select><select id="logType"><option value="">所有類型</option></select></div></div>
@@ -746,17 +770,18 @@ function stats(o){
 const VIEWS = {
   dashboard:{ t:'總覽', s:'工作室即時營運狀況' }, orders:{ t:'代練單', s:'所有委託與進度' },
   scan:{ t:'共鳴度辨識', s:'分享遊戲畫面，自動讀取共鳴度' }, tools:{ t:'計時工具', s:'加成倒數・副本單趟' },
-  prices:{ t:'價目表與報價', s:'共鳴代練每等價格' }, team:{ t:'成員', s:'團隊帳號與權限' }, logs:{ t:'操作紀錄', s:'誰在什麼時候做了什麼' },
+  prices:{ t:'價目表與報價', s:'共鳴代練每等價格' }, team:{ t:'成員管理', s:'團隊帳號與權限', admin:true }, logs:{ t:'操作紀錄', s:'誰在什麼時候做了什麼', admin:true },
 };
 let view = 'dashboard';
 function route(){
   const h = location.hash.slice(1);
   view = VIEWS[h] ? h : 'dashboard';
+  if (VIEWS[view].admin && !isAdmin()){ view = 'dashboard'; if (h) history.replaceState(null, '', '#dashboard'); }
   $$('.view').forEach(v => v.classList.toggle('show', v.id === 'v-' + view));
   $$('#nav a').forEach(a => a.classList.toggle('act', a.dataset.v === view));
   $('#pgTitle').textContent = VIEWS[view].t; $('#pgSub').textContent = VIEWS[view].s;
   document.body.classList.remove('nav-open');
-  render(); window.scrollTo(0,0);
+  renderHelp(); render(); window.scrollTo(0,0);
 }
 window.addEventListener('hashchange', route);
 $('#hamb').onclick = () => document.body.classList.toggle('nav-open');
@@ -770,8 +795,8 @@ function render(){
   if (view === 'scan') renderBindSel();
   if (view === 'tools') { renderBuffs(); renderLaps(); }
   if (view === 'prices') { renderPriceTbl(state.prices); renderQuote(); }
-  if (view === 'team') renderTeam();
-  if (view === 'logs') renderLogs();
+  if (view === 'team' && isAdmin()) renderTeam();
+  if (view === 'logs' && isAdmin()) renderLogs();
   tick();
 }
 function renderBadges(){
@@ -780,6 +805,60 @@ function renderBadges(){
   const pend = Object.values(members).filter(m => m.role === 'pending').length;
   $('#bTeam').style.display = isAdmin() && pend ? '' : 'none'; $('#bTeam').textContent = pend;
 }
+
+// =====================================================================
+//  使用說明
+// =====================================================================
+const HELP = {
+  dashboard: { title:'總覽怎麼看', cols:[
+    ['上方四個數字', ['<b>練出價值</b>：本月每升 1 等，依價目表換算成的金額加總（也就是「已經練出來的錢」）', '<b>練功時數</b>：全團隊本月按「開始」到「暫停」的時間合計', '<b>完成單數</b>：本月練到目標等級的單', '<b>待練金額</b>：所有未完成單還沒練出的價值']],
+    ['圖表與清單', ['<b>近 14 天</b>：每天練出多少錢，滑鼠移到長條上看金額', '<b>正在練功</b>：現在誰在練哪張單、練了多久', '<b>業績排行</b>：可切換營收／時數／升等數；升等算在「按下升等的人」身上', '<b>截止提醒</b>：3 天內到期或已逾期的單']],
+  ], tip:'這一頁每 15 秒自動更新，不用重新整理。' },
+  orders: { title:'代練單使用流程', cols:[
+    ['接單到完成', ['按右上角 <b>＋ 新增代練單</b>，填委託人、起始與目標共鳴等級、是否有吊牌——<b>價格會依價目表自動算好</b>', '別人建的單按 <b>🙋 接單</b> 就變成你的', '開始練按 <b>▶ 開始</b>，休息按 <b>⏸ 暫停</b>（只有按開始的時間會算進時數）', '每升一等按 <b>⬆ 升 1 等</b>；有用共鳴度辨識的話會自動升', '練到目標等級會自動標成「已完成」']],
+    ['其他操作（卡片右上 •••）', ['<b>📋 進度回報</b>：產生一段文字，複製貼給客人', '<b>✏️ 編輯</b>：改資料、改價格、中途接手可填「目前等級」', '<b>升多等…</b>：一次補記好幾等', '<b>↶ 撤銷升等</b>：按錯可以退回上一等', '<b>🗑️ 移到回收桶</b>：刪掉的單可以在「回收桶」復原']],
+    ['找單', ['上方可切換：進行中／我接的／未接／已完成／回收桶', '搜尋框可以找委託人、職業、備註', '右邊可以排序：最新、截止日、進度、練功中優先']],
+  ], tip:'📡 連動：要讓共鳴度辨識自動升等，先在單上按「📡 連動」，再按「▶ 開始」。同一時間只能連動一張單（每台電腦各自設定）。' },
+  scan: { title:'共鳴度辨識怎麼用', cols:[
+    ['第一次設定', ['用電腦版 <b>Chrome 或 Edge</b> 開網站，遊戲設成<b>視窗或無邊框</b>模式', '按 <b>① 分享遊戲視窗</b> → 選「視窗」分頁 → 選艾爾之光', '在左邊畫面上，<b>用滑鼠拖曳框住整條共鳴度條</b>（從最左到最右）', '右邊會顯示讀到的 %，和遊戲裡差不多就成功了']],
+    ['開始自動升等', ['到「代練單」在要練的單按 <b>📡 連動</b>（或在右邊選單選）', '按那張單的 <b>▶ 開始</b>', '共鳴度從滿條掉回低點時，那張單會<b>自動 +1 等</b>並響提示音', '右邊會顯示每小時速度與預估滿條時間']],
+    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），框選位置會記住', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '讀不到條超過 1 分鐘會自動暫停計時，避免多算時數', '網頁可以縮小成小視窗放旁邊，但<b>不要最小化</b>']],
+  ], tip:'放大條下方的橘線是條的頭尾、紅線是目前填到哪裡；如果位置不對，按「② 重新框選」。' },
+  tools: { title:'計時工具', cols:[
+    ['加成／藥水倒數', ['吃了經驗藥水或加成，按對應按鈕開始倒數', '要其他時間按 <b>＋ 自訂</b>', '剩 1 分鐘變紅；時間到會響提示音、瀏覽器分頁標題閃爍、左側選單亮紅點', '<b>+5 分</b> 延長、<b>✕</b> 刪除']],
+    ['副本單趟計時', ['進副本時按 <b>開始</b>', '每打完一趟按 <b>完成一趟</b>（或按<b>空白鍵</b>），會自動接著計下一趟', '下方顯示趟數、平均、最快一趟，方便比較哪張圖效率高', '換地圖前可以按 <b>清空</b>']],
+  ], tip:'這一頁的資料只存在你這台電腦，不會同步給其他人。' },
+  prices: { title:'價目表與報價', cols:[
+    ['看價目表', ['「從 100 到 125」代表從 100 等升到 125 等，<b>每升 1 等</b>的價格', '計價看「升等前」的等級：99→100 算 0–100 的價、100→101 算 100–125 的價', '價格空白 = 私訊詳談']],
+    ['幫客人報價', ['在右邊填客人<b>目前等級</b>和<b>想練到幾等</b>，選有沒有吊牌', '下方會列出每段怎麼算和總價', '按 <b>複製報價給客人</b>，貼到 LINE 就是完整報價訊息', '客人確定後按 <b>用這個報價建單</b>，直接開一張代練單']],
+  ], tip:'只有管理員可以修改價目表；改價後只影響之後新建的單，已經建好的單維持原價。' },
+  team: { title:'成員管理（管理員）', cols:[
+    ['核准新成員', ['請新人打開網站，自己按「<b>註冊新帳號</b>」', '他會出現在下方列表，身分是「⏳ 待核准」，左側選單會亮紅點', '把身分改成 <b>成員</b>，對方畫面會自動進入系統']],
+    ['身分說明', ['<b>成員（代練師）</b>：接單、計時、升等、回報、看價目表與總覽', '<b>管理員</b>：以上全部，加上修改價目表、核准成員、看操作紀錄、永久刪除單', '<b>移除</b>：對方立刻失去存取權，要重新註冊並等核准']],
+  ], tip:'表格裡的「本月時數／練出」可以當作薪資或分潤的參考。' },
+  logs: { title:'操作紀錄（管理員）', cols:[
+    ['會記錄什麼', ['新增、編輯、接單、開始、暫停、升等（含自動）、撤銷、完成', '移到回收桶、復原、永久刪除', '價目表修改、成員身分調整']],
+    ['怎麼查', ['右上可以依「人」或「類型」篩選', '時間顯示「幾分鐘前」，滑鼠移上去看完整時間', '只保留最近 300 筆在畫面上']],
+  ], tip:'紀錄任何人都不能修改或刪除，有爭議（例如時數、誰練的）時可以拿來對照。' },
+};
+function renderHelp(){
+  const el = document.querySelector(`.help[data-help="${view}"]`); if (!el) return;
+  const h = HELP[view]; state.helpSeen = state.helpSeen || {};
+  const open = state.helpOpen ? state.helpOpen[view] : undefined;
+  const showIt = open === undefined ? !state.helpSeen[view] : open;
+  el.innerHTML = `<div class="help-h"><b>📖 ${h.title}</b><button class="ghost sm" data-help-close>收起說明</button></div>
+    <div class="help-cols">${h.cols.map(([t, items]) => `<div><h4>${t}</h4><ol>${items.map(i => `<li>${i}</li>`).join('')}</ol></div>`).join('')}</div>
+    ${h.tip ? `<div class="tip">💡 ${h.tip}</div>` : ''}`;
+  el.classList.toggle('show', !!showIt);
+  $('#btnHelp').classList.toggle('on', !!showIt);
+  el.querySelector('[data-help-close]').onclick = () => setHelp(false);
+}
+function setHelp(open){
+  state.helpSeen = state.helpSeen || {}; state.helpOpen = state.helpOpen || {};
+  state.helpSeen[view] = true; state.helpOpen[view] = open; save(); renderHelp();
+  if (open) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+$('#btnHelp').onclick = () => { const el = document.querySelector(`.help[data-help="${view}"]`); setHelp(!(el && el.classList.contains('show'))); };
 
 // =====================================================================
 //  總覽
@@ -1483,7 +1562,15 @@ function checkImport(){
 }
 
 let unsubs = [], unsubMe = null;
-function stopData(){ unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
+let unsubLogs = null;
+function applyRole(){
+  const adm = isAdmin();
+  document.body.classList.toggle('is-admin', adm);
+  if (adm && !unsubLogs && backend) unsubLogs = backend.watchLogs(l => { logs = l; if (view === 'logs') renderLogs(); }, e => console.warn('logs', e));
+  if (!adm && unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; logs = []; }
+  if (!adm && VIEWS[view] && VIEWS[view].admin) location.hash = 'dashboard';
+}
+function stopData(){ if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
 function startData(){
   if (unsubs.length) return;
   unsubs.push(backend.watchOrders(list => {
@@ -1496,7 +1583,7 @@ function startData(){
     if (view === 'prices') render();
   }, () => {}));
   unsubs.push(backend.watchMembers(m => { members = m; render(); }, () => {}));
-  unsubs.push(backend.watchLogs(l => { logs = l; if (view === 'logs') renderLogs(); }, e => console.warn('logs', e)));
+
 }
 window.App = {
   attach(b){
@@ -1515,7 +1602,7 @@ window.App = {
         me = { uid: user.uid, ...m };
         if (m.role !== 'member' && m.role !== 'admin'){ stopData(); me = null; $('#pendEmail').textContent = user.email; showScreen('Pending'); return; }
         $('#meName').textContent = m.name; $('#meRole').textContent = m.role === 'admin' ? '管理員' : '代練師'; $('#meAv').textContent = initial(m.name);
-        showScreen('App'); startData(); if (!wasIn) route(); else render();
+        showScreen('App'); startData(); applyRole(); if (!wasIn) route(); else render();
       }, err => { console.error(err); $('#pendEmail').textContent = user.email; showScreen('Pending'); });
     });
   },
