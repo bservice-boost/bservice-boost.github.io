@@ -324,6 +324,59 @@ html.pt-leave .pt-curtain svg{transform:scale(1)}
 html.pt-enter .pt-curtain{opacity:1;transition:none}
 html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
 @media (prefers-reduced-motion: reduce){::view-transition-old(root),::view-transition-new(root){animation:none}.pt-curtain{display:none}}
+
+/* ===== 後台美化 ===== */
+body{background:radial-gradient(900px 520px at 85% -10%,rgba(122,168,255,.10),transparent 60%),radial-gradient(800px 520px at 20% 110%,rgba(94,224,199,.08),transparent 60%),var(--bg) fixed}
+body::before,body::after{content:"";position:fixed;width:460px;height:460px;border-radius:50%;filter:blur(90px);opacity:.16;pointer-events:none;z-index:0;animation:aur 24s ease-in-out infinite alternate}
+body::before{background:#5ee0c7;left:18%;top:-180px}
+body::after{background:#7aa8ff;right:-140px;bottom:-160px;animation-delay:-10s}
+@keyframes aur{to{transform:translate(80px,60px) scale(1.15)}}
+.app,.screen{position:relative;z-index:1}
+.screen{position:fixed}
+.side{background:linear-gradient(180deg,rgba(16,22,42,.92),rgba(12,17,32,.92));backdrop-filter:blur(14px)}
+.brand .logo{filter:drop-shadow(0 6px 16px rgba(94,224,199,.35))}
+.brand b{background:linear-gradient(90deg,#fff,#bfeee4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav a{position:relative;overflow:hidden}
+.nav a::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--grad);transform:scaleY(0);transition:transform .25s}
+.nav a.act::before{transform:scaleY(1)}
+.nav a:hover svg{transform:scale(1.12)}
+.nav a svg{transition:transform .2s}
+.nav .badge.hot{animation:badge 1.6s infinite}
+@keyframes badge{50%{box-shadow:0 0 0 5px rgba(255,107,129,.18)}}
+.card,.oc{background-image:radial-gradient(420px circle at var(--mx,-999px) var(--my,-999px),rgba(94,224,199,.07),transparent 45%);transition:border-color .25s,box-shadow .25s,transform .25s}
+.card:hover{border-color:var(--line2)}
+.oc:hover{transform:translateY(-3px);box-shadow:0 16px 36px -24px rgba(0,0,0,.9)}
+.kpi{border-color:var(--line2)}
+.kpi .v{background:linear-gradient(90deg,#fff,#bfeee4 60%,#b9cfff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi::after{opacity:.12;transition:transform .5s}
+.kpi:hover::after{transform:scale(1.25)}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 16px 36px -24px rgba(94,224,199,.6)}
+.oc.running{animation:runGlow 2.6s ease-in-out infinite}
+@keyframes runGlow{50%{box-shadow:0 0 0 1px rgba(94,224,199,.35) inset,0 16px 40px -14px rgba(94,224,199,.6)}}
+.oc-clock .t{text-shadow:0 0 18px rgba(94,224,199,.25)}
+.bar i,.chart .c i{position:relative;overflow:hidden}
+.bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-100%);animation:barSh 2.4s infinite}
+@keyframes barSh{to{transform:translateX(100%)}}
+.chart .c i{transition:height .5s cubic-bezier(.2,.8,.2,1),filter .2s}
+.chart .c:hover i{filter:brightness(1.25)}
+button{position:relative;overflow:hidden}
+button.primary::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:left .55s}
+button.primary:hover::after{left:130%}
+button.primary{box-shadow:0 8px 20px -12px rgba(94,224,199,.8)}
+.top{background:rgba(10,14,26,.72)}
+.top h1{background:linear-gradient(90deg,#fff,#bfeee4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.avatar{box-shadow:0 0 0 2px rgba(94,224,199,.25)}
+.modal{box-shadow:0 30px 80px -30px rgba(0,0,0,.9),0 0 0 1px rgba(94,224,199,.08)}
+.auth{position:relative}
+.auth::before{content:"";position:absolute;inset:-1px;border-radius:22px;padding:1px;background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.45;pointer-events:none}
+.auth .logo{filter:drop-shadow(0 8px 22px rgba(94,224,199,.45));animation:bobL 4s ease-in-out infinite}
+@keyframes bobL{50%{transform:translateY(-5px)}}
+.toast{backdrop-filter:blur(10px);background:rgba(33,43,77,.9)}
+.empty .ico{animation:bobL 3.5s ease-in-out infinite;display:inline-block}
+table.t tr{transition:background .15s}
+table.t tr:hover td{background:rgba(94,224,199,.04)}
+.tag{transition:transform .15s}
+@media (prefers-reduced-motion: reduce){body::before,body::after,.oc.running,.bar i::after,.auth .logo,.empty .ico,.nav .badge.hot{animation:none}}
 </style>
 </head>
 <body>
@@ -2333,6 +2386,7 @@ function beep(n=1){ if(!actx) return; try{ for(let i=0;i<n;i++){ const o=actx.cr
   const t=actx.currentTime+i*.25; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.3,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+.2);
   o.connect(g).connect(actx.destination); o.start(t); o.stop(t+.22);} }catch(e){} }
 document.addEventListener('pointerdown', unlockAudio, { once: true });
+document.addEventListener('pointermove', e => { const el = e.target.closest && e.target.closest('.card,.oc'); if (!el) return; const r = el.getBoundingClientRect(); el.style.setProperty('--mx', (e.clientX - r.left) + 'px'); el.style.setProperty('--my', (e.clientY - r.top) + 'px'); }, { passive: true });
 
 // =====================================================================
 //  登入

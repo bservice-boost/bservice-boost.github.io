@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>付款｜B服代練工作室</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235ee0c7'/%3E%3Cstop offset='1' stop-color='%237aa8ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z' fill='%230b1220'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23f0708f'/%3E%3Cstop offset='1' stop-color='%23ff8a65'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z' fill='%23ffffff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0e1a;--bg2:#0e1324;--panel:#131a2e;--panel2:#1a2240;--panel3:#212b4d;--line:#243056;--line2:#2f3c6b;--text:#e9ecf8;--muted:#8e97c0;--dim:#5f6894;
-  --accent:#5ee0c7;--blue:#7aa8ff;--gold:#ffc861;--danger:#ff6b81;--ok:#4fd18b;--pp:#0070e0;--grad:linear-gradient(135deg,#5ee0c7,#7aa8ff)}
+:root{--bg:#fff6f3;--bg2:#fdecee;--panel:#ffffff;--panel2:#fff1f2;--panel3:#ffe1e6;--line:#f6d3d8;--line2:#eebbc4;--text:#4a2b33;--muted:#94707a;--dim:#b6959d;
+  --accent:#f0708f;--blue:#ff8a65;--gold:#d07f12;--danger:#d9415a;--ok:#2f9e6d;--pp:#0070e0;--grad:linear-gradient(135deg,#f0708f,#ff8a65)}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(800px 420px at 10% 0%,rgba(94,224,199,.13),transparent 60%),radial-gradient(700px 420px at 100% 100%,rgba(122,168,255,.12),transparent 60%),var(--bg);
+body{margin:0;min-height:100vh;background:radial-gradient(800px 420px at 10% 0%,rgba(240,112,143,.13),transparent 60%),radial-gradient(700px 420px at 100% 100%,rgba(255,138,101,.12),transparent 60%),var(--bg);
   color:var(--text);font:15px/1.65 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .mono{font-family:"JetBrains Mono",Consolas,monospace;font-variant-numeric:tabular-nums}
 a{color:var(--accent);text-decoration:none}
@@ -23,9 +23,9 @@ a{color:var(--accent);text-decoration:none}
 .amount{text-align:center;padding:6px 0 4px}
 .amount small{color:var(--muted);font-size:13px}
 .amount b{display:block;font-size:44px;font-weight:700;line-height:1.2;margin:4px 0}
-.amount .desc{color:#c3cbea;font-size:14px}
+.amount .desc{color:#6b4a53;font-size:14px}
 .tag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;padding:3px 11px;border-radius:99px}
-.tag.pending{background:rgba(255,200,97,.14);color:var(--gold)} .tag.reported{background:rgba(122,168,255,.15);color:var(--blue)}
+.tag.pending{background:rgba(255,200,97,.14);color:var(--gold)} .tag.reported{background:rgba(255,138,101,.15);color:var(--blue)}
 .tag.paid{background:rgba(79,209,139,.15);color:var(--ok)} .tag.cancelled{background:rgba(255,107,129,.12);color:var(--danger)}
 .tabs{display:flex;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:4px;margin-bottom:16px}
 .tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;padding:10px;border-radius:10px;cursor:pointer}
@@ -36,21 +36,21 @@ a{color:var(--accent);text-decoration:none}
 .kv b{text-align:right;word-break:break-all}
 button,.btn{font:inherit;font-weight:700;border:1px solid var(--line2);background:var(--panel2);color:var(--text);padding:11px 18px;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.15s}
 button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
-button.primary{background:var(--grad);border-color:transparent;color:#07131a;width:100%;padding:14px}
-button.primary:hover{color:#07131a;filter:brightness(1.07)}
+button.primary{background:var(--grad);border-color:transparent;color:#4a1524;width:100%;padding:14px}
+button.primary:hover{color:#4a1524;filter:brightness(1.07)}
 button:disabled{opacity:.45;cursor:not-allowed}
 .copy{padding:4px 10px;font-size:12.5px;border-radius:8px;margin-left:8px}
 .btn.pp{background:var(--pp);border-color:var(--pp);color:#fff;width:100%;padding:14px}
 .btn.pp:hover{filter:brightness(1.1);color:#fff}
 input,select{font:inherit;width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--text);border-radius:12px;padding:11px 13px;margin-top:6px}
-input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(94,224,199,.15)}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,112,143,.15)}
 label{display:block;font-size:13.5px;color:var(--muted);margin-bottom:12px}
 .hint{font-size:13px;color:var(--muted)}
 .err{color:var(--danger);font-size:13px;min-height:18px;margin-top:2px}
-.note{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13.5px;color:#c3cbea;white-space:pre-wrap}
+.note{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13.5px;color:#6b4a53;white-space:pre-wrap}
 .center{text-align:center}
 .big-ic{font-size:52px;line-height:1}
-.steps{margin:0;padding-left:20px;color:#c3cbea;font-size:14px}
+.steps{margin:0;padding-left:20px;color:#6b4a53;font-size:14px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel3);border:1px solid var(--line2);padding:10px 16px;border-radius:12px;font-size:14px;display:none;z-index:9}
 .toast.show{display:block}
 .spin{width:30px;height:30px;border:3px solid var(--line2);border-top-color:var(--accent);border-radius:50%;animation:r .8s linear infinite;margin:20px auto}
@@ -65,19 +65,26 @@ footer a{color:var(--dim)}
 @keyframes vtOut{to{opacity:0;transform:scale(.985);filter:blur(8px)}}
 @keyframes vtIn{from{opacity:0;transform:scale(1.02);filter:blur(8px)}}
 .pt-curtain{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity .28s ease;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(600px 400px at 50% 45%,rgba(94,224,199,.16),transparent 70%),#0a0e1a}
-.pt-curtain svg{width:58px;height:58px;filter:drop-shadow(0 0 18px rgba(94,224,199,.6));transform:scale(.8);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+  background:radial-gradient(600px 400px at 50% 45%,rgba(240,112,143,.16),transparent 70%),#fff6f3}
+.pt-curtain svg{width:58px;height:58px;filter:drop-shadow(0 0 18px rgba(240,112,143,.6));transform:scale(.8);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
 html.pt-leave .pt-curtain{opacity:1;pointer-events:auto}
 html.pt-leave .pt-curtain svg{transform:scale(1)}
 html.pt-enter .pt-curtain{opacity:1;transition:none}
 html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
 @media (prefers-reduced-motion: reduce){::view-transition-old(root),::view-transition-new(root){animation:none}.pt-curtain{display:none}}
+
+body{background:radial-gradient(800px 420px at 10% 0%,rgba(255,170,190,.35),transparent 60%),radial-gradient(700px 420px at 100% 100%,rgba(255,196,160,.3),transparent 60%),#fff6f3}
+.card{box-shadow:0 14px 34px -24px rgba(214,110,135,.55)}
+button.primary{color:#fff;background:linear-gradient(135deg,#f0607f,#ff8f6b);text-shadow:0 1px 2px rgba(160,40,70,.35)}
+button.primary:hover{color:#fff}
+input,select{background:#fffafa}
+.note{color:#7a5560}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute"><defs>
-  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee0c7"/><stop offset="1" stop-color="#7aa8ff"/></linearGradient>
-  <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="url(#lg)"/><path d="M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z" fill="#0b1220"/></symbol>
+  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0708f"/><stop offset="1" stop-color="#ff8a65"/></linearGradient>
+  <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="url(#lg)"/><path d="M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z" fill="#ffffff"/></symbol>
 </defs></svg>
 <div class="wrap">
   <a class="brand" href="./"><svg><use href="#logo"/></svg>B服代練工作室</a>
@@ -149,7 +156,7 @@ function render(){
     </div>
     <div class="card">
       <h3 style="margin:0 0 4px">② 付款完成後回報</h3>
-      ${reported ? `<div class="note" style="margin:10px 0 14px;border-color:rgba(122,168,255,.4)">✅ 已收到你的回報：${P.report.method === 'bank' ? '銀行轉帳・帳號後五碼' : 'PayPal・交易編號'} <b class="mono">${esc(P.report.ref)}</b><br>工作室對帳後會在 Discord 通知你。如果填錯可以重新送出。</div>` : '<p class="hint" style="margin:0 0 14px">讓我們能快速對帳，回報後工作室會盡快確認。</p>'}
+      ${reported ? `<div class="note" style="margin:10px 0 14px;border-color:rgba(255,138,101,.4)">✅ 已收到你的回報：${P.report.method === 'bank' ? '銀行轉帳・帳號後五碼' : 'PayPal・交易編號'} <b class="mono">${esc(P.report.ref)}</b><br>工作室對帳後會在 Discord 通知你。如果填錯可以重新送出。</div>` : '<p class="hint" style="margin:0 0 14px">讓我們能快速對帳，回報後工作室會盡快確認。</p>'}
       <form id="fRep" novalidate>
         <label>付款方式<select name="method">${bank ? `<option value="bank" ${tab==='bank'?'selected':''}>銀行轉帳</option>` : ''}${pp ? `<option value="paypal" ${tab==='paypal'?'selected':''}>PayPal</option>` : ''}</select></label>
         <label id="refLbl">${tab === 'paypal' ? 'PayPal 交易編號' : '轉出帳號後五碼'}<input name="ref" maxlength="40" autocomplete="off" placeholder="${tab === 'paypal' ? '例：8AB12345CD678901E' : '例：12345'}"></label>
@@ -223,7 +230,7 @@ else {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if ('CSSViewTransitionRule' in window) return;
   const cur = document.createElement('div'); cur.className = 'pt-curtain';
-  cur.innerHTML = '<svg viewBox="0 0 64 64"><defs><linearGradient id="ptg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee0c7"/><stop offset="1" stop-color="#7aa8ff"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#ptg)"/><path d="M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z" fill="#0b1220"/></svg>';
+  cur.innerHTML = '<svg viewBox="0 0 64 64"><defs><linearGradient id="ptg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0708f"/><stop offset="1" stop-color="#ff8a65"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#ptg)"/><path d="M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z" fill="#ffffff"/></svg>';
   document.body.appendChild(cur);
   const H = document.documentElement;
   H.classList.add('pt-enter'); requestAnimationFrame(() => requestAnimationFrame(() => H.classList.add('pt-go')));
