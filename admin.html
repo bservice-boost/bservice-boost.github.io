@@ -372,6 +372,8 @@ html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
       <button class="primary full" id="authBtn">登入</button>
     </form>
     <div style="margin-top:14px;text-align:center"><button class="linkbtn" id="btnForgot" type="button">忘記密碼？</button></div>
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0 4px;color:var(--dim);font-size:12px"><span style="flex:1;height:1px;background:var(--line)"></span>或<span style="flex:1;height:1px;background:var(--line)"></span></div>
+    <button class="full" id="btnGuest" type="button" style="width:100%;justify-content:center">👀 訪客試用（示範資料・只能使用共鳴度辨識）</button>
     <div class="foot-note">新成員註冊後，需由管理員核准才能使用</div>
   </div>
 </div>
@@ -425,6 +427,8 @@ html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
   <div class="scrim" id="scrim"></div>
 
   <div class="main">
+    <div id="guestBar" style="display:none;background:linear-gradient(90deg,rgba(255,200,97,.16),rgba(255,200,97,.05));border-bottom:1px solid rgba(255,200,97,.35);color:#ffe4ad;font-size:13.5px;padding:9px 26px;align-items:center;gap:10px;flex-wrap:wrap">
+      👀 <b>訪客模式</b>：畫面上是示範資料，只能使用「共鳴度辨識」。<span style="flex:1"></span><a href="#scan" class="btn sm" style="text-decoration:none;padding:4px 10px">前往共鳴度辨識</a><button class="sm primary" id="guestExit">登入 / 註冊</button></div>
     <header class="top">
       <button class="ghost sm hamb" id="hamb" aria-label="選單"><svg width="20" height="20"><use href="#i-menu"/></svg></button>
       <div><h1 id="pgTitle">總覽</h1></div>
@@ -812,12 +816,13 @@ function normOrder(o){
   return o;
 }
 const isAdmin = () => me && me.role === 'admin';
+const isGuest = () => !!(me && me.role === 'guest');
 const nameOf = u => (u && members[u.uid] && members[u.uid].name) || (u && u.name) || '';
 const meRef = () => ({ uid: me.uid, name: me.name });
 
 function save(){
   try { const { orders, prices, ...local } = state; localStorage.setItem(KEY, JSON.stringify(local)); } catch(e){}
-  if (!backend || !me) return;
+  if (!backend || !me || isGuest()) return;
   const ids = new Set();
   state.orders.forEach(o => {
     ids.add(o.id); const j = JSON.stringify(o);
@@ -831,7 +836,7 @@ function setSync(ok){
   $('#syncTxt').textContent = ok === 'saving' ? '儲存中…' : ok ? '已同步' : '連線異常';
 }
 function log(type, text, orderId){
-  if (!backend || !me) return;
+  if (!backend || !me || isGuest()) return;
   backend.addLog({ at: now(), uid: me.uid, name: me.name, type, text, orderId: orderId || null }).catch(e => console.warn('log', e));
 }
 
@@ -907,7 +912,7 @@ function restore(id){
   o.deleted = false; o.deletedAt = null; o.deletedBy = null;
   log('restore', `從回收桶復原 ${o.client}`, o.id); save(); render(); toast('已復原「' + o.client + '」', 'ok');
 }
-const bound = () => state.orders.find(o => o.id === state.boundId && !o.done && !o.deleted);
+const bound = () => isGuest() ? null : state.orders.find(o => o.id === state.boundId && !o.done && !o.deleted);
 
 function stats(o){
   const e = elapsed(o), gained = o.curLv - o.startLv0, span = Math.max(1, o.targetLv - o.startLv0);
@@ -1170,7 +1175,7 @@ function boostersNow(){
     .sort((a,b) => a.name.localeCompare(b.name));
 }
 function syncBoosters(){
-  if (!me || !dataReady || pubBoosters === undefined || !Object.keys(members).length) return;
+  if (!me || isGuest() || !dataReady || pubBoosters === undefined || !Object.keys(members).length) return;
   clearTimeout(pubTimer);
   pubTimer = setTimeout(() => {
     const cur = boostersNow();
@@ -1409,6 +1414,8 @@ $('#optLostSec').value = state.opt.lostSec ?? 60; $('#optResume').checked = stat
   $('#winLbl').textContent = state.opt.win; save();
 });
 function renderBindSel(){
+  if (isGuest()){ $('#bindSel').innerHTML = '<option>訪客模式無法連動</option>'; $('#bindSel').disabled = true; return; }
+  $('#bindSel').disabled = false;
   if (state.boundId && !bound()) state.boundId = null;
   $('#bindSel').innerHTML = '<option value="">（不連動）</option>' + live().filter(o => !o.done).map(o =>
     `<option value="${o.id}" ${o.id===state.boundId?'selected':''}>${esc(o.client)}・Lv.${o.curLv}</option>`).join('');
@@ -2344,6 +2351,7 @@ $('#btnForgot').onclick = async () => {
   try { await backend.reset(email); authMsg('已寄出重設密碼信，請到信箱收信', true); } catch(err){ authMsg(errText(err)); }
 };
 function doLogout(){
+  if (isGuest()) return exitGuest();
   const o = state.orders.find(x => x.runningSince && x.runner && me && x.runner.uid === me.uid && !x.deleted);
   if (o) return confirmBox('你還有單在計時中', `「${o.client}」正在計時，登出前要先暫停嗎？`, () => { pauseOrder(o, '登出'); save(); setTimeout(() => backend.logout(), 400); });
   backend.logout();
@@ -2352,6 +2360,7 @@ $('#btnLogout').onclick = doLogout; $('#btnLogout2').onclick = () => backend.log
 
 // 匯入單機版的單
 function checkImport(){
+  if (isGuest()) return;
   let old = [];
   try { const s = JSON.parse(localStorage.getItem('elsword-leveling-timer-v2')) || JSON.parse(localStorage.getItem('elsword-leveling-timer-v1')); old = (s && s.orders) || []; } catch(e){}
   let skip = false; try { skip = localStorage.getItem('team-imported') === '1'; } catch(e){}
@@ -2397,6 +2406,83 @@ function startData(){
   unsubs.push(backend.watchPayCfg(v => { payCfg = v; if (view === 'site') fillPayForm(); }, () => {}));
 
 }
+// =====================================================================
+//  訪客模式：示範資料、只能用共鳴度辨識
+// =====================================================================
+let realBackend = null;
+function makeDemo(){
+  const D = 86400000, H = 3600000, n = now(), M = { d1:{ name:'阿明', publicName:'阿明', email:'demo1@example.com', role:'admin', created:n-90*D, intro:'白天代練' },
+    d2:{ name:'小華', publicName:'小華', email:'demo2@example.com', role:'member', created:n-60*D, intro:'夜班代練・速度快' }, d3:{ name:'阿凱', publicName:'阿凱', email:'demo3@example.com', role:'member', created:n-30*D } };
+  const who = k => ({ uid:k, name:M[k].name }), orders = {};
+  const mk = (id, client, job, k, s0, cur, tgt, daysAgo, opt = {}) => {
+    const lv = [], ses = []; let t = n - daysAgo*D;
+    for (let L = s0; L < cur; L++){ const ms = (18 + Math.random()*14) * 60000; ses.push([t, t + ms, k]); t += ms; lv.push({ from:L, to:L+1, ms, at:t, auto: Math.random() < .7, by: who(k) }); t += Math.random()*H; }
+    const acc = ses.reduce((a,[x,y]) => a + y - x, 0);
+    orders[id] = Object.assign({ id, client, job, startLv0:s0, startLv:s0, curLv:cur, targetLv:tgt, hasTag: opt.hasTag !== false, autoLv:true, created:n-daysAgo*D-H,
+      assignee: who(k), contact: opt.contact || '', acc, sessions: ses, levels: lv, lvMarkAt: acc, runningSince: opt.run ? n - 25*60000 : null, runner: opt.run ? who(k) : null,
+      done: cur >= tgt, doneAt: cur >= tgt ? t : null, deadline: opt.deadline || '', note: opt.note || '', priceTable: DEFAULT_PRICES }, opt.extra || {});
+    orders[id].price = calcPriceWith(DEFAULT_PRICES, s0, tgt, orders[id].hasTag).total;
+  };
+  mk('demo1', '範例客人 A', '艾索德・騎士皇帝', 'd2', 120, 131, 140, 3, { run:true, contact:'demo_user_a', note:'示範資料：希望週末前完成' });
+  mk('demo2', '範例客人 B', '艾莉希雅', 'd1', 90, 112, 130, 6, { deadline: new Date(n + D).toISOString().slice(0,10) });
+  mk('demo3', '範例客人 C', '雷文', 'd3', 150, 157, 175, 2, { hasTag:false });
+  mk('demo4', '範例客人 D', '伊芙', 'd2', 0, 100, 100, 12);
+  mk('demo5', '範例客人 E', '蘿娜', 'd1', 100, 125, 125, 9);
+  orders.demo6 = { id:'demo6', client:'範例客人 F', job:'阿拉', startLv0:200, startLv:200, curLv:200, targetLv:210, hasTag:true, autoLv:true, created:n-2*H, assignee:null,
+    acc:0, sessions:[], levels:[], lvMarkAt:null, runningSince:null, done:false, price: calcPriceWith(DEFAULT_PRICES, 200, 210, true).total, priceTable: DEFAULT_PRICES, note:'示範資料：還沒有人接' };
+  const requests = [
+    { id:'demoR1', discord:'demo_customer_1', charName:'範例角色', job:'艾索德', fromLv:100, toLv:130, hasTag:true, quote:1550, unknown:0, note:'示範委託', status:'new', created:n-20*60000, booster:{ uid:'d3', name:'阿凱', auto:true }, payMethod:'bank' },
+    { id:'demoR2', discord:'demo_customer_2', charName:'範例角色 2', job:'艾莉希雅', fromLv:0, toLv:100, hasTag:false, quote:5000, unknown:0, note:'', status:'contacted', created:n-5*H, by:'阿明', booster:{ uid:'d2', name:'小華', auto:false }, payMethod:'paypal' } ];
+  const payments = [
+    { id:'demoP1demoP1demoP1demo', amount: orders.demo2.price, client:'範例客人 B', desc:'共鳴 Lv.90 → 130（有吊牌）', orderId:'demo2', status:'reported', created:n-6*D, createdBy:'阿明', report:{ method:'bank', ref:'12345', name:'範例', at:n-5*D } },
+    { id:'demoP2demoP2demoP2demo', amount: orders.demo4.price, client:'範例客人 D', desc:'共鳴 Lv.0 → 100（有吊牌）', orderId:'demo4', status:'paid', created:n-12*D, createdBy:'小華', paidAt:n-11*D, paidBy:'阿明' } ];
+  return { M, orders: Object.values(orders), requests, payments };
+}
+function guestBackend(){
+  const demo = makeDemo(), no = () => Promise.resolve();
+  const once = (v, cb) => { setTimeout(() => cb(JSON.parse(JSON.stringify(v))), 30); return () => {}; };
+  return {
+    watchOrders: cb => once(demo.orders, cb), watchMembers: cb => once(demo.M, cb), watchRequests: cb => once(demo.requests, cb), watchPayments: cb => once(demo.payments, cb),
+    watchPrices: cb => once(DEFAULT_PRICES, cb), watchSite: cb => once(null, cb), watchPayCfg: cb => once(null, cb), watchBoosters: cb => once([], cb), watchLogs: cb => once([], cb),
+    putOrder: no, delOrder: no, addLog: no, updateRequest: no, deleteRequest: no, createPayment: no, updatePayment: no, putPrices: no, putSite: no, putPayCfg: no, putBoosters: no,
+    setRole: no, updateMember: no, removeMember: no, logout: async () => exitGuest(),
+  };
+}
+function enterGuest(){
+  realBackend = realBackend || backend;
+  stopData(); backend = guestBackend();
+  me = { uid:'guest', name:'訪客', role:'guest' };
+  $('#meName').textContent = '訪客'; $('#meRole').textContent = '示範資料'; $('#meAv').textContent = '👀';
+  $('#guestBar').style.display = 'flex'; document.body.classList.add('is-guest');
+  showScreen('App'); startData(); applyRole();
+  location.hash = 'scan'; route();
+  toast('已進入訪客模式：示範資料，只能使用共鳴度辨識', 'ok');
+}
+function exitGuest(){
+  stopData(); me = null; if (realBackend) backend = realBackend;
+  $('#guestBar').style.display = 'none'; document.body.classList.remove('is-guest');
+  showScreen('Auth');
+}
+$('#btnGuest').onclick = enterGuest;
+$('#guestExit').onclick = exitGuest;
+// 訪客只能用：切換分頁、篩選／排序／搜尋、說明、查看回報，以及「共鳴度辨識」頁的所有功能
+const GUEST_OK = ['#nav a', '#hamb', '#scrim', '#btnHelp', '[data-help-close]', '#btnLogout', '#guestExit', '#guestBar a', '.seg button', '#sortSel', '#q',
+  '[data-act=menu]', '[data-act=report]', '#copyReport', '[data-close]', '.modal-bg', 'details summary', '#v-scan', '.toast button', '#scanChip', '#logWho', '#logType'];
+function guestBlocked(el){
+  if (!isGuest()) return false;
+  if (el.closest('#bindSel')) return true;
+  if (GUEST_OK.some(sel => el.closest(sel))) return false;
+  return !!el.closest('button, select, input, textarea, a[href^="#"], label, [data-act], [data-r], [data-p], [data-b], [data-buff]');
+}
+['click', 'change', 'input', 'keydown'].forEach(ev => document.addEventListener(ev, e => {
+  if (ev === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target && e.target.closest ? e.target : null; if (!el || !isGuest()) return;
+  if (el.closest('#app') && guestBlocked(el)){
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (ev === 'click') toast('👀 訪客模式只能使用「共鳴度辨識」，其他功能請登入後使用', 'err');
+  }
+}, true));
+
 window.App = {
   attach(b){
     backend = b;
