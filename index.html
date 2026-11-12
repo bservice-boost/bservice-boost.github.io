@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>艾爾之光代練計時器</title>
+<style>
+  :root{--bg:#0f1220;--panel:#171b2e;--panel2:#1e2340;--line:#2b3157;--text:#e8eaf6;--muted:#9097c0;
+    --accent:#5ee0c7;--accent2:#ffb648;--danger:#ff6b81;--blue:#7aa8ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,#1d2450 0%,transparent 60%),var(--bg);
+    color:var(--text);font-family:"Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;min-height:100vh}
+  .wrap{max-width:1240px;margin:0 auto;padding:22px 16px 60px}
+  header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+  h1{margin:0;font-size:25px}
+  h1 small{display:block;font-size:13px;color:var(--muted);font-weight:400;margin-top:4px}
+  .mono{font-family:Consolas,"JetBrains Mono",monospace}
+  button{font:inherit;border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;transition:.15s}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.primary{background:var(--accent);color:#0b1a17;border-color:var(--accent);font-weight:700}
+  button.primary:hover{filter:brightness(1.1);color:#0b1a17}
+  button.warn{background:var(--accent2);border-color:var(--accent2);color:#2a1a00;font-weight:700}
+  button.warn:hover{color:#2a1a00}
+  button.ghost{background:transparent}
+  button.danger:hover{border-color:var(--danger);color:var(--danger)}
+  button.sm{padding:5px 10px;font-size:13px;border-radius:8px}
+  button.on{border-color:var(--blue);color:var(--blue);background:rgba(122,168,255,.12)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+  .stat .k{color:var(--muted);font-size:13px}
+  .stat .v{font-size:23px;font-weight:700;margin-top:4px}
+  .layout{display:grid;grid-template-columns:1fr 340px;gap:18px}
+  @media(max-width:960px){.layout{grid-template-columns:1fr}}
+  .section-title{font-size:15px;color:var(--muted);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+  .orders{display:grid;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+  .card.running{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset,0 0 24px -8px var(--accent)}
+  .card.bound{outline:2px dashed var(--blue);outline-offset:3px}
+  .card.done{opacity:.7}
+  .card-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start}
+  .who{font-size:18px;font-weight:700}
+  .who .job{font-size:13px;color:var(--muted);font-weight:400;margin-left:6px}
+  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--panel2);color:var(--muted);margin-left:6px;vertical-align:middle;font-weight:500}
+  .tag.run{background:rgba(94,224,199,.15);color:var(--accent)}
+  .tag.pause{background:rgba(255,182,72,.15);color:var(--accent2)}
+  .tag.link{background:rgba(122,168,255,.15);color:var(--blue)}
+  .clock{font-size:36px;font-weight:700;margin:10px 0 4px}
+  .lvbar{height:10px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:10px 0 6px}
+  .lvbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:99px;transition:width .4s}
+  .lvtext{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);gap:8px;flex-wrap:wrap}
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin:12px 0}
+  .metric{background:var(--panel2);border-radius:10px;padding:8px 10px}
+  .metric .k{font-size:12px;color:var(--muted)}
+  .metric .v{font-size:15px;font-weight:700;margin-top:2px}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  details{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+  summary{cursor:pointer;color:var(--muted);font-size:13px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:500}
+  .empty{border:1px dashed var(--line);border-radius:16px;padding:36px;text-align:center;color:var(--muted)}
+  .side{display:grid;gap:18px;align-content:start}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}
+  /* 螢幕辨識 */
+  .scan{margin-bottom:18px}
+  .scan-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+  @media(max-width:860px){.scan-grid{grid-template-columns:1fr}}
+  .stage{position:relative;background:#000;border-radius:10px;overflow:hidden;min-height:160px;display:flex;align-items:center;justify-content:center}
+  .stage canvas{display:block;max-width:100%;cursor:crosshair}
+  .stage .ph{color:var(--muted);font-size:14px;text-align:center;padding:24px;line-height:1.8}
+  .scan.collapsed .stage-wrap{display:none}
+  .scan.collapsed .scan-grid{grid-template-columns:1fr}
+  .bigpct{font-size:46px;font-weight:700;color:var(--accent);line-height:1.1}
+  .bigpct.bad{color:var(--danger);font-size:22px}
+  #zoom{width:100%;height:34px;image-rendering:pixelated;background:#000;border-radius:6px;margin:8px 0}
+  #chart{width:100%;height:90px;display:block;background:var(--panel2);border-radius:10px;margin-top:10px}
+  .dbg{font-size:11px;color:var(--muted);margin-top:6px}
+  .warnbox{background:rgba(255,107,129,.12);border:1px solid var(--danger);color:#ffd0d7;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px;display:none}
+  .opts{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:13px;color:var(--muted);margin-top:10px;align-items:center}
+  .opts input[type=number]{width:56px}
+  /* buff / lap */
+  .buff{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px}
+  .buff:last-child{border-bottom:0}
+  .buff .left{font-size:18px;font-weight:700}
+  .buff.ending .left{color:var(--danger)}
+  .buff.over{animation:blink 1s infinite}
+  @keyframes blink{50%{background:rgba(255,107,129,.15)}}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .lap-big{font-size:28px;font-weight:700;margin:6px 0}
+  .laps{max-height:160px;overflow:auto;margin-top:8px;font-size:13px}
+  .laps div{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--line)}
+  /* modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(5,7,15,.7);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;width:100%;max-width:440px}
+  .modal h3{margin:0 0 14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{font-size:13px;color:var(--muted);display:block}
+  label.inline{display:inline-flex;align-items:center;gap:5px}
+  input,textarea,select{background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:7px 10px;font:inherit}
+  .grid2 input,.grid2 textarea,.modal textarea{width:100%;margin-top:4px}
+  input[type=checkbox]{width:auto;margin:0}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+  .full{grid-column:1/-1}
+  .modal .row{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--accent);color:#0b1a17;padding:10px 18px;border-radius:12px;font-weight:700;transition:.3s;z-index:20}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6}
+
+  .screen{position:fixed;inset:0;z-index:30;background:radial-gradient(1000px 500px at 20% -10%,#1d2450,transparent 60%),var(--bg);display:none;align-items:center;justify-content:center;padding:16px}
+  .screen.show{display:flex}
+  .auth{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px;width:100%;max-width:400px}
+  .auth h2{margin:0 0 4px;font-size:22px}
+  .auth .tabs{display:flex;gap:6px;margin:18px 0 14px}
+  .auth .tabs button{flex:1}
+  .auth .tabs button.act{border-color:var(--accent);color:var(--accent)}
+  .auth input,.auth textarea{width:100%;margin:4px 0 10px}
+  .auth .msg{font-size:13px;min-height:18px;margin:4px 0 10px;color:var(--danger)}
+  .auth .msg.ok{color:var(--accent)}
+  .auth .link{color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer;background:none;border:0;padding:0}
+  .me{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+  .me b{color:var(--text)}
+  .role{font-size:11px;padding:2px 7px;border-radius:99px;background:rgba(122,168,255,.15);color:var(--blue)}
+  .tag.who2{background:rgba(255,255,255,.06);color:var(--text)}
+  .sync{font-size:12px;color:var(--accent)}
+  .sync.off{color:var(--danger)}
+  .mrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .mrow .n{flex:1;min-width:0}
+  .mrow .n small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis}
+</style>
+</head>
+<body>
+<div class="screen show" id="scrLoading"><div class="auth" style="text-align:center"><h2>⚔️ 艾爾之光代練計時器</h2><div class="hint">連線中…</div></div></div>
+
+<div class="screen" id="scrAuth">
+  <div class="auth">
+    <h2>⚔️ 代練團隊登入</h2>
+    <div class="hint" style="margin:0">艾爾之光代練計時器・團隊版</div>
+    <div class="tabs"><button id="tabLogin" class="act">登入</button><button id="tabReg">註冊新帳號</button></div>
+    <form id="fAuth">
+      <div id="regName" style="display:none"><label>暱稱（團隊成員看到的名字）<input name="name" maxlength="20" placeholder="例：阿明"></label></div>
+      <label>Email<input name="email" type="email" autocomplete="email" required></label>
+      <label>密碼<input name="pw" type="password" autocomplete="current-password" minlength="6" required placeholder="至少 6 碼"></label>
+      <div class="msg" id="authMsg"></div>
+      <button class="primary" style="width:100%" id="authBtn">登入</button>
+    </form>
+    <div style="margin-top:12px;text-align:center"><button class="link" id="btnForgot">忘記密碼？</button></div>
+  </div>
+</div>
+
+<div class="screen" id="scrPending">
+  <div class="auth" style="text-align:center">
+    <h2>⏳ 等待管理員核准</h2>
+    <p class="hint" style="font-size:14px">你的帳號 <b id="pendEmail" style="color:var(--text)"></b> 已註冊。<br>請管理員到「👥 成員」把你設成成員，核准後這頁會自動進入。</p>
+    <button class="ghost" id="btnLogout2">登出</button>
+  </div>
+</div>
+
+<div class="screen" id="scrSetup">
+  <div class="auth" style="max-width:520px">
+    <h2>🔧 第一次設定：連接 Firebase</h2>
+    <p class="hint" style="font-size:13px">把 Firebase 專案的設定（<code>firebaseConfig</code> 那一段 { … }）貼在下面。<br>這只會存在這台電腦，正式上線前請照教學把它貼進檔案裡，團隊成員才不用每個人貼。</p>
+    <textarea id="cfgText" rows="9" placeholder='{ apiKey: "...", authDomain: "...", projectId: "...", ... }'></textarea>
+    <div class="msg" id="cfgMsg"></div>
+    <button class="primary" style="width:100%" id="cfgSave">儲存並連線</button>
+  </div>
+</div>
+
+<div class="wrap" id="appWrap" style="display:none">
+  <header>
+    <h1>⚔️ 艾爾之光代練計時器<small>多張單管理・共鳴度螢幕辨識自動升等・副本單趟計時・加成倒數</small></h1>
+    <div class="actions">
+      <span class="me"><span class="sync" id="syncState">● 同步中</span>｜<b id="meName"></b><span class="role" id="meRole"></span></span>
+      <button class="ghost sm" id="btnMembers" style="display:none">👥 成員</button>
+      <button class="ghost sm" id="btnLogout">登出</button>
+    </div>
+  </header>
+  <header style="margin-top:-6px">
+    <div></div>
+    <div class="actions">
+      <button class="primary" id="btnNew">＋ 新增代練單</button>
+      <button class="ghost" id="btnPrices">💰 價目表</button>
+      <button class="ghost" id="btnSound">🔔 測試提示音</button>
+    </div>
+  </header>
+
+  <div class="summary">
+    <div class="stat"><div class="k">今日總練功時間</div><div class="v mono" id="sumToday">00:00:00</div></div>
+    <div class="stat"><div class="k">進行中的單</div><div class="v" id="sumActive">0</div></div>
+    <div class="stat"><div class="k">今日升等數</div><div class="v" id="sumLv">0</div></div>
+    <div class="stat"><div class="k">未完成單待賺金額</div><div class="v" id="sumMoney">$0</div></div>
+  </div>
+
+  <!-- 螢幕辨識 -->
+  <div class="box scan" id="scanBox">
+    <div class="section-title">
+      <span>📡 共鳴度螢幕辨識</span>
+      <span class="actions">
+        <button class="primary sm" id="btnShare">① 分享遊戲視窗</button>
+        <button class="sm" id="btnPick" disabled>② 重新框選</button>
+        <button class="sm ghost" id="btnCollapse">收合畫面</button>
+      </span>
+    </div>
+    <div class="warnbox" id="noSupport">這裡不能分享畫面。請把這個檔案下載到電腦，用 <b>Chrome</b> 或 <b>Edge</b> 直接打開。</div>
+    <div class="scan-grid">
+      <div class="stage-wrap">
+        <div class="stage">
+          <div class="ph" id="ph">按「① 分享遊戲視窗」，選<b>艾爾之光的視窗</b>，<br>然後在這裡<b>拖曳框住整條共鳴度條</b>。</div>
+          <canvas id="view" style="display:none"></canvas>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
+          <div><div class="hint" style="margin:0">目前讀到</div><div class="bigpct mono" id="pct">--</div></div>
+          <div style="text-align:right">
+            <div class="hint" style="margin:0">連動的單</div>
+            <select id="bindSel"></select>
+          </div>
+        </div>
+        <canvas id="zoom"></canvas>
+        <div class="metrics" style="margin:6px 0 0">
+          <div class="metric"><div class="k">速度（近 <span id="winLbl">10</span> 分）</div><div class="v mono" id="sRate">--</div></div>
+          <div class="metric"><div class="k">預估滿條</div><div class="v mono" id="sEta">--</div></div>
+          <div class="metric"><div class="k">本段獲得</div><div class="v mono" id="sGain">--</div></div>
+        </div>
+        <canvas id="chart"></canvas>
+        <div class="opts">
+          <label class="inline">速度取樣 <input type="number" id="optWin" min="1" max="120" value="10"> 分</label>
+          <label class="inline"><input type="checkbox" id="optIdle" checked> <input type="number" id="optIdleMin" min="1" max="60" value="3"> 分鐘沒增加就提醒</label>
+          <label class="inline"><input type="checkbox" id="optLost" checked> 讀不到條 1 分鐘自動暫停</label>
+        </div>
+        <div class="dbg mono" id="dbg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <main>
+      <div class="section-title"><span>代練單</span><span class="actions">
+        <select id="filter"><option value="all">全部的單</option><option value="mine">我接的</option><option value="none">還沒人接</option></select>
+        <label class="inline"><input type="checkbox" id="showDone"> 顯示已完成</label></span></div>
+      <div id="importBox" class="box" style="display:none;margin-bottom:12px;font-size:14px"></div>
+      <div class="orders" id="orders"></div>
+    </main>
+
+    <aside class="side">
+      <div class="box">
+        <div class="section-title"><span>⏳ 加成 / 藥水倒數</span></div>
+        <div id="buffs"></div>
+        <div class="presets">
+          <button class="sm" data-buff="經驗藥水|30">經驗藥水 30分</button>
+          <button class="sm" data-buff="經驗加成|60">經驗加成 60分</button>
+          <button class="sm" data-buff="活動 Buff|120">活動 2 小時</button>
+          <button class="sm" id="btnCustomBuff">自訂…</button>
+        </div>
+        <div class="hint">剩 1 分鐘變紅，到時間響提示音、分頁標題閃爍。</div>
+      </div>
+
+      <div class="box">
+        <div class="section-title"><span>🏃 副本單趟計時</span><button class="sm ghost" id="lapClear">清空</button></div>
+        <div class="lap-big mono" id="lapNow">00:00.0</div>
+        <div class="actions">
+          <button class="primary sm" id="lapStart">開始</button>
+          <button class="sm" id="lapMark">完成一趟</button>
+        </div>
+        <div class="metrics" style="margin-bottom:0">
+          <div class="metric"><div class="k">趟數</div><div class="v mono" id="lapCount">0</div></div>
+          <div class="metric"><div class="k">平均</div><div class="v mono" id="lapAvg">--</div></div>
+          <div class="metric"><div class="k">最快</div><div class="v mono" id="lapBest">--</div></div>
+        </div>
+        <div class="laps mono" id="lapList"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- 新增 / 編輯 -->
+<div class="modal-bg" id="mOrder">
+  <div class="modal">
+    <h3 id="mOrderTitle">新增代練單</h3>
+    <form id="fOrder" class="grid2">
+      <label>委託人<input name="client" required placeholder="例：小明"></label>
+      <label>角色 / 職業<input name="job" placeholder="例：艾索德 - 騎士皇帝"></label>
+      <label>起始共鳴等級<input name="startLv" type="number" min="0" max="999" required value="0"></label>
+      <label>目標共鳴等級<input name="targetLv" type="number" min="1" max="999" required value="100"></label>
+      <label>目前等級（中途接單用）<input name="curLv" type="number" min="0" max="999" placeholder="同起始"></label>
+      <label style="display:flex;align-items:flex-end;gap:6px;padding-bottom:8px"><input type="checkbox" name="hasTag" checked> 有吊牌（200% 經驗徽章）</label>
+      <label>價格（元）<input name="price" type="number" min="0" value="0"></label>
+      <div class="full hint" id="priceCalc" style="margin:-4px 0 0;line-height:1.7"></div>
+      <label>截止日<input name="deadline" type="date"></label>
+      <label style="display:flex;align-items:flex-end;gap:6px;padding-bottom:8px"><input type="checkbox" name="autoLv" checked> 共鳴度滿條自動 +1 等</label>
+      <label class="full">備註<textarea name="note" rows="2" placeholder="要練到哪、特殊要求…（帳密不要存這裡）"></textarea></label>
+      <button type="submit" style="display:none"></button>
+    </form>
+    <div class="row">
+      <button class="ghost" data-close>取消</button>
+      <button class="primary" id="saveOrder">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mPrices">
+  <div class="modal" style="max-width:520px">
+    <h3>💰 共鳴代練價目表（每等）</h3>
+    <table id="priceTbl"></table>
+    <div class="hint">區間「100–125」代表從 100 等升到 125 等，每升 1 等的價格。價格留空 = 私訊詳談（新增單時要自己填價格）。</div>
+    <div class="row">
+      <button class="ghost" id="priceAdd" style="margin-right:auto">＋ 新增區間</button>
+      <button class="ghost" id="priceDefault">還原預設</button>
+      <button class="ghost" data-close>取消</button>
+      <button class="primary" id="priceSave">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mMembers">
+  <div class="modal" style="max-width:520px">
+    <h3>👥 團隊成員</h3>
+    <div id="memberList"></div>
+    <div class="hint">新成員自己到登入頁「註冊新帳號」，註冊後會出現在這裡，把身分改成「成員」就能使用。<br>管理員可以核准成員、修改價目表。</div>
+    <div class="row"><button class="ghost" data-close>關閉</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mInput">
+  <div class="modal">
+    <h3 id="iTitle"></h3>
+    <div class="grid2" id="iBody"></div>
+    <div class="row">
+      <button class="ghost" data-close>取消</button>
+      <button class="primary" id="iOk">確定</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mConfirm">
+  <div class="modal">
+    <h3 id="cTitle">確定？</h3>
+    <div class="row">
+      <button class="ghost" data-close>取消</button>
+      <button class="warn" id="cOk">確定</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="mReport">
+  <div class="modal">
+    <h3>給委託人的進度回報</h3>
+    <textarea id="reportText" rows="9"></textarea>
+    <div class="row">
+      <button class="ghost" data-close>關閉</button>
+      <button class="primary" id="copyReport">複製</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<video id="vid" autoplay muted playsinline style="display:none"></video>
+
+<script>
+// =====================================================================
+//  狀態與儲存
+// =====================================================================
+const KEY = 'elsword-leveling-timer-team-v1';   // 只存這台電腦的東西（倒數、單趟、框選位置）
+let state = { orders: [], buffs: [], laps: [], lapStart: null, boundId: null, region: null,
+              opt: { win: 10, idle: true, idleMin: 3, lost: true } };
+try {
+  const s = JSON.parse(localStorage.getItem(KEY));
+  if (s) { delete s.orders; delete s.prices; state = Object.assign(state, s, { opt: Object.assign(state.opt, s.opt || {}) }); }
+} catch(e){}
+state.filter = state.filter || 'all';
+// 團隊資料（從雲端來）
+let backend = null, me = null, members = {};
+const synced = new Map();      // id -> 上次和雲端一致的 JSON
+let syncedPrices = null;
+function normOrder(o){
+  if (o.autoLv === undefined) o.autoLv = true;
+  if (o.startLv0 === undefined) o.startLv0 = o.startLv;
+  o.levels = o.levels || []; o.sessions = o.sessions || []; o.acc = o.acc || 0;
+  return o;
+}
+const DEFAULT_PRICES = [
+  { lo:0,   hi:100,  tag:30,  noTag:50 },
+  { lo:100, hi:125,  tag:50,  noTag:70 },
+  { lo:125, hi:150,  tag:60,  noTag:80 },
+  { lo:150, hi:175,  tag:80,  noTag:100 },
+  { lo:175, hi:200,  tag:100, noTag:120 },
+  { lo:200, hi:225,  tag:140, noTag:180 },
+  { lo:225, hi:null, tag:null, noTag:null },
+];
+state.prices = JSON.parse(JSON.stringify(DEFAULT_PRICES));
+
+// 從 from 等升到 to 等的價格；每 1 等依「起點等級」所在區間計價
+function calcPrice(from, to, hasTag){
+  let total = 0, unknown = 0; const parts = [];
+  for (let lv = Math.floor(from); lv < to; lv++){
+    const t = state.prices.find(p => lv >= p.lo && (p.hi == null || lv < p.hi));
+    const v = t ? (hasTag ? t.tag : t.noTag) : null;
+    if (v == null || v === '') { unknown++; continue; }
+    total += +v;
+    const key = `${t.lo}–${t.hi ?? '以上'}`, last = parts[parts.length-1];
+    if (last && last.key === key) last.n++; else parts.push({ key, n:1, v:+v });
+  }
+  return { total, unknown, parts };
+}
+// 單一等的價格（給「目前這等的 %」算進度用）
+const levelPrice = (lv, hasTag) => calcPrice(lv, lv+1, hasTag).total;
+function save(){
+  // 1. 這台電腦自己的設定
+  try{ const { orders, prices, ...local } = state; localStorage.setItem(KEY, JSON.stringify(local)); }catch(e){}
+  if (!backend || !me) return;
+  // 2. 有改過的單 → 寫到雲端
+  const ids = new Set();
+  state.orders.forEach(o => {
+    ids.add(o.id); const j = JSON.stringify(o);
+    if (synced.get(o.id) !== j){ synced.set(o.id, j); backend.putOrder(o).catch(syncErr); }
+  });
+  [...synced.keys()].forEach(id => { if (!ids.has(id)){ synced.delete(id); backend.delOrder(id).catch(syncErr); } });
+}
+function syncErr(e){ console.error(e); setSync(false); toast('⚠️ 同步失敗：' + (e.code || e.message)); }
+function setSync(ok){ const s = $('#syncState'); s.textContent = ok ? '● 已同步' : '● 連線有問題'; s.classList.toggle('off', !ok); }
+
+const $ = s => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2,9);
+const now = () => Date.now();
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function fmt(ms){ ms=Math.max(0,ms); const t=Math.floor(ms/1000), p=n=>String(n).padStart(2,'0');
+  return `${p(Math.floor(t/3600))}:${p(Math.floor(t%3600/60))}:${p(t%60)}`; }
+function fmtShort(ms){ if (!isFinite(ms) || ms<=0) return '--'; const m=Math.round(ms/60000);
+  return m<60 ? m+' 分' : Math.floor(m/60)+' 時 '+(m%60)+' 分'; }
+function fmtLap(ms){ const t=ms/1000; return `${String(Math.floor(t/60)).padStart(2,'0')}:${(t%60).toFixed(1).padStart(4,'0')}`; }
+const money = n => '$' + Math.round(n||0).toLocaleString();
+
+// =====================================================================
+//  代練單計時
+// =====================================================================
+const elapsed = o => o.acc + (o.runningSince ? now() - o.runningSince : 0);
+function todayMs(o){
+  const d = new Date(); d.setHours(0,0,0,0); const t0 = d.getTime(); let sum = 0;
+  (o.sessions||[]).forEach(([a,b]) => { const s=Math.max(a,t0); if (b>s) sum += b-s; });
+  if (o.runningSince) sum += now() - Math.max(o.runningSince, t0);
+  return sum;
+}
+function startOrder(o){
+  if (o.runningSince || o.done) return;
+  o.runningSince = now();
+  if (me) o.runner = { uid: me.uid, name: me.name };
+  if (!o.assignee && me) o.assignee = { uid: me.uid, name: me.name };
+  if (o.lvMarkAt == null) o.lvMarkAt = elapsed(o);
+  scan.idleSince = now();
+}
+function pauseOrder(o){
+  if (!o.runningSince) return;
+  const t = now(); (o.sessions = o.sessions || []).push([o.runningSince, t]);
+  o.acc += t - o.runningSince; o.runningSince = null;
+}
+function levelUp(o, n=1, auto=false){
+  const e = elapsed(o), last = o.lvMarkAt ?? 0;
+  o.levels.push({ from:o.curLv, to:o.curLv+n, ms:e-last, at:now(), auto });
+  o.curLv += n; o.lvMarkAt = e;
+  if (o.curLv >= o.targetLv){ pauseOrder(o); o.done = true; toast(`🎉 ${o.client} 練到 Lv.${o.curLv}，完成！`); beep(4); }
+  else toast(`${auto?'📡 自動升等：':''}${o.client} 升到 Lv.${o.curLv}（這等 ${fmtShort(e-last)}）`);
+}
+function undoLevel(o){
+  const l = o.levels.pop(); if (!l) return;
+  o.curLv = l.from; o.done = false; o.lvMarkAt = (o.lvMarkAt ?? 0) - l.ms;
+}
+const bound = () => state.orders.find(o => o.id === state.boundId && !o.done);
+
+function stats(o){
+  const e = elapsed(o), gained = o.curLv - o.startLv0, span = Math.max(1, o.targetLv - o.startLv0);
+  const lvDone = o.curLv - o.startLv;   // 本計時器內升的等
+  const avg = lvDone > 0 ? (o.lvMarkAt ?? e) / lvDone : NaN;
+  const left = o.targetLv - o.curLv, thisLv = e - (o.lvMarkAt ?? 0);
+  const isB = o.id === state.boundId && scan.pct != null;
+  const frac = isB ? scan.pct/100 : 0;
+  let eta = NaN, etaSrc = '';
+  if (isB && scan.rate > 0.01){ eta = (left*100 - scan.pct) / scan.rate * 3600000; etaSrc = '依共鳴度速度'; }
+  else if (isFinite(avg)){ eta = Math.max(0, avg*left - thisLv); etaSrc = '依平均每等'; }
+  const pct = Math.min(100, Math.max(0, (gained + frac) / span * 100));
+  const hasTag = o.hasTag !== false;
+  // 已賺：依價目表算已升的等 + 目前這等的 %（價格是手填、跟價目表不同時，改用總價按比例）
+  const full = calcPrice(o.startLv0, o.targetLv, hasTag);
+  const useTable = full.unknown === 0 && full.total > 0 && Math.abs(full.total - (o.price||0)) < 1;
+  const priceOf = (a,b) => useTable ? calcPrice(a,b,hasTag).total : (o.price||0) * (b-a) / span;
+  const fracMoney = o.done ? 0 : frac * (useTable ? levelPrice(o.curLv, hasTag) : (o.price||0)/span);
+  const earned = Math.min(o.price||0, priceOf(o.startLv0, o.curLv) + fracMoney);
+  const earnedHere = priceOf(o.startLv, o.curLv) + fracMoney;   // 這個計時器裡練出來的
+  const rate = e > 60000 && o.price ? earnedHere / (e/3600000) : NaN;
+  return { e, avg, eta, etaSrc, thisLv, rate, pct, left, gained, isB, earned };
+}
+
+// =====================================================================
+//  畫面
+// =====================================================================
+function render(){
+  const showDone = $('#showDone').checked;
+  const f = state.filter;
+  const list = state.orders.filter(o => (showDone || !o.done) &&
+    (f === 'all' || (f === 'mine' && o.assignee && me && o.assignee.uid === me.uid) || (f === 'none' && !o.assignee)));
+  $('#orders').innerHTML = list.length ? list.map(cardHTML).join('')
+    : `<div class="empty">還沒有代練單<br><br><button class="primary" onclick="openOrder()">＋ 新增第一張單</button></div>`;
+  renderBindSel(); tick();
+}
+function renderBindSel(){
+  const sel = $('#bindSel');
+  const opts = state.orders.filter(o => !o.done);
+  if (state.boundId && !bound()) state.boundId = null;
+  sel.innerHTML = `<option value="">（不連動）</option>` + opts.map(o =>
+    `<option value="${o.id}" ${o.id===state.boundId?'selected':''}>${esc(o.client)}｜Lv.${o.curLv}</option>`).join('');
+}
+function cardHTML(o){
+  const isB = o.id === state.boundId;
+  const runnerName = o.runner && me && o.runner.uid !== me.uid ? `（${esc(o.runner.name)}）` : '';
+  const status = o.done ? '<span class="tag">已完成</span>' : o.runningSince ? `<span class="tag run">● 練功中${runnerName}</span>` : '<span class="tag pause">暫停</span>';
+  const mine = o.assignee && me && o.assignee.uid === me.uid;
+  const who = o.assignee ? `<span class="tag who2">👤 ${mine ? '我接的' : esc(o.assignee.name)}</span>` : '<span class="tag" style="color:var(--accent2)">還沒人接</span>';
+  const rows = o.levels.slice().reverse().map(l =>
+    `<tr><td>Lv.${l.from} → ${l.to}${l.auto?' 📡':''}</td><td class="mono">${fmtShort(l.ms)}</td><td>${new Date(l.at).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</td></tr>`).join('');
+  return `
+  <div class="card ${o.runningSince?'running':''} ${o.done?'done':''} ${isB?'bound':''}" data-id="${o.id}">
+    <div class="card-top">
+      <div>
+        <div class="who">${esc(o.client)}<span class="job">${esc(o.job||'')}</span>${status}${who}${isB?'<span class="tag link">📡 連動中</span>':''}</div>
+        ${o.deadline?`<div class="hint" style="margin-top:4px">截止：${o.deadline}${deadlineLeft(o.deadline)}</div>`:''}
+      </div>
+      <div class="actions">
+        ${o.done||mine?'':`<button class="sm" data-act="take">${o.assignee?'改由我接':'✋ 接這張單'}</button>`}
+        ${o.done?'':`<button class="sm ${isB?'on':''}" data-act="bind">${isB?'📡 取消連動':'📡 連動辨識'}</button>`}
+        <button class="sm ghost" data-act="report">回報</button>
+        <button class="sm ghost" data-act="edit">編輯</button>
+        <button class="sm ghost danger" data-act="del">刪除</button>
+      </div>
+    </div>
+    <div class="clock mono" data-f="clock">00:00:00</div>
+    <div class="lvbar"><i data-f="bar"></i></div>
+    <div class="lvtext"><span>Lv.${o.startLv0} 起</span><span data-f="lvnow"></span></div>
+    <div class="metrics">
+      <div class="metric"><div class="k">本等已花</div><div class="v mono" data-f="thisLv">--</div></div>
+      <div class="metric"><div class="k">平均每等</div><div class="v mono" data-f="avg">--</div></div>
+      <div class="metric"><div class="k" data-f="etaK">預估剩餘</div><div class="v mono" data-f="eta">--</div></div>
+      <div class="metric"><div class="k">換算時薪</div><div class="v mono" data-f="rate">--</div></div>
+      <div class="metric"><div class="k">已賺 / 總價${o.hasTag===false?'（無吊牌）':'（有吊牌）'}</div><div class="v mono" data-f="earn">--</div></div>
+    </div>
+    <div class="actions">
+      ${o.done ? '' : o.runningSince ? `<button class="warn" data-act="pause">⏸ 暫停</button>` : `<button class="primary" data-act="start">▶ 開始</button>`}
+      ${o.done ? '' : `<button data-act="lv1">⬆ 升 1 等</button><button data-act="lvN">升多等…</button>`}
+      <button class="ghost" data-act="undo" ${o.levels.length?'':'disabled'}>↶ 撤銷升等</button>
+      ${o.done?'':`<span class="hint" style="margin:0">${o.autoLv?'滿條自動升等：開':'滿條自動升等：關'}</span>`}
+    </div>
+    ${o.note?`<div class="hint">📝 ${esc(o.note)}</div>`:''}
+    ${o.levels.length?`<details><summary>升等紀錄（${o.levels.length} 筆，📡 = 自動辨識）</summary><table><tr><th>等級</th><th>花費</th><th>時間</th></tr>${rows}</table></details>`:''}
+  </div>`;
+}
+function deadlineLeft(d){
+  const diff = new Date(d+'T23:59:59').getTime() - now();
+  if (diff < 0) return ' <span style="color:var(--danger)">（已過期）</span>';
+  const days = Math.floor(diff/86400000);
+  return days < 1 ? ' <span style="color:var(--danger)">（今天！）</span>' : `（剩 ${days} 天）`;
+}
+
+function visibleOrders(){
+  const f = state.filter;
+  return state.orders.filter(o => f === 'all' || (f === 'mine' && o.assignee && me && o.assignee.uid === me.uid) || (f === 'none' && !o.assignee));
+}
+function tick(){
+  let today=0, active=0, lvToday=0, pending=0;
+  const d = new Date(); d.setHours(0,0,0,0); const t0 = d.getTime();
+  visibleOrders().forEach(o => {
+    today += todayMs(o); if (o.runningSince) active++;
+    lvToday += o.levels.filter(l => l.at >= t0).reduce((a,l)=>a+(l.to-l.from),0);
+    if (!o.done) pending += (+o.price||0) - stats(o).earned;
+    const card = document.querySelector(`.card[data-id="${o.id}"]`); if (!card) return;
+    const s = stats(o), q = f => card.querySelector(`[data-f=${f}]`);
+    q('clock').textContent = fmt(s.e);
+    q('bar').style.width = s.pct + '%';
+    q('lvnow').innerHTML = `<b style="color:var(--text)">目前 Lv.${o.curLv}${s.isB?` ＋ ${scan.pct.toFixed(1)}%`:''}</b> / 目標 Lv.${o.targetLv}`;
+    q('thisLv').textContent = o.done ? '--' : (fmtShort(s.thisLv) === '--' ? '0 分' : fmtShort(s.thisLv));
+    q('avg').textContent = fmtShort(s.avg);
+    q('etaK').textContent = s.etaSrc ? `預估剩餘（${s.etaSrc}）` : '預估剩餘';
+    q('eta').textContent = o.done ? '完成' : fmtShort(s.eta);
+    q('rate').textContent = isFinite(s.rate) ? money(s.rate)+'/時' : '--';
+    q('earn').textContent = o.price ? `${money(s.earned)} / ${money(o.price)}` : '未填價格';
+  });
+  $('#sumToday').textContent = fmt(today); $('#sumActive').textContent = active;
+  $('#sumLv').textContent = lvToday; $('#sumMoney').textContent = money(pending);
+  tickBuffs(); tickLap();
+}
+
+// 卡片按鈕
+$('#orders').addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]'); if (!btn) return;
+  const o = state.orders.find(x => x.id === btn.closest('.card').dataset.id); if (!o) return;
+  const act = btn.dataset.act; unlockAudio();
+  if (act==='take') { o.assignee = { uid: me.uid, name: me.name }; toast('已接下 ' + o.client); }
+  if (act==='start') startOrder(o);
+  if (act==='pause') pauseOrder(o);
+  if (act==='lv1') levelUp(o,1);
+  if (act==='undo') undoLevel(o);
+  if (act==='bind') { setBound(state.boundId === o.id ? null : o.id); return; }
+  if (act==='lvN') { askNumber(`${o.client} 升了幾等？`, 2, n => { levelUp(o,n); save(); render(); }); return; }
+  if (act==='edit') { openOrder(o); return; }
+  if (act==='report') { openReport(o); return; }
+  if (act==='del') { confirmBox(`刪除「${o.client}」這張單？`, () => {
+      state.orders = state.orders.filter(x=>x!==o); if (state.boundId===o.id) state.boundId=null; save(); render(); }); return; }
+  save(); render();
+});
+function setBound(id){
+  state.boundId = id || null; resetScanSegment(); save(); render();
+  if (id) toast(scan.region ? '已連動，共鳴度滿條會自動升等' : '已連動，記得分享遊戲視窗並框選共鳴度條');
+}
+$('#bindSel').onchange = e => setBound(e.target.value);
+
+// 新增 / 編輯
+let editing = null;
+let priceManual = false;
+function openOrder(o){
+  editing = o || null; const f = $('#fOrder'); f.reset();
+  $('#mOrderTitle').textContent = o ? '編輯代練單' : '新增代練單';
+  priceManual = false;
+  if (o){ f.client.value=o.client; f.job.value=o.job||''; f.startLv.value=o.startLv0; f.targetLv.value=o.targetLv;
+    f.curLv.value=o.curLv; f.price.value=o.price||0; f.deadline.value=o.deadline||''; f.note.value=o.note||''; f.autoLv.checked=o.autoLv!==false;
+    f.hasTag.checked = o.hasTag !== false;
+    const c = calcPrice(o.startLv0, o.targetLv, f.hasTag.checked);
+    priceManual = !(c.unknown === 0 && c.total === o.price); }
+  updatePriceCalc(!o);
+  show('#mOrder'); setTimeout(()=>f.client.focus(),50);
+}
+function updatePriceCalc(fill = true){
+  const f = $('#fOrder'), a = +f.startLv.value, b = +f.targetLv.value, tag = f.hasTag.checked;
+  const box = $('#priceCalc');
+  if (!(b > a)){ box.textContent = ''; return; }
+  const c = calcPrice(a, b, tag);
+  if (fill && !priceManual) f.price.value = c.total;
+  let html = c.parts.map(p => `${p.key}：${p.n} 等 × $${p.v} = $${(p.n*p.v).toLocaleString()}`).join('<br>');
+  html += `<br><b style="color:var(--text)">價目表計算：$${c.total.toLocaleString()}</b>（${tag?'有吊牌':'無吊牌'}）`;
+  if (c.unknown) html += `<br><span style="color:var(--accent2)">⚠️ 有 ${c.unknown} 等屬於「私訊詳談」區間，沒有算進去，請自己填總價。</span>`;
+  if (priceManual) html += ` <a href="#" id="priceReset" style="color:var(--accent)">改回價目表價格</a>`;
+  box.innerHTML = html;
+  const r = $('#priceReset'); if (r) r.onclick = e => { e.preventDefault(); priceManual = false; updatePriceCalc(); };
+}
+['startLv','targetLv','hasTag'].forEach(n => $('#fOrder')[n].addEventListener('input', () => updatePriceCalc()));
+$('#fOrder').price.addEventListener('input', () => { priceManual = true; updatePriceCalc(false); });
+window.openOrder = openOrder;
+$('#btnNew').onclick = () => openOrder();
+$('#fOrder').addEventListener('submit', e => { e.preventDefault(); $('#saveOrder').click(); });
+$('#saveOrder').onclick = () => {
+  const f = $('#fOrder');
+  const v = { client:f.client.value.trim(), job:f.job.value.trim(), startLv0:+f.startLv.value, targetLv:+f.targetLv.value,
+    price:+f.price.value||0, deadline:f.deadline.value, note:f.note.value.trim(), autoLv:f.autoLv.checked, hasTag:f.hasTag.checked };
+  const cur = f.curLv.value === '' ? null : +f.curLv.value;
+  if (!v.client){ f.client.focus(); return; }
+  if (v.targetLv <= v.startLv0){ toast('目標等級要比起始等級高'); return; }
+  if (editing){
+    Object.assign(editing, v);
+    if (cur != null && cur !== editing.curLv){ editing.curLv = cur; editing.startLv = cur - (editing.levels.length ? editing.levels.reduce((a,l)=>a+l.to-l.from,0) : 0); }
+    if (!editing.levels.length && cur == null){ editing.curLv = v.startLv0; editing.startLv = v.startLv0; }
+    editing.done = editing.curLv >= editing.targetLv;
+  } else {
+    const c = cur ?? v.startLv0;
+    state.orders.unshift({ id:uid(), ...v, assignee: me ? { uid:me.uid, name:me.name } : null, createdBy: me ? me.name : '', startLv:c, curLv:c, acc:0, runningSince:null, sessions:[], levels:[], lvMarkAt:null, done:false, created:now() });
+  }
+  save(); hide('#mOrder'); render();
+};
+
+
+// 價目表
+function renderPriceTbl(list){
+  $('#priceTbl').innerHTML = `<tr><th>從</th><th>到</th><th>有吊牌</th><th>無吊牌</th><th></th></tr>` + list.map((p,i) => `
+    <tr data-i="${i}">
+      <td><input type="number" data-k="lo" value="${p.lo}" style="width:64px"></td>
+      <td><input type="number" data-k="hi" value="${p.hi ?? ''}" placeholder="以上" style="width:64px"></td>
+      <td><input type="number" data-k="tag" value="${p.tag ?? ''}" placeholder="私訊" style="width:76px"></td>
+      <td><input type="number" data-k="noTag" value="${p.noTag ?? ''}" placeholder="私訊" style="width:76px"></td>
+      <td><button class="sm ghost danger" data-del="${i}">✕</button></td></tr>`).join('');
+}
+function readPriceTbl(){
+  return [...document.querySelectorAll('#priceTbl tr[data-i]')].map(tr => {
+    const g = k => { const v = tr.querySelector(`[data-k=${k}]`).value; return v === '' ? null : +v; };
+    return { lo:g('lo') ?? 0, hi:g('hi'), tag:g('tag'), noTag:g('noTag') };
+  }).sort((a,b) => a.lo - b.lo);
+}
+$('#btnPrices').onclick = () => {
+  renderPriceTbl(state.prices);
+  const adm = me && me.role === 'admin';
+  ['#priceSave','#priceAdd','#priceDefault'].forEach(s => $(s).style.display = adm ? '' : 'none');
+  document.querySelectorAll('#priceTbl input').forEach(i => i.disabled = !adm);
+  show('#mPrices');
+};
+$('#priceTbl').addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (!d) return;
+  const l = readPriceTbl(); l.splice(+d.dataset.del, 1); renderPriceTbl(l); });
+$('#priceAdd').onclick = () => { const l = readPriceTbl(); const last = l[l.length-1];
+  l.push({ lo: last ? (last.hi ?? last.lo + 25) : 0, hi:null, tag:null, noTag:null }); renderPriceTbl(l); };
+$('#priceDefault').onclick = () => renderPriceTbl(DEFAULT_PRICES);
+$('#priceSave').onclick = () => {
+  state.prices = readPriceTbl(); hide('#mPrices'); render();
+  backend.putPrices(state.prices).then(() => toast('價目表已更新，全團隊同步（已建立的單不會改價）')).catch(syncErr);
+};
+
+// 回報
+function openReport(o){
+  const s = stats(o);
+  $('#reportText').value =
+`【代練進度回報】${o.client}${o.job?'｜'+o.job:''}
+目前等級：Lv.${o.curLv}${s.isB?`（共鳴度 ${scan.pct.toFixed(1)}%）`:''}　目標 Lv.${o.targetLv}
+總進度：${s.pct.toFixed(1)}%
+累計練功時間：${fmt(s.e)}
+${s.isB && scan.rate>0 ? `目前速度：每小時約 ${scan.rate.toFixed(1)}%\n` : ''}${o.done ? '✅ 已完成！' : '預估還需要：' + fmtShort(s.eta)}
+${new Date().toLocaleString('zh-TW')}`;
+  show('#mReport');
+}
+$('#copyReport').onclick = async () => {
+  try { await navigator.clipboard.writeText($('#reportText').value); toast('已複製'); }
+  catch(e){ $('#reportText').select(); toast('請按 Ctrl+C 複製'); }
+};
+
+// =====================================================================
+//  螢幕辨識
+// =====================================================================
+const vid = $('#vid'), view = $('#view'), vctx = view.getContext('2d');
+const work = document.createElement('canvas'), wctx = work.getContext('2d', { willReadFrequently: true });
+const zoom = $('#zoom'), zctx = zoom.getContext('2d');
+const scan = { region: state.region, pct: null, last: null, rate: 0, hist: [], segStart: null,
+               idleSince: now(), idleWarned: false, lostSince: null, latest: null };
+let drag = null;
+
+if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) $('#noSupport').style.display = 'block';
+$('#optWin').value = state.opt.win; $('#winLbl').textContent = state.opt.win;
+$('#optIdle').checked = state.opt.idle; $('#optIdleMin').value = state.opt.idleMin; $('#optLost').checked = state.opt.lost;
+['optWin','optIdle','optIdleMin','optLost'].forEach(id => $('#'+id).onchange = () => {
+  state.opt = { win:+$('#optWin').value||10, idle:$('#optIdle').checked, idleMin:+$('#optIdleMin').value||3, lost:$('#optLost').checked };
+  $('#winLbl').textContent = state.opt.win; save();
+});
+
+$('#btnShare').onclick = async () => {
+  unlockAudio();
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 5 }, audio: false });
+    vid.srcObject = stream; await vid.play();
+    stream.getVideoTracks()[0].addEventListener('ended', () => { toast('畫面分享已停止'); $('#ph').style.display=''; view.style.display='none'; scan.pct=null; $('#pct').textContent='--'; });
+    $('#ph').style.display = 'none'; view.style.display = 'block'; $('#btnPick').disabled = false;
+    if (scan.region && (scan.region.x + scan.region.w > vid.videoWidth || scan.region.y + scan.region.h > vid.videoHeight)) scan.region = null;
+    toast(scan.region ? '已套用上次的框選位置' : '請在畫面上拖曳框住共鳴度條');
+  } catch (e) {
+    const w = $('#noSupport'); w.style.display = 'block';
+    w.innerHTML = '沒有成功分享畫面（' + e.name + '）。如果是在 Claude 裡預覽，請下載檔案後用 Chrome / Edge 打開。';
+  }
+};
+$('#btnPick').onclick = () => { scan.region = null; state.region = null; save(); toast('請重新拖曳框選'); setCollapsed(false); };
+function setCollapsed(c){ $('#scanBox').classList.toggle('collapsed', c); $('#btnCollapse').textContent = c ? '展開畫面' : '收合畫面'; }
+$('#btnCollapse').onclick = () => setCollapsed(!$('#scanBox').classList.contains('collapsed'));
+
+const vscale = () => vid.videoWidth / view.width;
+function evPos(e){ const r = view.getBoundingClientRect(); return { x:(e.clientX-r.left)*view.width/r.width, y:(e.clientY-r.top)*view.height/r.height }; }
+view.addEventListener('mousedown', e => { const p = evPos(e); drag = { x0:p.x, y0:p.y, x1:p.x, y1:p.y }; });
+window.addEventListener('mousemove', e => { if (drag){ const p = evPos(e); drag.x1 = p.x; drag.y1 = p.y; } });
+window.addEventListener('mouseup', () => {
+  if (!drag) return; const k = vscale();
+  const x = Math.min(drag.x0,drag.x1)*k, y = Math.min(drag.y0,drag.y1)*k, w = Math.abs(drag.x1-drag.x0)*k, h = Math.abs(drag.y1-drag.y0)*k;
+  drag = null;
+  if (w > 20 && h > 2){
+    const r = { x:Math.max(0,Math.round(x)), y:Math.max(0,Math.round(y-4)), w:Math.round(w), h:Math.round(h+8) };
+    r.w = Math.min(r.w, vid.videoWidth-r.x); r.h = Math.min(r.h, vid.videoHeight-r.y);
+    scan.region = state.region = r; save(); resetScanSegment(); toast('框選完成，確認讀到的數字');
+  }
+});
+function drawView(){
+  if (!vid.videoWidth || $('#scanBox').classList.contains('collapsed')) return;
+  const W = Math.min(vid.videoWidth, 1000);
+  if (view.width !== W){ view.width = W; view.height = Math.round(vid.videoHeight * W / vid.videoWidth); }
+  vctx.drawImage(vid, 0, 0, view.width, view.height);
+  const k = vscale(); vctx.lineWidth = 2;
+  if (scan.region){ vctx.strokeStyle = '#5ee0c7'; vctx.strokeRect(scan.region.x/k, scan.region.y/k, scan.region.w/k, scan.region.h/k); }
+  if (drag){ vctx.strokeStyle = '#ffb648'; vctx.strokeRect(drag.x0, drag.y0, drag.x1-drag.x0, drag.y1-drag.y0); }
+}
+
+function readBar(data, w, h){
+  const isFill = i => { const r=data[i], g=data[i+1], b=data[i+2]; return b>140 && g>110 && r<130 && b-r>80; };
+  let bestY=-1, bestN=0;
+  for (let y=0; y<h; y++){ let n=0; for (let x=0; x<w; x++) if (isFill((y*w+x)*4)) n++; if (n>bestN){ bestN=n; bestY=y; } }
+  const y = bestY < 0 ? (h>>1) : bestY;
+  let segs=[], s=-1;
+  for (let x=0; x<=w; x++){
+    let on=false; if (x<w){ const i=(y*w+x)*4; on = Math.max(data[i],data[i+1],data[i+2]) > 18; }
+    if (on && s<0) s=x; if (!on && s>=0){ segs.push([s,x-1]); s=-1; }
+  }
+  if (!segs.length) return { pct:null, dbg:'找不到條' };
+  const [x0,x1] = segs.reduce((a,b) => (b[1]-b[0] > a[1]-a[0] ? b : a));
+  if (x1-x0 < 20) return { pct:null, dbg:'找不到條，請重新框選' };
+  let end=-1; for (let x=x0; x<=x1; x++) if (isFill((y*w+x)*4)) end=x;
+  const pct = end<0 ? 0 : Math.min(100,(end-x0+1)/(x1-x0+1)*100);
+  return { pct:Math.round(pct*10)/10, dbg:`row=${y} 條=${x0}-${x1} 填滿到=${end}`, x0, x1, end };
+}
+
+function resetScanSegment(){ scan.hist = []; scan.segStart = null; scan.rate = 0; scan.idleSince = now(); scan.idleWarned = false; drawChart(); }
+
+function scanStep(){
+  const r0 = scan.region;
+  if (!vid.videoWidth || !r0){ $('#dbg').textContent = vid.videoWidth ? '請在畫面上框選共鳴度條' : '尚未分享畫面'; return; }
+  work.width = r0.w; work.height = r0.h;
+  wctx.drawImage(vid, r0.x, r0.y, r0.w, r0.h, 0, 0, r0.w, r0.h);
+  const img = wctx.getImageData(0, 0, r0.w, r0.h);
+  const r = readBar(img.data, r0.w, r0.h);
+  zoom.width = r0.w; zoom.height = r0.h; zctx.putImageData(img, 0, 0);
+  if (r.pct != null){
+    zctx.fillStyle='rgba(255,182,72,.9)'; zctx.fillRect(r.x0,0,1,r0.h); zctx.fillRect(r.x1,0,1,r0.h);
+    if (r.end>=0){ zctx.fillStyle='#ff6b81'; zctx.fillRect(r.end,0,1,r0.h); }
+  }
+  $('#dbg').textContent = r.dbg;
+  const o = bound();
+
+  if (r.pct == null){
+    scan.pct = null; $('#pct').textContent = '讀不到'; $('#pct').classList.add('bad');
+    if (!scan.lostSince) scan.lostSince = now();
+    if (state.opt.lost && o && o.runningSince && now() - scan.lostSince > 60000){
+      pauseOrder(o); save(); render(); beep(2); toast(`讀不到共鳴度條超過 1 分鐘，已暫停 ${o.client}`);
+    }
+    return;
+  }
+  scan.lostSince = null;
+  $('#pct').classList.remove('bad'); $('#pct').textContent = r.pct.toFixed(1) + '%';
+
+  // 滿條偵測
+  let rolled = false;
+  if (scan.last != null && scan.last - r.pct > 40){
+    rolled = true; beep(3);
+    if (o && o.runningSince && o.autoLv){ levelUp(o, 1, true); save(); render(); }
+    else toast('🎉 共鳴度滿條！');
+  }
+  if (scan.last == null || r.pct > scan.last + 0.05 || rolled){ scan.idleSince = now(); scan.idleWarned = false; }
+  scan.last = r.pct; scan.pct = r.pct;
+
+  // 未增加提醒
+  if (state.opt.idle && o && o.runningSince && !scan.idleWarned && now() - scan.idleSince > state.opt.idleMin*60000){
+    scan.idleWarned = true; beep(2); toast(`⚠️ ${state.opt.idleMin} 分鐘共鳴度沒增加，角色還在打嗎？`);
+  }
+
+  // 速度只在連動的單計時中才累積
+  if (!o || !o.runningSince){ $('#sRate').textContent = o ? '（單子暫停中）' : '（未連動）'; $('#sEta').textContent='--'; $('#sGain').textContent='--'; return; }
+  const t = now();
+  const prevTotal = scan.hist.length ? scan.hist[scan.hist.length-1][1] : null;
+  let total = (prevTotal == null) ? r.pct : Math.floor(prevTotal/100)*100 + r.pct;
+  if (rolled) total += 100;
+  if (scan.segStart == null) scan.segStart = total;
+  scan.hist.push([t, total]);
+  if (scan.hist.length > 20000) scan.hist.splice(0, 5000);
+  const win = state.opt.win*60000, rec = scan.hist.filter(h => t - h[0] <= win);
+  if (rec.length >= 2 && rec[rec.length-1][0] - rec[0][0] >= 30000){
+    const n=rec.length, t0=rec[0][0]; let sx=0,sy=0,sxx=0,sxy=0;
+    rec.forEach(([a,b]) => { const x=(a-t0)/3600000; sx+=x; sy+=b; sxx+=x*x; sxy+=x*b; });
+    scan.rate = (n*sxy - sx*sy) / (n*sxx - sx*sx || 1);
+    $('#sRate').textContent = scan.rate.toFixed(1) + '%/時';
+    $('#sEta').textContent = scan.rate > 0.01 ? fmtShort((100 - r.pct)/scan.rate*3600000) : '--';
+  } else { scan.rate = 0; $('#sRate').textContent = '計算中…'; $('#sEta').textContent = '--'; }
+  $('#sGain').textContent = '+' + (total - scan.segStart).toFixed(1) + '%';
+  drawChart();
+}
+function drawChart(){
+  const c = $('#chart'), ctx = c.getContext('2d'), dpr = devicePixelRatio || 1;
+  const W = c.width = c.clientWidth*dpr, H = c.height = c.clientHeight*dpr; ctx.clearRect(0,0,W,H);
+  const h = scan.hist; if (h.length < 2) return;
+  const t0=h[0][0], t1=h[h.length-1][0]; let v0=Infinity, v1=-Infinity; h.forEach(p=>{ if(p[1]<v0)v0=p[1]; if(p[1]>v1)v1=p[1]; });
+  const pad=8*dpr, X=t=>pad+(t-t0)/Math.max(1,t1-t0)*(W-2*pad), Y=v=>H-pad-(v-v0)/Math.max(.5,v1-v0)*(H-2*pad);
+  ctx.strokeStyle='#5ee0c7'; ctx.lineWidth=2*dpr; ctx.beginPath();
+  const st = Math.max(1, Math.floor(h.length/500));
+  h.forEach((p,i) => { if (i%st && i!==h.length-1) return; i ? ctx.lineTo(X(p[0]),Y(p[1])) : ctx.moveTo(X(p[0]),Y(p[1])); });
+  ctx.stroke();
+}
+
+// =====================================================================
+//  加成倒數
+// =====================================================================
+document.querySelectorAll('[data-buff]').forEach(b => b.onclick = () => { unlockAudio(); const [n,m] = b.dataset.buff.split('|'); addBuff(n,+m); });
+$('#btnCustomBuff').onclick = () => {
+  $('#iTitle').textContent = '自訂倒數';
+  $('#iBody').innerHTML = `<label>名稱<input id="bName" value="自訂"></label><label>分鐘<input id="bMin" type="number" min="1" value="15"></label>`;
+  inputFn = () => { unlockAudio(); addBuff($('#bName').value||'自訂', +$('#bMin').value||15); };
+  show('#mInput');
+};
+function addBuff(name, min){ state.buffs.push({ id:uid(), name, end:now()+min*60000, alerted:false }); save(); renderBuffs(); }
+function renderBuffs(){
+  $('#buffs').innerHTML = state.buffs.length ? state.buffs.map(b =>
+    `<div class="buff" data-id="${b.id}"><div><div>${esc(b.name)}</div><div class="left mono" data-f="left">--</div></div>
+     <div class="actions"><button class="sm ghost" data-b="add">+5分</button><button class="sm ghost danger" data-b="del">✕</button></div></div>`).join('')
+    : '<div class="hint" style="margin:0">目前沒有倒數</div>';
+  tickBuffs();
+}
+$('#buffs').addEventListener('click', e => {
+  const btn = e.target.closest('[data-b]'); if (!btn) return;
+  const b = state.buffs.find(x => x.id === btn.closest('.buff').dataset.id);
+  if (btn.dataset.b==='del') state.buffs = state.buffs.filter(x=>x!==b); else { b.end = Math.max(b.end, now()) + 300000; b.alerted = false; }
+  save(); renderBuffs();
+});
+let flashing = false;
+function tickBuffs(){
+  let over = false;
+  state.buffs.forEach(b => {
+    const left = b.end - now();
+    if (left <= 0){ over = true; if (!b.alerted){ b.alerted = true; save(); beep(4); toast(`⏰ ${b.name} 時間到！`); } }
+    const el = document.querySelector(`.buff[data-id="${b.id}"]`); if (!el) return;
+    el.querySelector('[data-f=left]').textContent = left > 0 ? fmt(left) : '時間到！';
+    el.classList.toggle('ending', left > 0 && left < 60000); el.classList.toggle('over', left <= 0);
+  });
+  flashing = over;
+}
+
+// =====================================================================
+//  副本單趟
+// =====================================================================
+$('#lapStart').onclick = () => { state.lapStart = state.lapStart ? null : now(); save(); renderLaps(); };
+$('#lapMark').onclick = () => {
+  if (!state.lapStart){ state.lapStart = now(); save(); renderLaps(); return; }
+  const t = now(); state.laps.push(t - state.lapStart); state.lapStart = t; save(); renderLaps();
+};
+$('#lapClear').onclick = () => confirmBox('清空所有單趟紀錄？', () => { state.laps=[]; state.lapStart=null; save(); renderLaps(); });
+function renderLaps(){
+  const L = state.laps, best = L.length ? Math.min(...L) : null;
+  $('#lapStart').textContent = state.lapStart ? '停止' : '開始';
+  $('#lapStart').className = (state.lapStart ? 'warn' : 'primary') + ' sm';
+  $('#lapCount').textContent = L.length;
+  $('#lapAvg').textContent = L.length ? fmtLap(L.reduce((a,b)=>a+b,0)/L.length) : '--';
+  $('#lapBest').textContent = best ? fmtLap(best) : '--';
+  $('#lapList').innerHTML = L.map((v,i)=>({v,i})).reverse().map(({v,i}) =>
+    `<div><span>第 ${i+1} 趟</span><span style="${v===best?'color:var(--accent)':''}">${fmtLap(v)}</span></div>`).join('');
+}
+function tickLap(){ $('#lapNow').textContent = state.lapStart ? fmtLap(now()-state.lapStart) : '00:00.0'; }
+
+// =====================================================================
+//  共用小工具
+// =====================================================================
+function show(s){ $(s).classList.add('show'); }
+function hide(s){ $(s).classList.remove('show'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => {
+  if (e.target === m || e.target.hasAttribute('data-close')) m.classList.remove('show'); }));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-bg.show').forEach(m => m.classList.remove('show')); });
+let confirmFn = null, inputFn = null;
+function confirmBox(t, fn){ $('#cTitle').textContent = t; confirmFn = fn; show('#mConfirm'); }
+$('#cOk').onclick = () => { hide('#mConfirm'); confirmFn && confirmFn(); };
+function askNumber(title, def, fn){
+  $('#iTitle').textContent = title;
+  $('#iBody').innerHTML = `<label class="full">等級數<input id="askN" type="number" min="1" value="${def}"></label>`;
+  inputFn = () => { const n = +$('#askN').value; if (n > 0) fn(n); };
+  show('#mInput'); setTimeout(() => $('#askN').select(), 50);
+}
+$('#iOk').onclick = () => { hide('#mInput'); inputFn && inputFn(); };
+let tt; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('show'),2800); }
+let actx = null;
+function unlockAudio(){ try{ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){} }
+function beep(n=1){ if(!actx) return; try{ for(let i=0;i<n;i++){ const o=actx.createOscillator(), g=actx.createGain(); o.frequency.value = i%2?1046:880;
+  const t=actx.currentTime+i*.25; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.3,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+.2);
+  o.connect(g).connect(actx.destination); o.start(t); o.stop(t+.22);} }catch(e){} }
+$('#btnSound').onclick = () => { unlockAudio(); beep(2); toast('提示音已啟用 🔔'); };
+$('#showDone').onchange = render;
+document.addEventListener('click', unlockAudio, { once: true });
+
+// =====================================================================
+//  登入 / 團隊
+// =====================================================================
+function showScreen(name){
+  ['Loading','Auth','Pending','Setup'].forEach(n => $('#scr'+n).classList.toggle('show', n === name));
+  $('#appWrap').style.display = name === 'App' ? '' : 'none';
+}
+let regMode = false;
+function setAuthMode(reg){
+  regMode = reg; $('#tabLogin').classList.toggle('act', !reg); $('#tabReg').classList.toggle('act', reg);
+  $('#regName').style.display = reg ? '' : 'none'; $('#authBtn').textContent = reg ? '註冊' : '登入';
+  $('#fAuth').pw.autocomplete = reg ? 'new-password' : 'current-password'; authMsg('');
+}
+$('#tabLogin').onclick = () => setAuthMode(false);
+$('#tabReg').onclick = () => setAuthMode(true);
+function authMsg(t, ok){ const m = $('#authMsg'); m.textContent = t; m.classList.toggle('ok', !!ok); }
+const ERR = {
+  'auth/invalid-credential':'帳號或密碼錯誤', 'auth/wrong-password':'密碼錯誤', 'auth/user-not-found':'找不到這個帳號',
+  'auth/email-already-in-use':'這個 Email 已經註冊過了，請直接登入', 'auth/weak-password':'密碼至少要 6 碼',
+  'auth/invalid-email':'Email 格式不對', 'auth/too-many-requests':'嘗試太多次，請稍後再試',
+  'auth/network-request-failed':'連不上網路', 'permission-denied':'沒有權限（請確認 Firestore 規則已照教學設定）',
+  'auth/operation-not-allowed':'Firebase 還沒開啟「電子郵件/密碼」登入，請照教學設定'
+};
+const errText = e => ERR[e && e.code] || (e && (e.code || e.message)) || '發生錯誤';
+$('#fAuth').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target;
+  const email = f.email.value.trim(), pw = f.pw.value, name = f.name.value.trim();
+  if (regMode && !name){ authMsg('請填暱稱'); f.name.focus(); return; }
+  $('#authBtn').disabled = true; authMsg(regMode ? '註冊中…' : '登入中…', true);
+  try { regMode ? await backend.register(email, pw, name) : await backend.login(email, pw); }
+  catch(err){ authMsg(errText(err)); }
+  $('#authBtn').disabled = false;
+});
+$('#btnForgot').onclick = async () => {
+  const email = $('#fAuth').email.value.trim();
+  if (!email){ authMsg('請先在上面填 Email，再按忘記密碼'); return; }
+  try { await backend.reset(email); authMsg('已寄出重設密碼信，請收信', true); } catch(err){ authMsg(errText(err)); }
+};
+$('#btnLogout').onclick = $('#btnLogout2').onclick = () => { const o = state.orders.find(x => x.runningSince && x.runner && me && x.runner.uid === me.uid);
+  if (o) { confirmBox('你還有單在計時中，登出前要先暫停嗎？', () => { pauseOrder(o); save(); setTimeout(() => backend.logout(), 300); }); return; }
+  backend.logout(); };
+$('#filter').value = state.filter;
+$('#filter').onchange = e => { state.filter = e.target.value; save(); render(); };
+
+// 成員管理
+$('#btnMembers').onclick = () => { renderMembers(); show('#mMembers'); };
+function renderMembers(){
+  const list = Object.entries(members).sort((a,b) => (a[1].role==='pending'?-1:0) - (b[1].role==='pending'?-1:0) || (a[1].created||0) - (b[1].created||0));
+  $('#memberList').innerHTML = list.map(([uid, m]) => `
+    <div class="mrow" data-uid="${uid}">
+      <div class="n"><b>${esc(m.name||'')}</b>${uid===me.uid?' <span class="role">我</span>':''}<small>${esc(m.email||'')}</small></div>
+      <select data-role ${uid===me.uid?'disabled':''}>
+        <option value="pending" ${m.role==='pending'?'selected':''}>⏳ 待核准</option>
+        <option value="member" ${m.role==='member'?'selected':''}>成員</option>
+        <option value="admin" ${m.role==='admin'?'selected':''}>管理員</option>
+      </select>
+      ${uid===me.uid?'':'<button class="sm ghost danger" data-rm>移除</button>'}
+    </div>`).join('') || '<div class="hint">還沒有成員</div>';
+}
+$('#memberList').addEventListener('change', e => {
+  const s = e.target.closest('[data-role]'); if (!s) return;
+  backend.setRole(s.closest('.mrow').dataset.uid, s.value).then(() => toast('已更新')).catch(syncErr);
+});
+$('#memberList').addEventListener('click', e => {
+  if (!e.target.closest('[data-rm]')) return; const uid = e.target.closest('.mrow').dataset.uid;
+  confirmBox(`移除 ${members[uid]?.name || ''}？（他之後要重新註冊並等核准）`, () => backend.removeMember(uid).catch(syncErr));
+});
+
+// 匯入這台電腦單機版的單
+function checkImport(){
+  let old = [];
+  try { const s = JSON.parse(localStorage.getItem('elsword-leveling-timer-v2')) || JSON.parse(localStorage.getItem('elsword-leveling-timer-v1')); old = (s && s.orders) || []; } catch(e){}
+  let done = false; try { done = localStorage.getItem('team-imported') === '1'; } catch(e){}
+  const box = $('#importBox');
+  if (!old.length || done){ box.style.display = 'none'; return; }
+  box.style.display = '';
+  box.innerHTML = `這台電腦有 <b>${old.length}</b> 張單機版的舊單。 <button class="sm primary" id="doImport">匯入到團隊</button> <button class="sm ghost" id="skipImport">不用</button>`;
+  $('#doImport').onclick = () => {
+    old.forEach(o => { o = normOrder(o); o.runningSince = null; o.assignee = o.assignee || { uid:me.uid, name:me.name };
+      if (!state.orders.find(x => x.id === o.id)) state.orders.push(o); });
+    try { localStorage.setItem('team-imported','1'); } catch(e){}
+    save(); render(); box.style.display = 'none'; toast(`已匯入 ${old.length} 張單`);
+  };
+  $('#skipImport').onclick = () => { try { localStorage.setItem('team-imported','1'); } catch(e){} box.style.display = 'none'; };
+}
+
+let unsubs = [];
+function stopData(){ unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; }
+function startData(){
+  if (unsubs.length) return;
+  unsubs.push(backend.watchOrders(list => {
+    state.orders = list.map(normOrder).sort((a,b) => (b.created||0) - (a.created||0));
+    synced.clear(); state.orders.forEach(o => synced.set(o.id, JSON.stringify(o)));
+    setSync(true); render();
+  }, syncErr));
+  unsubs.push(backend.watchPrices(list => {
+    if (list && list.length) state.prices = list;
+    else if (me.role === 'admin') backend.putPrices(DEFAULT_PRICES).catch(()=>{});
+    render();
+  }, () => {}));
+  unsubs.push(backend.watchMembers(m => { members = m; if ($('#mMembers').classList.contains('show')) renderMembers(); }, () => {}));
+  checkImport();
+}
+let unsubMe = null;
+const App = window.App = {
+  attach(b){
+    backend = b;
+    b.onAuth(user => {
+      if (unsubMe){ unsubMe(); unsubMe = null; }
+      stopData(); me = null;
+      if (!user){ showScreen('Auth'); return; }
+      unsubMe = b.watchMe(user.uid, m => {
+        if (!m){
+          b.createMe(user.uid, { name: user.displayName || user.email.split('@')[0], email: user.email, role:'pending', created: Date.now() }).catch(()=>{});
+          $('#pendEmail').textContent = user.email; showScreen('Pending'); return;
+        }
+        me = { uid: user.uid, ...m };
+        if (m.role !== 'member' && m.role !== 'admin'){ stopData(); $('#pendEmail').textContent = user.email; showScreen('Pending'); return; }
+        $('#meName').textContent = m.name; $('#meRole').textContent = m.role === 'admin' ? '管理員' : '成員';
+        $('#btnMembers').style.display = m.role === 'admin' ? '' : 'none';
+        showScreen('App'); startData(); render();
+      }, err => { $('#pendEmail').textContent = user.email; showScreen('Pending'); console.error(err); });
+    });
+  },
+  showSetup(){ showScreen('Setup'); },
+  loadFailed(e){ showScreen('Setup'); $('#cfgMsg').textContent = '連線失敗：' + (e.message || e) + '（請確認網路，或設定是否貼對）'; }
+};
+$('#cfgSave').onclick = () => {
+  const t = $('#cfgText').value.trim();
+  let cfg;
+  try { cfg = Function('"use strict";return (' + t.replace(/^[^{]*/, '').replace(/;?\s*$/, '') + ')')(); } catch(e){ $('#cfgMsg').textContent = '格式不對，請貼 { … } 那一整段'; return; }
+  if (!cfg || !cfg.apiKey || !cfg.projectId){ $('#cfgMsg').textContent = '找不到 apiKey / projectId，請確認貼的是 firebaseConfig'; return; }
+  try { localStorage.setItem('fb-config', JSON.stringify(cfg)); } catch(e){}
+  location.reload();
+};
+
+// 啟動
+renderBuffs(); renderLaps();
+setInterval(tick, 200);
+setInterval(() => { document.title = flashing && (Date.now()/1000|0)%2 ? '⏰ 時間到！' : '艾爾之光代練計時器'; }, 500);
+// 用 Worker 每秒辨識，背景時比較不會被降速
+try {
+  const w = new Worker(URL.createObjectURL(new Blob(['setInterval(()=>postMessage(0),1000)'], { type:'text/javascript' })));
+  w.onmessage = () => { try { scanStep(); } catch(e){ $('#dbg').textContent = '錯誤：' + e.message; } };
+} catch(e){ setInterval(() => { try { scanStep(); } catch(_){} }, 1000); }
+(function frame(){ drawView(); requestAnimationFrame(frame); })();
+</script>
+
+<script type="module">
+// =====================================================================
+//  ★ 把 Firebase 專案設定貼在這裡（取代 null）：
+//    const FIREBASE_CONFIG = { apiKey: "...", authDomain: "...", projectId: "...", ... };
+// =====================================================================
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAqJzMNsxaGX2L53LozPPBpshjfda7JPtA",
+  authDomain: "boost-70cf2.firebaseapp.com",
+  projectId: "boost-70cf2",
+  storageBucket: "boost-70cf2.firebasestorage.app",
+  messagingSenderId: "1000095594482",
+  appId: "1:1000095594482:web:16306642fae64622da9d6b",
+  measurementId: "G-PPBNB0C7G1"
+};
+
+let cfg = FIREBASE_CONFIG;
+try { if (!cfg) cfg = JSON.parse(localStorage.getItem('fb-config')); } catch(e){}
+
+if (window.__MOCK_BACKEND) App.attach(window.__MOCK_BACKEND);
+else if (!cfg) App.showSetup();
+else {
+  try {
+    const V = '10.12.2', base = `https://www.gstatic.com/firebasejs/${V}/`;
+    const [{ initializeApp }, A, F] = await Promise.all([
+      import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+    const app = initializeApp(cfg), auth = A.getAuth(app), db = F.getFirestore(app);
+    // Firestore 不能存「陣列裡的陣列」，sessions 轉成物件
+    const toDb = o => { const c = JSON.parse(JSON.stringify(o)); c.sessions = (c.sessions||[]).map(([a,b]) => ({a,b})); return c; };
+    const fromDb = d => { const o = d.data(); o.id = d.id; o.sessions = (o.sessions||[]).map(s => [s.a, s.b]); return o; };
+    App.attach({
+      onAuth: cb => A.onAuthStateChanged(auth, cb),
+      login: (e,p) => A.signInWithEmailAndPassword(auth, e, p),
+      register: async (e,p,name) => {
+        const c = await A.createUserWithEmailAndPassword(auth, e, p);
+        await A.updateProfile(c.user, { displayName: name });
+        await F.setDoc(F.doc(db,'members',c.user.uid), { name, email:e, role:'pending', created:Date.now() });
+      },
+      reset: e => A.sendPasswordResetEmail(auth, e),
+      logout: () => A.signOut(auth),
+      watchMe: (uid, cb, err) => F.onSnapshot(F.doc(db,'members',uid), s => cb(s.exists() ? s.data() : null), err),
+      createMe: (uid, data) => F.setDoc(F.doc(db,'members',uid), data),
+      watchMembers: (cb, err) => F.onSnapshot(F.collection(db,'members'), qs => { const m = {}; qs.forEach(d => m[d.id] = d.data()); cb(m); }, err),
+      setRole: (uid, role) => F.updateDoc(F.doc(db,'members',uid), { role }),
+      removeMember: uid => F.deleteDoc(F.doc(db,'members',uid)),
+      watchOrders: (cb, err) => F.onSnapshot(F.collection(db,'orders'), qs => cb(qs.docs.map(fromDb)), err),
+      putOrder: o => F.setDoc(F.doc(db,'orders',o.id), toDb(o)),
+      delOrder: id => F.deleteDoc(F.doc(db,'orders',id)),
+      watchPrices: (cb, err) => F.onSnapshot(F.doc(db,'settings','prices'), s => cb(s.exists() ? s.data().list : null), err),
+      putPrices: list => F.setDoc(F.doc(db,'settings','prices'), { list }),
+    });
+  } catch(e){ console.error(e); App.loadFailed(e); }
+}
+</script>
+</body>
+</html>
