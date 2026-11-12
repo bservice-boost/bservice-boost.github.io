@@ -3,1863 +3,436 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>B服代練工作室｜代練管理系統</title>
+<title>B服代練工作室｜艾爾之光 共鳴代練</title>
+<meta name="description" content="B服代練工作室：艾爾之光共鳴等級代練。線上即時報價、價格透明、Discord 專人聯繫。">
+<meta property="og:title" content="B服代練工作室｜艾爾之光 共鳴代練">
+<meta property="og:description" content="線上即時報價、價格透明、Discord 專人聯繫。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235ee0c7'/%3E%3Cstop offset='1' stop-color='%237aa8ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z' fill='%230b1220'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0a0e1a; --bg2:#0e1324; --panel:#131a2e; --panel2:#1a2240; --panel3:#212b4d; --line:#243056; --line2:#2f3c6b;
-  --text:#e9ecf8; --muted:#8e97c0; --dim:#5f6894;
-  --accent:#5ee0c7; --accent-d:#2bb59c; --blue:#7aa8ff; --gold:#ffc861; --warn:#ffb648; --danger:#ff6b81; --ok:#4fd18b;
-  --grad:linear-gradient(135deg,#5ee0c7,#7aa8ff);
-  --r:14px; --shadow:0 10px 30px -12px rgba(0,0,0,.6);
-  --side:232px;
-}
+:root{--bg:#0a0e1a;--bg2:#0e1324;--panel:#131a2e;--panel2:#1a2240;--panel3:#212b4d;--line:#243056;--line2:#2f3c6b;
+  --text:#e9ecf8;--muted:#8e97c0;--dim:#5f6894;--accent:#5ee0c7;--blue:#7aa8ff;--gold:#ffc861;--danger:#ff6b81;--ok:#4fd18b;--discord:#5865f2;
+  --grad:linear-gradient(135deg,#5ee0c7,#7aa8ff);--shadow:0 20px 50px -20px rgba(0,0,0,.7)}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--text);font:14px/1.55 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.7 "Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
 .mono{font-family:"JetBrains Mono",Consolas,monospace;font-variant-numeric:tabular-nums}
-a{color:var(--accent)}
-::selection{background:rgba(94,224,199,.3)}
-::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:10px;border:2px solid var(--bg)}
-
-/* ---------- 按鈕 / 表單 ---------- */
-button,.btn{font:inherit;font-weight:500;border:1px solid var(--line2);background:var(--panel2);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-button:hover{border-color:var(--accent);color:var(--accent)}
-button:active{transform:translateY(1px)}
-button:disabled{opacity:.4;cursor:not-allowed;transform:none}
-button.primary{background:var(--grad);border-color:transparent;color:#07131a;font-weight:700}
-button.primary:hover{filter:brightness(1.08);color:#07131a}
-button.warn{background:var(--warn);border-color:var(--warn);color:#2a1a00;font-weight:700}
-button.warn:hover{color:#2a1a00;filter:brightness(1.05)}
-button.ghost{background:transparent;border-color:transparent;color:var(--muted)}
-button.ghost:hover{background:var(--panel2);color:var(--text);border-color:var(--line2)}
-button.outline{background:transparent}
-button.danger:hover{border-color:var(--danger);color:var(--danger)}
-button.sm{padding:5px 10px;font-size:13px;border-radius:8px}
-button.xs{padding:3px 8px;font-size:12px;border-radius:7px}
-button.on{border-color:var(--blue);color:var(--blue);background:rgba(122,168,255,.12)}
-input,select,textarea{font:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--text);border-radius:10px;padding:8px 11px;transition:.15s}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+button,.btn{font:inherit;font-weight:700;border:1px solid var(--line2);background:var(--panel2);color:var(--text);padding:11px 20px;border-radius:12px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;white-space:nowrap}
+button:hover,.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary,button.primary{background:var(--grad);border-color:transparent;color:#07131a}
+.btn.primary:hover,button.primary:hover{filter:brightness(1.08);color:#07131a}
+.btn.discord{background:var(--discord);border-color:var(--discord);color:#fff}
+.btn.discord:hover{filter:brightness(1.1);color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+input,select,textarea{font:inherit;width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--text);border-radius:12px;padding:11px 13px;transition:.15s}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(94,224,199,.15)}
-input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);margin:0;padding:0}
-label{font-size:13px;color:var(--muted);display:block}
-label.inline{display:inline-flex;align-items:center;gap:6px}
-.field input,.field select,.field textarea{width:100%;margin-top:5px}
-.field input[type=checkbox]{width:16px;margin:0;flex:none}
-.field .err{color:var(--danger);font-size:12px;margin-top:3px;min-height:0}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);padding:0;margin:0}
+label{display:block;font-size:13.5px;color:var(--muted)}
+label > input,label > select,label > textarea{margin-top:6px}
 
-/* ---------- 版面 ---------- */
-.app{display:none;min-height:100vh}
-.app.show{display:block}
-.side{position:fixed;inset:0 auto 0 0;width:var(--side);background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:20;transition:transform .25s}
-.brand{display:flex;align-items:center;gap:11px;padding:20px 18px 18px}
-.brand .logo{width:38px;height:38px;flex:none}
-.brand b{display:block;font-size:16px;font-weight:900;letter-spacing:.5px}
-.brand small{display:block;font-size:11px;color:var(--muted);letter-spacing:1px}
-.nav{padding:6px 10px;display:grid;gap:2px;flex:1;overflow:auto;align-content:start}
-.nav .grp{font-size:11px;color:var(--dim);letter-spacing:1.5px;padding:14px 10px 6px}
-.nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-weight:500;transition:.15s}
-.nav a svg{width:18px;height:18px;flex:none;opacity:.85}
-.nav a:hover{background:var(--panel);color:var(--text)}
-.nav a.act{background:linear-gradient(90deg,rgba(94,224,199,.16),rgba(122,168,255,.06));color:var(--text)}
-.nav a.act svg{color:var(--accent);opacity:1}
-.nav .badge{margin-left:auto;font-size:11px;background:var(--panel3);color:var(--text);border-radius:99px;padding:1px 8px}
-.nav .badge.hot{background:var(--danger);color:#fff}
-.side-foot{padding:14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px}
-.avatar{width:34px;height:34px;border-radius:50%;background:var(--grad);color:#07131a;font-weight:900;display:flex;align-items:center;justify-content:center;flex:none;font-size:14px}
-.avatar.sm{width:26px;height:26px;font-size:12px}
-.side-foot .who{flex:1;min-width:0}
-.side-foot .who b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.side-foot .who small{color:var(--muted);font-size:12px}
-.main{margin-left:var(--side);min-height:100vh;display:flex;flex-direction:column}
-.top{position:sticky;top:0;z-index:10;background:rgba(10,14,26,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:12px 26px;min-height:62px}
-.top h1{margin:0;font-size:19px;font-weight:700}
-.top .sub{color:var(--muted);font-size:13px}
-.top .spacer{flex:1}
-.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;padding:5px 11px;border-radius:99px;background:var(--panel);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
-.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(79,209,139,.18)}
-.chip.off .dot{background:var(--danger);box-shadow:0 0 0 3px rgba(255,107,129,.2)}
-.chip.scan{cursor:pointer}
-.chip.scan b{color:var(--accent)}
-.hamb{display:none}
-.content{padding:24px 26px 60px;max-width:1360px;width:100%}
-.view{display:none;animation:fade .2s}
-.view.show{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.scrim{display:none}
-@media(max-width:920px){
-  .side{transform:translateX(-100%);box-shadow:var(--shadow)}
-  body.nav-open .side{transform:none}
-  body.nav-open .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:15}
-  .main{margin-left:0}
-  .hamb{display:inline-flex}
-  .top{padding:10px 14px}
-  .content{padding:16px 14px 60px}
-  .top .sub{display:none}
-}
+/* nav */
+.nav{position:sticky;top:0;z-index:20;background:rgba(10,14,26,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:20px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--text);font-weight:900;font-size:17px}
+.brand svg{width:34px;height:34px}
+.nav nav{display:flex;gap:4px;margin-left:auto}
+.nav nav a{color:var(--muted);padding:7px 12px;border-radius:9px;font-size:14.5px;font-weight:500}
+.nav nav a:hover{color:var(--text);background:var(--panel)}
+.nav .btn{padding:8px 16px;font-size:14px}
+@media(max-width:820px){.nav nav{display:none}.nav .btn.primary{margin-left:auto}}
 
-/* ---------- 共用元件 ---------- */
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
-.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;flex-wrap:wrap}
-.card-h h3{margin:0;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
-.card-h h3 small{font-weight:400;color:var(--muted);font-size:12px}
-.grid{display:grid;gap:16px}
-.g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
-.g-main{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
-@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.g-main,.g3{grid-template-columns:1fr}}
-@media(max-width:560px){.g4,.g2{grid-template-columns:1fr}}
-.kpi{position:relative;overflow:hidden}
-.kpi .k{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:7px}
-.kpi .v{font-size:27px;font-weight:700;margin-top:6px;letter-spacing:.3px}
-.kpi .d{font-size:12px;color:var(--dim);margin-top:2px}
-.kpi::after{content:"";position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;background:var(--grad);opacity:.07}
-.tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--panel2);color:var(--muted);font-weight:500;white-space:nowrap}
-.tag.run{background:rgba(94,224,199,.14);color:var(--accent)}
-.tag.pause{background:rgba(255,182,72,.14);color:var(--warn)}
-.tag.done{background:rgba(79,209,139,.14);color:var(--ok)}
-.tag.link{background:rgba(122,168,255,.14);color:var(--blue)}
-.tag.red{background:rgba(255,107,129,.14);color:var(--danger)}
-.tag.gold{background:rgba(255,200,97,.14);color:var(--gold)}
-.muted{color:var(--muted)} .dim{color:var(--dim)} .ok{color:var(--ok)} .red{color:var(--danger)}
-.hint{font-size:12.5px;color:var(--muted);line-height:1.7}
-.empty{border:1px dashed var(--line2);border-radius:var(--r);padding:44px 20px;text-align:center;color:var(--muted)}
-.empty .ico{font-size:34px;margin-bottom:6px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-table.t{width:100%;border-collapse:collapse;font-size:13.5px}
-table.t th{text-align:left;color:var(--muted);font-weight:500;font-size:12.5px;padding:9px 10px;border-bottom:1px solid var(--line)}
-table.t td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
-table.t tr:last-child td{border-bottom:0}
-table.t td.r,table.t th.r{text-align:right}
-.tbl-wrap{overflow-x:auto}
-.bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--grad);border-radius:99px;transition:width .4s}
-.skel{background:linear-gradient(90deg,var(--panel) 0,var(--panel2) 50%,var(--panel) 100%);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:10px;height:110px}
-@keyframes sk{to{background-position:-200% 0}}
+/* hero */
+.hero{position:relative;overflow:hidden;padding:84px 0 70px;
+  background:radial-gradient(800px 420px at 12% 10%,rgba(94,224,199,.16),transparent 60%),radial-gradient(700px 420px at 95% 20%,rgba(122,168,255,.16),transparent 60%)}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center}
+@media(max-width:900px){.hero .wrap{grid-template-columns:1fr}.hero{padding:54px 0 44px}}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;padding:6px 13px;border-radius:99px;background:rgba(79,209,139,.12);color:var(--ok);border:1px solid rgba(79,209,139,.35)}
+.status i{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px rgba(79,209,139,.2)}
+.status.closed{background:rgba(255,107,129,.1);color:var(--danger);border-color:rgba(255,107,129,.35)}
+.status.closed i{box-shadow:0 0 0 4px rgba(255,107,129,.2)}
+.hero h1{font-size:clamp(34px,5.4vw,56px);line-height:1.15;margin:18px 0 14px;font-weight:900;letter-spacing:.5px}
+.hero h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:17px;color:#c3cbea;margin:0 0 28px;max-width:560px}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+.hero-card{background:var(--panel);border:1px solid var(--line2);border-radius:22px;padding:24px;box-shadow:var(--shadow);position:relative}
+.hero-card::before{content:"";position:absolute;inset:-1px;border-radius:22px;padding:1px;background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;pointer-events:none}
+.hero-card h3{margin:0 0 4px;font-size:16px}
+.hero-card .mini{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.hero-card .big{font-size:38px;font-weight:700}
+.stats{display:flex;gap:28px;margin-top:34px;flex-wrap:wrap}
+.stats b{display:block;font-size:24px;font-weight:900}
+.stats span{font-size:13px;color:var(--muted)}
 
-/* ---------- 總覽 ---------- */
-.chart{display:flex;align-items:flex-end;gap:6px;height:170px;padding-top:10px}
-.chart .c{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;min-width:0}
-.chart .c i{display:block;width:100%;max-width:30px;background:var(--grad);border-radius:6px 6px 2px 2px;min-height:2px;opacity:.9;transition:height .4s}
-.chart .c.today i{box-shadow:0 0 0 2px rgba(94,224,199,.35)}
-.chart .c span{font-size:10.5px;color:var(--dim);white-space:nowrap}
-.chart .c b{font-size:10.5px;color:var(--muted);font-weight:500;white-space:nowrap}
-.rank{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
-.rank:last-child{border-bottom:0}
-.rank .no{width:24px;text-align:center;font-weight:900;color:var(--dim)}
-.rank .no.n1{color:var(--gold)} .rank .no.n2{color:#cfd6f0} .rank .no.n3{color:#e3a26b}
-.rank .nm{flex:1;min-width:0}
-.rank .nm small{display:block;color:var(--muted);font-size:12px}
-.rank .amt{text-align:right}
-.rank .amt small{display:block;color:var(--muted);font-size:12px}
-.live{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
-.live:last-child{border-bottom:0}
-.pulse{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(94,224,199,.6);animation:pl 1.6s infinite;flex:none}
-@keyframes pl{70%{box-shadow:0 0 0 9px rgba(94,224,199,0)}100%{box-shadow:0 0 0 0 rgba(94,224,199,0)}}
+/* announce */
+.announce{background:linear-gradient(90deg,rgba(255,200,97,.14),rgba(255,200,97,.04));border-bottom:1px solid rgba(255,200,97,.3);color:#ffe4ad;font-size:14px;display:none}
+.announce.show{display:block}
+.announce .wrap{padding:11px 22px;display:flex;gap:10px;align-items:center}
 
-/* ---------- 代練單 ---------- */
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-.toolbar .search{flex:1;min-width:200px;position:relative}
-.toolbar .search input{width:100%;padding-left:34px}
-.toolbar .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--dim)}
-.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:3px}
-.seg button{border:0;background:transparent;padding:5px 12px;border-radius:7px;color:var(--muted);font-size:13px}
-.seg button.act{background:var(--panel3);color:var(--text)}
-.seg button .n{font-size:11px;color:var(--dim);margin-left:2px}
-.orders{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(430px,1fr))}
-@media(max-width:520px){.orders{grid-template-columns:1fr}.oc-m{grid-template-columns:repeat(2,1fr)}.seg{overflow-x:auto;max-width:100%}}
-.oc{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 14px;transition:.2s;position:relative}
-.oc:hover{border-color:var(--line2)}
-.oc.running{border-color:rgba(94,224,199,.55);box-shadow:0 0 0 1px rgba(94,224,199,.25) inset,0 12px 30px -16px rgba(94,224,199,.5)}
-.oc.bound::before{content:"";position:absolute;inset:-4px;border:1.5px dashed var(--blue);border-radius:17px;pointer-events:none;opacity:.7}
-.oc.done{opacity:.78}
-.oc-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.oc-name{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.oc-name .job{font-size:12.5px;color:var(--muted);font-weight:400}
-.oc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-.oc-clock{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:12px 0 8px}
-.oc-clock .t{font-size:32px;font-weight:700;letter-spacing:1px}
-.oc-clock .lv{text-align:right;font-size:13px;color:var(--muted)}
-.oc-clock .lv b{font-size:18px;color:var(--text)}
-.oc-m{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}
-.oc-m > div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:7px 10px;min-width:0}
-.oc-m .k{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oc-m .v{font-size:14px;font-weight:700;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oc-act{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-.oc-act .sp{flex:1}
-.menu{position:relative}
-.menu-pop{position:absolute;right:0;top:calc(100% + 6px);background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:6px;min-width:160px;box-shadow:var(--shadow);display:none;z-index:5}
-.menu.open .menu-pop{display:block}
-.menu-pop button{width:100%;justify-content:flex-start;background:transparent;border:0;padding:8px 10px;border-radius:8px;color:var(--text)}
-.menu-pop button:hover{background:var(--panel3)}
-.menu-pop button.danger{color:var(--danger)}
-.menu-pop hr{border:0;border-top:1px solid var(--line);margin:4px 0}
-details.hist{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
-details.hist summary{cursor:pointer;color:var(--muted);font-size:12.5px;list-style:none}
-details.hist summary::before{content:"▸ "}
-details.hist[open] summary::before{content:"▾ "}
-.note{font-size:12.5px;color:var(--muted);background:var(--bg2);border-radius:8px;padding:6px 10px;margin-top:10px;white-space:pre-wrap}
+/* sections */
+section.s{padding:76px 0;border-top:1px solid var(--line)}
+section.s.alt{background:var(--bg2)}
+.s-h{text-align:center;margin-bottom:40px}
+.s-h small{color:var(--accent);font-weight:700;letter-spacing:3px;font-size:12px}
+.s-h h2{font-size:clamp(26px,3.6vw,34px);margin:8px 0 8px;font-weight:900}
+.s-h p{color:var(--muted);margin:0 auto;max-width:620px}
+.feat{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.feat{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.feat{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+.feat .card .ic{width:46px;height:46px;border-radius:13px;background:var(--panel3);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.feat .card h3{margin:0 0 6px;font-size:17px}
+.feat .card p{margin:0;color:var(--muted);font-size:14px}
 
-/* ---------- 辨識 / 工具 ---------- */
-.stage{position:relative;background:#000;border-radius:12px;overflow:hidden;min-height:220px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
-.stage canvas{display:block;max-width:100%;cursor:crosshair}
-.stage .ph{color:var(--muted);text-align:center;padding:30px;line-height:1.9}
-.bigpct{font-size:52px;font-weight:700;line-height:1.05;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.bigpct.bad{font-size:22px;color:var(--danger);background:none}
-#zoom{width:100%;height:36px;image-rendering:pixelated;background:#000;border-radius:8px;margin:10px 0;display:block}
-#chart{width:100%;height:110px;display:block;background:var(--bg2);border-radius:10px;border:1px solid var(--line)}
-.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
-.mini > div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
-.mini .k{font-size:11.5px;color:var(--muted)}
-.mini .v{font-size:15px;font-weight:700}
-.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:10px}
-.steps li{counter-increment:s;display:flex;gap:10px;font-size:13px;color:var(--muted)}
-.steps li::before{content:counter(s);flex:none;width:22px;height:22px;border-radius:50%;background:var(--panel3);color:var(--text);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.steps li b{color:var(--text)}
-.buff{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:8px}
-.buff:last-child{border-bottom:0}
-.buff .left{font-size:20px;font-weight:700}
-.buff.ending .left{color:var(--danger)}
-.buff.over{animation:blink 1s infinite;border-radius:8px}
-@keyframes blink{50%{background:rgba(255,107,129,.14)}}
-.lap-big{font-size:38px;font-weight:700;margin:4px 0 10px}
-.laps{max-height:220px;overflow:auto;margin-top:10px;font-size:13px}
-.laps div{display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px solid var(--line)}
-.warnbox{background:rgba(255,107,129,.1);border:1px solid rgba(255,107,129,.5);color:#ffd0d7;border-radius:12px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none}
-.infobox{background:rgba(122,168,255,.08);border:1px solid rgba(122,168,255,.3);border-radius:12px;padding:11px 14px;font-size:13px;color:#cfdcff}
+/* price */
+.price-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:start}
+@media(max-width:900px){.price-grid{grid-template-columns:1fr}}
+table.pt{width:100%;border-collapse:collapse}
+table.pt th{font-size:13px;color:var(--muted);font-weight:500;text-align:left;padding:12px 14px;border-bottom:1px solid var(--line)}
+table.pt td{padding:14px;border-bottom:1px solid var(--line);font-size:15px}
+table.pt tr:last-child td{border-bottom:0}
+table.pt td.r,table.pt th.r{text-align:right}
+table.pt .lv{font-weight:700}
+table.pt .p{font-weight:700;font-family:"JetBrains Mono",monospace}
+table.pt .p.best{color:var(--accent)}
+table.pt .dm{color:var(--gold);font-size:13.5px}
+.tagnote{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:13.5px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 
-/* ---------- 紀錄 ---------- */
-.log{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start}
-.log:last-child{border-bottom:0}
-.log .ic{width:30px;height:30px;border-radius:9px;background:var(--panel2);display:flex;align-items:center;justify-content:center;flex:none;font-size:14px}
-.log .tx{flex:1;min-width:0}
-.log .tm{color:var(--dim);font-size:12px;white-space:nowrap}
-
-/* ---------- 對話框 / 提示 ---------- */
-.modal-bg{position:fixed;inset:0;background:rgba(4,6,14,.72);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:16px;z-index:40}
-.modal-bg.show{display:flex}
-.modal{background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:22px;width:100%;max-width:480px;box-shadow:var(--shadow);max-height:calc(100vh - 32px);overflow:auto;animation:pop .18s}
-.modal.wide{max-width:600px}
-@keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
-.modal h3{margin:0 0 4px;font-size:18px}
-.modal .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* order */
+.order{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.order{grid-template-columns:1fr}}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .fgrid .full{grid-column:1/-1}
-@media(max-width:480px){.fgrid{grid-template-columns:1fr}}
-.modal .foot{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
-.calc{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--muted);line-height:1.8}
-.calc b{color:var(--text)}
-.toasts{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:grid;gap:8px;z-index:60;width:max-content;max-width:calc(100vw - 30px)}
-.toast{background:var(--panel3);border:1px solid var(--line2);color:var(--text);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;font-size:13.5px;animation:pop .2s}
-.toast.ok{border-color:rgba(94,224,199,.6)} .toast.err{border-color:rgba(255,107,129,.7)}
-.toast button{padding:3px 10px;font-size:12.5px}
+@media(max-width:520px){.fgrid{grid-template-columns:1fr}}
+.err{color:var(--danger);font-size:12.5px;margin-top:4px;min-height:0}
+.quote{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.quote .row{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);padding:3px 0}
+.quote .total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line2);margin-top:10px;padding-top:12px}
+.quote .total b{font-size:34px;font-weight:700}
+.chk{display:flex;align-items:center;gap:10px;color:var(--text);font-size:14.5px;cursor:pointer}
+.warnnote{font-size:13px;color:#ffd0d7;background:rgba(255,107,129,.08);border:1px solid rgba(255,107,129,.3);border-radius:12px;padding:10px 13px}
+.done{display:none;text-align:center;padding:30px 10px}
+.done.show{display:block}
+.done .ok{font-size:54px}
+.done code{background:var(--bg2);border:1px solid var(--line2);padding:4px 10px;border-radius:8px;font-size:16px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;counter-reset:st}
+@media(max-width:900px){.steps{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.steps{grid-template-columns:1fr}}
+.steps .card{counter-increment:st;position:relative;padding-top:46px}
+.steps .card::before{content:counter(st);position:absolute;top:16px;left:22px;width:26px;height:26px;border-radius:50%;background:var(--grad);color:#07131a;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center}
+.steps h4{margin:0 0 4px;font-size:15.5px}
+.steps p{margin:0;color:var(--muted);font-size:13.5px}
 
-/* ---------- 使用說明 ---------- */
-.help{background:linear-gradient(135deg,rgba(94,224,199,.07),rgba(122,168,255,.06));border:1px solid rgba(122,168,255,.28);border-radius:var(--r);padding:16px 18px;margin-bottom:16px;display:none;animation:fade .2s}
-.help.show{display:block}
-.help-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.help-h b{font-size:15px}
-.help-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px 22px}
-.help h4{margin:0 0 6px;font-size:13px;color:var(--accent);font-weight:700}
-.help ol,.help ul{margin:0;padding-left:20px;color:#cdd4f0;font-size:13px;line-height:1.75}
-.help li b{color:var(--text)}
-.help .tip{margin-top:12px;font-size:12.5px;color:var(--muted);border-top:1px dashed var(--line2);padding-top:10px}
-.admin-only{display:none !important}
-body.is-admin .admin-only{display:revert !important}
-body.is-admin a.admin-only{display:flex !important}
-.lock{font-size:11px;margin-left:auto;color:var(--gold)}
+/* faq */
+.faq{max-width:820px;margin:0 auto;display:grid;gap:10px}
+.faq details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0 20px;transition:.15s}
+.faq details[open]{border-color:var(--line2)}
+.faq summary{cursor:pointer;list-style:none;padding:17px 0;font-weight:700;display:flex;justify-content:space-between;gap:10px}
+.faq summary::after{content:"＋";color:var(--accent);transition:.2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{margin:0 0 18px;color:#c3cbea;white-space:pre-wrap}
 
-/* ---------- 登入 ---------- */
-.screen{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:16px;
-  background:radial-gradient(900px 500px at 15% 0%,rgba(94,224,199,.13),transparent 60%),radial-gradient(800px 500px at 100% 100%,rgba(122,168,255,.12),transparent 60%),var(--bg)}
-.screen.show{display:flex}
-.auth{background:var(--panel);border:1px solid var(--line2);border-radius:22px;padding:30px;width:100%;max-width:410px;box-shadow:var(--shadow)}
-.auth .logo{width:52px;height:52px;margin-bottom:14px}
-.auth h2{margin:0;font-size:22px;font-weight:900}
-.auth .tabs{display:flex;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:4px;margin:20px 0 16px}
-.auth .tabs button{flex:1;justify-content:center;border:0;background:transparent;color:var(--muted)}
-.auth .tabs button.act{background:var(--panel3);color:var(--text)}
-.auth .field{margin-bottom:12px}
-.auth .msg{font-size:13px;min-height:20px;margin:2px 0 10px;color:var(--danger)}
-.auth .msg.ok{color:var(--accent)}
-.auth .full{width:100%;justify-content:center;padding:11px}
-.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;padding:0;font-size:13px}
-.linkbtn:hover{color:var(--text);background:none}
-.spin{width:28px;height:28px;border:3px solid var(--line2);border-top-color:var(--accent);border-radius:50%;animation:rot .8s linear infinite;margin:14px auto 0}
-@keyframes rot{to{transform:rotate(360deg)}}
-.foot-note{color:var(--dim);font-size:12px;text-align:center;margin-top:18px}
+/* contact / footer */
+.contact{text-align:center;background:radial-gradient(600px 300px at 50% 0%,rgba(88,101,242,.22),transparent 70%)}
+footer{border-top:1px solid var(--line);padding:28px 0;color:var(--dim);font-size:13px}
+footer .wrap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--panel3);border:1px solid var(--line2);padding:11px 16px;border-radius:12px;box-shadow:var(--shadow);font-size:14px;z-index:50;display:none}
+.toast.show{display:block}
+.toast.err{border-color:var(--danger)}
+.skel{display:inline-block;width:60px;height:1em;border-radius:6px;background:var(--panel2);vertical-align:middle}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee0c7"/><stop offset="1" stop-color="#7aa8ff"/></linearGradient>
+  <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="url(#lg)"/><path d="M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z" fill="#0b1220"/></symbol>
+  <symbol id="dc" viewBox="0 0 24 24"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18 18 0 0 0-5.6 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.7.2 18.2a19.7 19.7 0 0 0 6 3l1.3-2a12.8 12.8 0 0 1-2-1l.5-.4a14 14 0 0 0 12 0l.5.4c-.6.4-1.3.7-2 1l1.3 2a19.6 19.6 0 0 0 6-3c.5-5.2-.9-9.8-3.5-13.8zM8 15.5c-1.2 0-2.1-1.1-2.1-2.4S6.8 10.7 8 10.7s2.2 1.1 2.1 2.4c0 1.3-.9 2.4-2.1 2.4zm8 0c-1.2 0-2.1-1.1-2.1-2.4s.9-2.4 2.1-2.4 2.2 1.1 2.1 2.4c0 1.3-.9 2.4-2.1 2.4z"/></symbol>
+</defs></svg>
 
-<!-- ======================= 共用 SVG ======================= -->
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee0c7"/><stop offset="1" stop-color="#7aa8ff"/></linearGradient>
-    <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="url(#lg)"/><path d="M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z" fill="#0b1220"/></symbol>
-    <symbol id="i-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></symbol>
-    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.3"/><circle cx="4.5" cy="12" r="1.3"/><circle cx="4.5" cy="18" r="1.3"/></symbol>
-    <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol>
-    <symbol id="i-tool" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></symbol>
-    <symbol id="i-price" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
-    <symbol id="i-team" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.6 5.2"/></symbol>
-    <symbol id="i-log" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 2"/><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6L3.5 8.5"/><path d="M3.5 4v4.5H8"/></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
-    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
-  </defs>
-</svg>
+<div class="announce" id="announce"><div class="wrap">📢 <span id="announceTxt"></span></div></div>
 
-<!-- ======================= 登入相關畫面 ======================= -->
-<div class="screen show" id="scrLoading">
-  <div class="auth" style="text-align:center">
-    <svg class="logo"><use href="#logo"/></svg>
-    <h2>B服代練工作室</h2>
-    <div class="spin"></div>
-    <div class="hint" style="margin-top:10px">連線中…</div>
-  </div>
-</div>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="#top"><svg><use href="#logo"/></svg>B服代練工作室</a>
+  <nav><a href="#about">服務介紹</a><a href="#price">價目表</a><a href="#order">線上下單</a><a href="#flow">委託流程</a><a href="#faq">常見問題</a></nav>
+  <a class="btn primary" href="#order">立即報價</a>
+</div></header>
 
-<div class="screen" id="scrAuth">
-  <div class="auth">
-    <svg class="logo"><use href="#logo"/></svg>
-    <h2>B服代練工作室</h2>
-    <div class="hint">代練管理系統・團隊成員登入</div>
-    <div class="tabs"><button id="tabLogin" class="act" type="button">登入</button><button id="tabReg" type="button">註冊新帳號</button></div>
-    <form id="fAuth" novalidate>
-      <div class="field" id="regName" style="display:none"><label>暱稱（團隊看到的名字）<input name="name" maxlength="20" placeholder="例：阿明"></label></div>
-      <div class="field"><label>Email<input name="email" type="email" autocomplete="email" placeholder="you@example.com"></label></div>
-      <div class="field"><label>密碼<input name="pw" type="password" autocomplete="current-password" placeholder="至少 6 碼"></label></div>
-      <div class="msg" id="authMsg"></div>
-      <button class="primary full" id="authBtn">登入</button>
-    </form>
-    <div style="margin-top:14px;text-align:center"><button class="linkbtn" id="btnForgot" type="button">忘記密碼？</button></div>
-    <div class="foot-note">新成員註冊後，需由管理員核准才能使用</div>
-  </div>
-</div>
-
-<div class="screen" id="scrPending">
-  <div class="auth" style="text-align:center">
-    <div style="font-size:42px">⏳</div>
-    <h2 style="margin-top:6px">等待管理員核准</h2>
-    <p class="hint" style="font-size:14px;margin:12px 0 20px">帳號 <b id="pendEmail" style="color:var(--text)"></b> 已註冊完成。<br>請通知工作室管理員到「成員管理」核准你，<br>核准後此頁會自動進入系統。</p>
-    <button class="outline" id="btnLogout2" type="button">登出</button>
-  </div>
-</div>
-
-<div class="screen" id="scrSetup">
-  <div class="auth" style="max-width:520px">
-    <h2>🔧 尚未設定 Firebase</h2>
-    <p class="hint">請把 Firebase 的 <code>firebaseConfig</code>（{ … } 那段）貼在下面，或直接寫進 index.html 的 FIREBASE_CONFIG。</p>
-    <textarea id="cfgText" rows="8" style="width:100%"></textarea>
-    <div class="msg" id="cfgMsg" style="color:var(--danger);font-size:13px;margin:8px 0"></div>
-    <button class="primary full" id="cfgSave" type="button">儲存並連線</button>
-  </div>
-</div>
-
-<!-- ======================= 主程式 ======================= -->
-<div class="app" id="app">
-  <aside class="side">
-    <div class="brand"><svg class="logo"><use href="#logo"/></svg><div><b>B服代練工作室</b><small>BOOSTING STUDIO</small></div></div>
-    <nav class="nav" id="nav">
-      <div class="grp">營運</div>
-      <a href="#dashboard" data-v="dashboard"><svg><use href="#i-dash"/></svg>總覽</a>
-      <a href="#orders" data-v="orders"><svg><use href="#i-list"/></svg>代練單<span class="badge" id="bOrders">0</span></a>
-      <div class="grp">練功</div>
-      <a href="#scan" data-v="scan"><svg><use href="#i-scan"/></svg>共鳴度辨識<span class="badge" id="bScan" style="display:none"></span></a>
-      <a href="#tools" data-v="tools"><svg><use href="#i-tool"/></svg>計時工具<span class="badge hot" id="bTools" style="display:none">!</span></a>
-      <div class="grp">資訊</div>
-      <a href="#prices" data-v="prices"><svg><use href="#i-price"/></svg>價目表與報價</a>
-      <div class="grp admin-only">管理員</div>
-      <a href="#team" data-v="team" class="admin-only"><svg><use href="#i-team"/></svg>成員管理<span class="badge hot" id="bTeam" style="display:none"></span></a>
-      <a href="#logs" data-v="logs" class="admin-only"><svg><use href="#i-log"/></svg>操作紀錄</a>
-    </nav>
-    <div class="side-foot">
-      <div class="avatar" id="meAv">?</div>
-      <div class="who"><b id="meName"></b><small id="meRole"></small></div>
-      <button class="ghost sm" id="btnLogout" title="登出">登出</button>
+<!-- ===== Hero ===== -->
+<section class="hero" id="top"><div class="wrap">
+  <div>
+    <span class="status" id="openBadge"><i></i><span>接單中</span></span>
+    <h1>艾爾之光<br><span>共鳴等級代練</span></h1>
+    <p class="lead" id="tagline">專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由專人在 Discord 與你聯繫。</p>
+    <div class="cta">
+      <a class="btn primary" href="#order">💰 立即報價下單</a>
+      <a class="btn discord" id="heroDc" href="#contact" target="_blank" rel="noopener"><svg width="20" height="20"><use href="#dc"/></svg>加入 Discord</a>
     </div>
-  </aside>
-  <div class="scrim" id="scrim"></div>
-
-  <div class="main">
-    <header class="top">
-      <button class="ghost sm hamb" id="hamb" aria-label="選單"><svg width="20" height="20"><use href="#i-menu"/></svg></button>
-      <div><h1 id="pgTitle">總覽</h1></div>
-      <div class="sub" id="pgSub"></div>
-      <div class="spacer"></div>
-      <span class="chip scan" id="scanChip" style="display:none" title="前往共鳴度辨識"></span>
-      <button class="ghost sm" id="btnHelp" title="使用說明">📖 說明</button>
-      <span class="chip" id="syncChip"><span class="dot"></span><span id="syncTxt">已同步</span></span>
-      <button class="primary sm" id="btnNewTop">＋ 新增代練單</button>
-    </header>
-
-    <main class="content">
-
-      <!-- ===== 總覽 ===== -->
-      <section class="view" id="v-dashboard">
-        <div class="help" data-help="dashboard"></div>
-        <div class="grid g4" id="kpis"></div>
-        <div class="grid g-main" style="margin-top:16px">
-          <div class="card">
-            <div class="card-h"><h3>📈 近 14 天練出價值 <small>依升等時間與價目表計算</small></h3><span class="muted" id="chartSum"></span></div>
-            <div class="chart" id="revChart"></div>
-          </div>
-          <div class="card">
-            <div class="card-h"><h3>🟢 正在練功</h3><a href="#orders" class="hint">查看全部 →</a></div>
-            <div id="liveList"></div>
-          </div>
-        </div>
-        <div class="grid g-main" style="margin-top:16px">
-          <div class="card">
-            <div class="card-h"><h3>🏆 本月代練師業績</h3><div class="seg" id="rankSeg"><button data-k="money" class="act">營收</button><button data-k="hours">時數</button><button data-k="levels">升等</button></div></div>
-            <div id="rankList"></div>
-          </div>
-          <div class="card">
-            <div class="card-h"><h3>⏰ 截止提醒</h3><small class="muted">3 天內到期</small></div>
-            <div id="dueList"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== 代練單 ===== -->
-      <section class="view" id="v-orders">
-        <div class="help" data-help="orders"></div>
-        <div class="toolbar">
-          <div class="search"><svg><use href="#i-search"/></svg><input id="q" placeholder="搜尋委託人、職業、備註…"></div>
-          <div class="seg" id="fSeg">
-            <button data-f="active" class="act">進行中<span class="n" id="nActive"></span></button>
-            <button data-f="mine">我接的<span class="n" id="nMine"></span></button>
-            <button data-f="none">未接<span class="n" id="nNone"></span></button>
-            <button data-f="done">已完成<span class="n" id="nDone"></span></button>
-            <button data-f="trash">回收桶<span class="n" id="nTrash"></span></button>
-          </div>
-          <select id="sortSel">
-            <option value="new">最新建立</option>
-            <option value="due">截止日最近</option>
-            <option value="progress">進度最高</option>
-            <option value="run">練功中優先</option>
-          </select>
-        </div>
-        <div id="importBox" class="infobox" style="display:none;margin-bottom:14px"></div>
-        <div class="orders" id="orders"></div>
-      </section>
-
-      <!-- ===== 辨識 ===== -->
-      <section class="view" id="v-scan">
-        <div class="help" data-help="scan"></div>
-        <div class="warnbox" id="noSupport">這個瀏覽器不能分享畫面，請用電腦版 <b>Chrome</b> 或 <b>Edge</b> 開啟本網站。</div>
-        <div class="grid g-main">
-          <div class="card">
-            <div class="card-h"><h3>🎮 遊戲畫面</h3>
-              <div class="row"><button class="primary sm" id="btnShare">① 分享遊戲視窗</button><button class="sm" id="btnAuto" disabled>🔍 自動偵測</button><button class="sm ghost" id="btnPick" disabled>手動框選</button></div></div>
-            <div class="stage"><div class="ph" id="ph">按「① 分享遊戲視窗」，選擇<b style="color:var(--text)">艾爾之光的視窗</b><br>系統會自動找到左下角的<b style="color:var(--text)">共鳴度條</b></div><canvas id="view" style="display:none"></canvas></div>
-            <ol class="steps" style="margin-top:16px">
-              <li><span>分享時選「<b>視窗</b>」分頁比整個螢幕清楚；遊戲請用視窗或無邊框模式。</span></li>
-              <li><span>分享後會<b>自動找到左下角的共鳴度條</b>；找不到再按「🔍 自動偵測」或手動框選。</span></li>
-              <li><span>到「代練單」按 <b>📡 連動</b>，再按 <b>▶ 開始</b>，滿條會自動升等。</span></li>
-            </ol>
-          </div>
-          <div class="card">
-            <div class="between"><div><div class="hint">目前讀到</div><div class="bigpct mono" id="pct">--</div></div>
-              <div style="text-align:right"><div class="hint">連動的單</div><select id="bindSel" style="max-width:190px"></select></div></div>
-            <canvas id="zoom"></canvas>
-            <div class="between" style="margin-top:4px"><span class="hint">練等速度（不用連動也會計算）</span><button class="xs ghost" id="btnRateReset">重設速度</button></div>
-            <div class="mini" style="margin-top:6px">
-              <div><div class="k">近 <span id="winLbl">10</span> 分速度</div><div class="v mono" id="sRate">--</div></div>
-              <div><div class="k">全程平均</div><div class="v mono" id="sAvg">--</div></div>
-              <div><div class="k">每等約需</div><div class="v mono" id="sPer">--</div></div>
-              <div><div class="k">預估滿條</div><div class="v mono" id="sEta">--</div></div>
-              <div><div class="k">本段獲得</div><div class="v mono" id="sGain">--</div></div>
-              <div><div class="k">本段時間</div><div class="v mono" id="sTime">--</div></div>
-            </div>
-            <canvas id="chart" style="margin-top:10px"></canvas>
-            <div style="display:grid;gap:9px;margin-top:14px;font-size:13px">
-              <label class="inline">速度取樣 <input type="number" id="optWin" min="1" max="120" value="10" style="width:64px"> 分鐘</label>
-              <label class="inline"><input type="checkbox" id="optIdle" checked> 共鳴度 <input type="number" id="optIdleMin" min="1" max="60" value="3" style="width:56px"> 分鐘沒增加就提醒</label>
-              <label class="inline"><input type="checkbox" id="optLost" checked> 讀不到條（過圖／離開）超過 <input type="number" id="optLostSec" min="10" max="600" value="60" style="width:64px"> 秒自動暫停計時</label>
-              <label class="inline"><input type="checkbox" id="optResume" checked> 共鳴度條重新出現時，自動繼續計時</label>
-            </div>
-            <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line2);display:grid;gap:9px;font-size:13px">
-              <label class="inline"><input type="checkbox" id="optOcr" checked> 讀取條旁邊的數字自動校正（最精準；第一次使用會下載約 5MB）</label>
-              <div class="hint" id="ocrInfo">數字辨識：尚未啟動</div>
-              <div class="row"><span class="hint">手動校正：遊戲顯示</span><input type="number" id="calIn" step="0.1" min="1" max="99.9" placeholder="34.8" style="width:80px"><span class="hint">%</span><button class="xs" id="calBtn">校正</button></div>
-            </div>
-            <div class="hint mono" id="dbg" style="margin-top:8px;font-size:11px"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== 工具 ===== -->
-      <section class="view" id="v-tools">
-        <div class="help" data-help="tools"></div>
-        <div class="grid g2">
-          <div class="card">
-            <div class="card-h"><h3>⏳ 加成 / 藥水倒數</h3><button class="sm" id="btnCustomBuff">＋ 自訂</button></div>
-            <div id="buffs"></div>
-            <div class="row" style="margin-top:14px">
-              <button class="sm" data-buff="經驗藥水|30">經驗藥水 30 分</button>
-              <button class="sm" data-buff="經驗加成|60">經驗加成 60 分</button>
-              <button class="sm" data-buff="活動 Buff|120">活動 2 小時</button>
-            </div>
-            <div class="hint" style="margin-top:10px">剩 1 分鐘變紅；到時間響提示音、分頁標題閃爍、左側選單亮紅點。倒數存在這台電腦。</div>
-          </div>
-          <div class="card">
-            <div class="card-h"><h3>🏃 副本單趟計時</h3><button class="sm ghost" id="lapClear">清空</button></div>
-            <div class="lap-big mono" id="lapNow">00:00.0</div>
-            <div class="row"><button class="primary" id="lapStart">開始</button><button id="lapMark">完成一趟</button><span class="hint">快捷鍵：空白鍵 = 完成一趟</span></div>
-            <div class="mini">
-              <div><div class="k">趟數</div><div class="v mono" id="lapCount">0</div></div>
-              <div><div class="k">平均</div><div class="v mono" id="lapAvg">--</div></div>
-              <div><div class="k">最快</div><div class="v mono" id="lapBest">--</div></div>
-            </div>
-            <div class="laps mono" id="lapList"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== 價目表 ===== -->
-      <section class="view" id="v-prices">
-        <div class="help" data-help="prices"></div>
-        <div class="grid g-main">
-          <div class="card">
-            <div class="card-h"><h3>💰 共鳴代練價目表 <small>每升 1 等</small></h3>
-              <div class="row" id="priceAdminBtns"><button class="sm" id="priceAdd">＋ 區間</button><button class="sm ghost" id="priceDefault">還原預設</button><button class="primary sm" id="priceSave">儲存價目表</button></div></div>
-            <div class="tbl-wrap"><table class="t" id="priceTbl"></table></div>
-            <div class="hint" style="margin-top:10px">「100 – 125」代表從 100 等升到 125 等，每升 1 等的價格（依升等前的等級計價）。價格留空 = 私訊詳談。只有管理員可以修改；已建立的單維持建單時的價格。</div>
-          </div>
-          <div class="card">
-            <div class="card-h"><h3>🧮 報價試算</h3></div>
-            <div class="fgrid">
-              <div class="field"><label>目前共鳴等級<input type="number" id="qFrom" min="0" value="0"></label></div>
-              <div class="field"><label>目標共鳴等級<input type="number" id="qTo" min="1" value="100"></label></div>
-              <div class="field full"><label class="inline"><input type="checkbox" id="qTag" checked> 有吊牌（200% 經驗徽章）</label></div>
-            </div>
-            <div class="calc" id="qOut" style="margin-top:12px"></div>
-            <div class="row" style="margin-top:12px"><button class="primary sm" id="qCopy">複製報價給客人</button><button class="sm" id="qCreate">用這個報價建單</button></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== 成員 ===== -->
-      <section class="view" id="v-team">
-        <div class="help" data-help="team"></div>
-        <div class="card">
-          <div class="card-h"><h3>👥 團隊成員</h3><span class="hint" id="teamHint"></span></div>
-          <div class="tbl-wrap"><table class="t" id="memberTbl"></table></div>
-        </div>
-        <div class="infobox" style="margin-top:14px">新成員請到網站登入頁自行「註冊新帳號」，註冊後會出現在上方列表，管理員把身分改成「成員」即可使用。<br>網址：<b id="siteUrl"></b> <button class="xs" id="copyUrl">複製</button></div>
-      </section>
-
-      <!-- ===== 紀錄 ===== -->
-      <section class="view" id="v-logs">
-        <div class="help" data-help="logs"></div>
-        <div class="card">
-          <div class="card-h"><h3>🕘 操作紀錄 <small>最近 300 筆</small></h3>
-            <div class="row"><select id="logWho"><option value="">所有人</option></select><select id="logType"><option value="">所有類型</option></select></div></div>
-          <div id="logList"></div>
-        </div>
-      </section>
-    </main>
+    <div class="stats">
+      <div><b class="mono" id="stLow">$30</b><span>每等最低價</span></div>
+      <div><b>200%</b><span>吊牌方案更划算</span></div>
+      <div><b>即時</b><span>線上自動報價</span></div>
+    </div>
   </div>
-</div>
-
-<!-- ======================= 對話框 ======================= -->
-<div class="modal-bg" id="mOrder">
-  <div class="modal wide">
-    <h3 id="mOrderTitle">新增代練單</h3>
-    <div class="sub">依價目表自動計價，也可以手動調整總價</div>
-    <form id="fOrder" class="fgrid" novalidate>
-      <div class="field"><label>委託人 *<input name="client" maxlength="30" placeholder="例：小明"></label><div class="err" data-err="client"></div></div>
-      <div class="field"><label>角色 / 職業<input name="job" maxlength="40" placeholder="例：艾索德・騎士皇帝"></label></div>
-      <div class="field"><label>起始共鳴等級 *<input name="startLv" type="number" min="0" max="999" value="0"></label></div>
-      <div class="field"><label>目標共鳴等級 *<input name="targetLv" type="number" min="1" max="999" value="100"></label><div class="err" data-err="targetLv"></div></div>
-      <div class="field"><label>目前等級（中途接手才填）<input name="curLv" type="number" min="0" max="999" placeholder="同起始"></label><div class="err" data-err="curLv"></div></div>
-      <div class="field"><label>接單人<select name="assignee"></select></label></div>
-      <div class="field full"><label class="inline"><input type="checkbox" name="hasTag" checked> 有吊牌（200% 經驗徽章）</label></div>
-      <div class="field"><label>總價（元）<input name="price" type="number" min="0" value="0"></label></div>
-      <div class="field"><label>截止日<input name="deadline" type="date"></label></div>
-      <div class="full calc" id="priceCalc"></div>
-      <div class="field full"><label class="inline"><input type="checkbox" name="autoLv" checked> 連動辨識時，共鳴度滿條自動 +1 等</label></div>
-      <div class="field full"><label>備註<textarea name="note" rows="2" maxlength="300" placeholder="特殊需求、聯絡方式…（請勿存放客人帳號密碼）"></textarea></label></div>
-      <button type="submit" style="display:none"></button>
-    </form>
-    <div class="foot"><button class="ghost" data-close type="button">取消</button><button class="primary" id="saveOrder" type="button">儲存</button></div>
+  <div class="hero-card">
+    <h3>⚡ 快速試算</h3>
+    <div class="muted" style="color:var(--muted);font-size:13.5px">輸入你的共鳴等級，馬上知道價格</div>
+    <div class="mini">
+      <label>目前等級<input type="number" id="hFrom" min="0" max="998" value="0"></label>
+      <label>目標等級<input type="number" id="hTo" min="1" max="999" value="100"></label>
+    </div>
+    <label class="chk"><input type="checkbox" id="hTag" checked> 有吊牌（200% 經驗徽章）</label>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;gap:10px">
+      <div><div style="color:var(--muted);font-size:13px">預估價格</div><div class="big mono" id="hPrice">$3,000</div></div>
+      <a class="btn primary" href="#order" id="hGo">用這個下單 →</a>
+    </div>
   </div>
-</div>
+</div></section>
 
-<div class="modal-bg" id="mInput">
-  <div class="modal"><h3 id="iTitle"></h3><div class="sub" id="iSub"></div><div class="fgrid" id="iBody"></div>
-    <div class="foot"><button class="ghost" data-close type="button">取消</button><button class="primary" id="iOk" type="button">確定</button></div></div>
-</div>
+<!-- ===== 服務介紹 ===== -->
+<section class="s" id="about"><div class="wrap">
+  <div class="s-h"><small>ABOUT US</small><h2>為什麼選擇我們</h2><p id="intro">我們是專注艾爾之光共鳴等級的代練團隊，由代練師親自操作練功，每一等的時間都有系統紀錄，練到哪裡隨時回報給你。</p></div>
+  <div class="feat" id="feat"></div>
+</div></section>
 
-<div class="modal-bg" id="mConfirm">
-  <div class="modal"><h3 id="cTitle">確定？</h3><div class="sub" id="cSub"></div>
-    <div class="foot"><button class="ghost" data-close type="button">取消</button><button class="warn" id="cOk" type="button">確定</button></div></div>
-</div>
+<!-- ===== 價目表 ===== -->
+<section class="s alt" id="price"><div class="wrap">
+  <div class="s-h"><small>PRICING</small><h2>共鳴代練價目表</h2><p>依共鳴等級區間計價，每升 1 等的價格如下（新台幣）。</p></div>
+  <div class="price-grid">
+    <div class="card" style="padding:8px 8px">
+      <table class="pt" id="priceTbl"><tr><td style="padding:30px;text-align:center;color:var(--muted)">載入中…</td></tr></table>
+    </div>
+    <div>
+      <div class="card">
+        <h3 style="margin:0 0 8px">📌 計價說明</h3>
+        <ul style="margin:0;padding-left:20px;color:#c3cbea;font-size:14px">
+          <li>依「<b>升等前</b>」的等級計價：99→100 算 0–100 區間、100→101 算 100–125 區間。</li>
+          <li>跨區間會自動分段計算，下方線上報價會列出每一段。</li>
+          <li><b>吊牌</b>＝200% 經驗徽章，練得快所以價格較低。</li>
+          <li id="dmNote">225 等以上請私訊詳談。</li>
+        </ul>
+      </div>
+      <div class="tagnote">💡 不確定要選哪個方案？直接到下方填單，在備註寫「想諮詢」，我們會在 Discord 跟你說明。</div>
+    </div>
+  </div>
+</div></section>
 
-<div class="modal-bg" id="mReport">
-  <div class="modal"><h3>📋 進度回報</h3><div class="sub">複製後貼給委託人（LINE / Discord）</div>
-    <textarea id="reportText" rows="10" style="width:100%"></textarea>
-    <div class="foot"><button class="ghost" data-close type="button">關閉</button><button class="primary" id="copyReport" type="button">複製</button></div></div>
-</div>
+<!-- ===== 線上下單 ===== -->
+<section class="s" id="order"><div class="wrap">
+  <div class="s-h"><small>ORDER</small><h2>線上報價・下單</h2><p>填好資料送出後，我們會在 Discord 與你確認細節與付款方式。送出不會馬上扣款。</p></div>
+  <div class="order">
+    <div class="card">
+      <form id="fOrder" novalidate>
+        <div class="fgrid">
+          <label>目前共鳴等級 *<input type="number" name="from" min="0" max="998" value="0"></label>
+          <label>目標共鳴等級 *<input type="number" name="to" min="1" max="999" value="100"><div class="err" data-err="to"></div></label>
+          <label class="full chk"><input type="checkbox" name="tag" checked> 有吊牌（200% 經驗徽章）</label>
+          <label>角色名稱<input name="charName" maxlength="30" placeholder="遊戲內角色名稱"></label>
+          <label>職業<input name="job" maxlength="40" placeholder="例：艾索德・騎士皇帝"></label>
+          <label class="full">Discord 帳號 *<input name="discord" maxlength="50" placeholder="例：yourname 或 yourname#1234"><div class="err" data-err="discord"></div></label>
+          <label class="full">備註<textarea name="note" rows="3" maxlength="500" placeholder="希望完成時間、可上線時段、其他需求…"></textarea></label>
+          <div class="full warnnote">🔒 <b>請勿在表單填寫遊戲帳號密碼。</b>確認委託後，我們會在 Discord 私訊與你聯繫。</div>
+          <label class="full chk"><input type="checkbox" name="agree"> 我已閱讀<a href="#faq">常見問題</a>與委託流程</label>
+          <div class="full err" data-err="agree"></div>
+        </div>
+        <button class="primary" style="width:100%;margin-top:16px;padding:14px" id="submitBtn">送出委託</button>
+        <div class="err" id="submitErr" style="text-align:center;margin-top:8px"></div>
+      </form>
+      <div class="done" id="doneBox">
+        <div class="ok">✅</div>
+        <h3 style="margin:6px 0">委託已送出！</h3>
+        <p style="color:var(--muted)">你的委託編號是 <code class="mono" id="reqNo"></code><br>我們會盡快透過 Discord 聯繫 <b id="reqDc"></b>，<br>也可以直接加入我們的 Discord 私訊並提供委託編號。</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+          <a class="btn discord" id="doneDc" href="#contact" target="_blank" rel="noopener"><svg width="20" height="20"><use href="#dc"/></svg>前往 Discord</a>
+          <button id="againBtn">再填一張</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="quote" id="quote"></div>
+      <div class="card" style="margin-top:16px">
+        <h3 style="margin:0 0 6px;font-size:16px">⏱️ 送出後會發生什麼？</h3>
+        <ol style="margin:0;padding-left:20px;color:#c3cbea;font-size:14px">
+          <li>工作室後台會立即收到你的委託</li>
+          <li>專人透過 Discord 與你確認時間、細節與付款方式</li>
+          <li>確認後安排代練師開始，過程中隨時可以詢問進度</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div></section>
 
-<div class="toasts" id="toasts"></div>
-<video id="vid" autoplay muted playsinline style="display:none"></video>
+<!-- ===== 委託流程 ===== -->
+<section class="s alt" id="flow"><div class="wrap">
+  <div class="s-h"><small>HOW IT WORKS</small><h2>委託流程</h2></div>
+  <div class="steps">
+    <div class="card"><h4>線上報價</h4><p>輸入目前與目標共鳴等級，立即看到價格。</p></div>
+    <div class="card"><h4>送出委託</h4><p>留下 Discord 帳號與角色資料。</p></div>
+    <div class="card"><h4>Discord 確認</h4><p>專人聯繫，確認細節、時間與付款方式。</p></div>
+    <div class="card"><h4>開始代練</h4><p>代練師開始練功，全程紀錄時間與等級。</p></div>
+    <div class="card"><h4>完成交付</h4><p>達到目標等級後通知你，完成委託。</p></div>
+  </div>
+</div></section>
+
+<!-- ===== FAQ ===== -->
+<section class="s" id="faq"><div class="wrap">
+  <div class="s-h"><small>FAQ</small><h2>常見問題</h2></div>
+  <div class="faq" id="faqList"></div>
+</div></section>
+
+<!-- ===== 聯絡 ===== -->
+<section class="s contact" id="contact"><div class="wrap">
+  <div class="s-h" style="margin-bottom:24px"><small>CONTACT</small><h2>還有問題？直接問我們</h2><p id="contactTxt">加入我們的 Discord，有任何問題都可以私訊。</p></div>
+  <a class="btn discord" id="footDc" href="#" target="_blank" rel="noopener" style="padding:14px 28px;font-size:16px"><svg width="22" height="22"><use href="#dc"/></svg><span id="dcLabel">加入 Discord</span></a>
+</div></section>
+
+<footer><div class="wrap">
+  <span>© <span id="yr"></span> B服代練工作室・本站與遊戲官方無關</span>
+  <a href="admin.html">工作室登入</a>
+</div></footer>
+<div class="toast" id="toast"></div>
 
 <script>
 "use strict";
-// =====================================================================
-//  小工具
-// =====================================================================
 const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-const now = () => Date.now();
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const p2 = n => String(n).padStart(2,'0');
-function fmt(ms){ ms=Math.max(0,ms); const t=Math.floor(ms/1000); return `${p2(Math.floor(t/3600))}:${p2(Math.floor(t%3600/60))}:${p2(t%60)}`; }
-function fmtShort(ms){ if (!isFinite(ms) || ms <= 0) return '--'; const m = Math.round(ms/60000); return m < 1 ? '<1 分' : m < 60 ? m+' 分' : Math.floor(m/60)+' 時 '+(m%60)+' 分'; }
-function fmtH(ms){ return (ms/3600000).toFixed(1) + ' 時'; }
-function fmtLap(ms){ const t=ms/1000; return `${p2(Math.floor(t/60))}:${(t%60).toFixed(1).padStart(4,'0')}`; }
-const money = n => (n < 0 ? '-$' : '$') + Math.round(Math.abs(n||0)).toLocaleString();
-function ago(t){ const s=(now()-t)/1000; if (s<60) return '剛剛'; if (s<3600) return Math.floor(s/60)+' 分鐘前'; if (s<86400) return Math.floor(s/3600)+' 小時前';
-  return new Date(t).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}); }
-const dt = t => new Date(t).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
-const dayStart = (d=new Date()) => { const x=new Date(d); x.setHours(0,0,0,0); return x.getTime(); };
-const monthStart = () => { const x=new Date(); x.setDate(1); x.setHours(0,0,0,0); return x.getTime(); };
-const initial = s => (String(s||'?').trim()[0] || '?').toUpperCase();
+const money = n => '$' + Math.round(n||0).toLocaleString();
+$('#yr').textContent = new Date().getFullYear();
 
-// =====================================================================
-//  狀態：本機（這台電腦）＋ 團隊（雲端）
-// =====================================================================
-const KEY = 'bstudio-local-v1';
-let state = { orders: [], buffs: [], laps: [], lapStart: null, boundId: null, region: null, filter:'active', sort:'new', rankBy:'money',
-              opt: { win: 10, idle: true, idleMin: 3, lost: true, lostSec: 60, resume: true, ocr: true } };
-try {
-  const s = JSON.parse(localStorage.getItem(KEY)) || JSON.parse(localStorage.getItem('elsword-leveling-timer-team-v1'));
-  if (s) { delete s.orders; delete s.prices; state = Object.assign(state, s, { opt: Object.assign(state.opt, s.opt || {}) }); }
-} catch(e){}
-if (!['active','mine','none','done','trash'].includes(state.filter)) state.filter = 'active';
-let backend = null, me = null, members = {}, logs = [];
-let dataReady = false;
-const synced = new Map();
 const DEFAULT_PRICES = [
-  { lo:0,   hi:100,  tag:30,  noTag:50 },  { lo:100, hi:125, tag:50,  noTag:70 },
-  { lo:125, hi:150,  tag:60,  noTag:80 },  { lo:150, hi:175, tag:80,  noTag:100 },
-  { lo:175, hi:200,  tag:100, noTag:120 }, { lo:200, hi:225, tag:140, noTag:180 },
-  { lo:225, hi:null, tag:null, noTag:null },
-];
-state.prices = JSON.parse(JSON.stringify(DEFAULT_PRICES));
+  { lo:0, hi:100, tag:30, noTag:50 }, { lo:100, hi:125, tag:50, noTag:70 }, { lo:125, hi:150, tag:60, noTag:80 },
+  { lo:150, hi:175, tag:80, noTag:100 }, { lo:175, hi:200, tag:100, noTag:120 }, { lo:200, hi:225, tag:140, noTag:180 },
+  { lo:225, hi:null, tag:null, noTag:null } ];
+const DEFAULT_SITE = {
+  open: true, openText: '',
+  announce: { on: false, text: '' },
+  tagline: '專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由專人在 Discord 與你聯繫。',
+  intro: '我們是專注艾爾之光共鳴等級的代練團隊，由代練師親自操作練功，每一等的時間都有系統紀錄，練到哪裡隨時回報給你。',
+  features: [
+    { icon:'🎮', t:'專人親自代練', d:'由團隊代練師親自操作練功，有問題隨時找得到人。' },
+    { icon:'📊', t:'進度清楚透明', d:'練功時間與每一等都有系統紀錄，隨時可以詢問目前進度。' },
+    { icon:'💰', t:'價格公開', d:'依共鳴等級區間計價，下單前就能在網站上算出價格。' },
+    { icon:'💬', t:'Discord 專人聯繫', d:'下單後由專人在 Discord 與你確認所有細節。' } ],
+  discordUrl: '', contactText: '加入我們的 Discord，有任何問題都可以私訊。',
+  faq: [
+    { q:'什麼是「吊牌」？', a:'吊牌是 200% 經驗徽章。有吊牌練得比較快，所以每等價格比較低。' },
+    { q:'價格怎麼算？', a:'依「升等前」所在的共鳴等級區間，每升 1 等計價。例如 99→100 算 0–100 區間、100→101 算 100–125 區間。跨區間會自動分段計算，225 等以上請私訊報價。' },
+    { q:'需要提供哪些資料？', a:'角色名稱、職業、目前與目標共鳴等級，以及 Discord 帳號。遊戲帳號相關資料請只在 Discord 私訊中提供，不要填在網站表單。' },
+    { q:'送出委託後多久開始？', a:'我們會在 Discord 與你確認時間，確認後就會安排代練師開始。' },
+    { q:'可以知道代練進度嗎？', a:'可以，隨時在 Discord 詢問，代練師會回報目前等級、進度百分比與預估剩餘時間。' },
+    { q:'怎麼付款？', a:'確認報價與細節後，會在 Discord 告知付款方式。送出網站表單不會扣款。' } ],
+};
+const S = { prices: DEFAULT_PRICES, site: DEFAULT_SITE };
 
-function normOrder(o){
-  if (o.autoLv === undefined) o.autoLv = true;
-  if (o.startLv0 === undefined) o.startLv0 = o.startLv;
-  if (o.startLv === undefined) o.startLv = o.startLv0;
-  o.levels = o.levels || []; o.sessions = o.sessions || []; o.acc = o.acc || 0;
-  return o;
-}
-const isAdmin = () => me && me.role === 'admin';
-const nameOf = u => (u && members[u.uid] && members[u.uid].name) || (u && u.name) || '';
-const meRef = () => ({ uid: me.uid, name: me.name });
-
-function save(){
-  try { const { orders, prices, ...local } = state; localStorage.setItem(KEY, JSON.stringify(local)); } catch(e){}
-  if (!backend || !me) return;
-  const ids = new Set();
-  state.orders.forEach(o => {
-    ids.add(o.id); const j = JSON.stringify(o);
-    if (synced.get(o.id) !== j){ synced.set(o.id, j); setSync('saving'); backend.putOrder(o).then(() => setSync(true)).catch(syncErr); }
-  });
-  [...synced.keys()].forEach(id => { if (!ids.has(id)){ synced.delete(id); backend.delOrder(id).catch(syncErr); } });
-}
-function syncErr(e){ console.error(e); setSync(false); toast('同步失敗：' + errText(e), 'err'); }
-function setSync(ok){
-  const c = $('#syncChip'); c.classList.toggle('off', ok === false);
-  $('#syncTxt').textContent = ok === 'saving' ? '儲存中…' : ok ? '已同步' : '連線異常';
-}
-function log(type, text, orderId){
-  if (!backend || !me) return;
-  backend.addLog({ at: now(), uid: me.uid, name: me.name, type, text, orderId: orderId || null }).catch(e => console.warn('log', e));
-}
-
-// =====================================================================
-//  計價
-// =====================================================================
-function calcPriceWith(tbl, from, to, hasTag){
+function calcPrice(from, to, tag){
   let total = 0, unknown = 0; const parts = [];
   for (let lv = Math.floor(from); lv < to; lv++){
-    const t = tbl.find(p => lv >= p.lo && (p.hi == null || lv < p.hi));
-    const v = t ? (hasTag ? t.tag : t.noTag) : null;
+    const t = S.prices.find(p => lv >= p.lo && (p.hi == null || lv < p.hi));
+    const v = t ? (tag ? t.tag : t.noTag) : null;
     if (v == null || v === '') { unknown++; continue; }
-    total += +v;
-    const key = `${t.lo}–${t.hi ?? '以上'}`, last = parts[parts.length-1];
+    total += +v; const key = `${t.lo}–${t.hi ?? '以上'}`, last = parts[parts.length-1];
     if (last && last.key === key) last.n++; else parts.push({ key, n:1, v:+v });
   }
   return { total, unknown, parts };
 }
-const calcPrice = (a, b, tag) => calcPriceWith(state.prices, a, b, tag);
-// 一張單從 a 等到 b 等值多少錢（用建單時的價目表；手動改價就按比例）
-function orderValue(o, a, b){
-  const tbl = o.priceTable || state.prices, tag = o.hasTag !== false, span = Math.max(1, o.targetLv - o.startLv0);
-  const full = calcPriceWith(tbl, o.startLv0, o.targetLv, tag);
-  if (full.unknown === 0 && full.total > 0 && Math.abs(full.total - (o.price||0)) < 1) return calcPriceWith(tbl, a, b, tag).total;
-  return (o.price||0) * (b - a) / span;
-}
 
-// =====================================================================
-//  代練單邏輯
-// =====================================================================
-const elapsed = o => o.acc + (o.runningSince ? now() - o.runningSince : 0);
-const live = () => state.orders.filter(o => !o.deleted);
-function startOrder(o){
-  if (o.runningSince || o.done) return;
-  o.runningSince = now(); o.runner = meRef();
-  if (!o.assignee) o.assignee = meRef();
-  if (o.lvMarkAt == null) o.lvMarkAt = elapsed(o);
-  scan.idleSince = now();
-  log('start', `開始練 ${o.client}（Lv.${o.curLv}）`, o.id);
+// ---------------- 畫面 ----------------
+function renderSite(){
+  const s = Object.assign({}, DEFAULT_SITE, S.site || {});
+  const open = s.open !== false;
+  const b = $('#openBadge'); b.classList.toggle('closed', !open); b.querySelector('span').textContent = open ? '接單中' : (s.openText || '暫停接單');
+  $('#tagline').textContent = s.tagline || DEFAULT_SITE.tagline;
+  $('#intro').textContent = s.intro || DEFAULT_SITE.intro;
+  $('#contactTxt').textContent = s.contactText || DEFAULT_SITE.contactText;
+  const an = s.announce || {}; $('#announce').classList.toggle('show', !!(an.on && an.text)); $('#announceTxt').textContent = an.text || '';
+  $('#feat').innerHTML = (s.features && s.features.length ? s.features : DEFAULT_SITE.features).map(f =>
+    `<div class="card"><div class="ic">${esc(f.icon || '⭐')}</div><h3>${esc(f.t)}</h3><p>${esc(f.d)}</p></div>`).join('');
+  $('#faqList').innerHTML = (s.faq && s.faq.length ? s.faq : DEFAULT_SITE.faq).map(f =>
+    `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('');
+  const url = /^https:\/\//.test(s.discordUrl || '') ? s.discordUrl : '';
+  ['#heroDc','#footDc','#doneDc'].forEach(id => { const a = $(id); a.style.display = url ? '' : 'none'; if (url) a.href = url; });
+  $('#submitBtn').disabled = !open;
+  $('#submitBtn').textContent = open ? '送出委託' : '目前暫停接單';
 }
-function pauseOrder(o, why){
-  if (!o.runningSince) return;
-  const t = now(); o.sessions.push([o.runningSince, t, (o.runner && o.runner.uid) || (me && me.uid) || null]);
-  o.acc += t - o.runningSince; o.runningSince = null;
-  log('pause', `暫停 ${o.client}${why ? '（' + why + '）' : ''}，這段 ${fmtShort(t - o.sessions[o.sessions.length-1][0])}`, o.id);
+function renderPrices(){
+  const P = S.prices;
+  const lows = P.map(p => p.tag).filter(v => v != null); $('#stLow').textContent = lows.length ? money(Math.min(...lows)) : '--';
+  const dm = P.find(p => p.tag == null && p.noTag == null);
+  $('#dmNote').textContent = dm ? `${dm.lo} 等以上請私訊詳談。` : '所有等級都可以直接線上報價。';
+  $('#priceTbl').innerHTML = `<tr><th>共鳴等級區間</th><th class="r">有吊牌（200%）</th><th class="r">無吊牌</th></tr>` + P.map(p => {
+    const dmRow = p.tag == null && p.noTag == null;
+    return `<tr><td class="lv">${p.lo}${p.hi == null ? ' 以上' : ' – ' + p.hi}</td>
+      ${dmRow ? '<td class="r dm" colspan="2">💬 歡迎私訊詳談</td>' :
+      `<td class="r p best">${p.tag == null ? '<span class="dm">私訊</span>' : money(p.tag) + ' <span style="color:var(--dim);font-weight:400;font-size:12px">/ 等</span>'}</td>
+       <td class="r p">${p.noTag == null ? '<span class="dm">私訊</span>' : money(p.noTag) + ' <span style="color:var(--dim);font-weight:400;font-size:12px">/ 等</span>'}</td>`}</tr>`; }).join('');
+  heroCalc(); renderQuote();
 }
-function levelUp(o, n=1, auto=false){
-  const e = elapsed(o), last = o.lvMarkAt ?? 0;
-  o.levels.push({ from:o.curLv, to:o.curLv+n, ms:e-last, at:now(), auto, by: me ? meRef() : null });
-  o.curLv += n; o.lvMarkAt = e;
-  log(auto ? 'auto' : 'level', `${o.client} 升到 Lv.${o.curLv}${auto ? '（自動辨識）' : ''}`, o.id);
-  if (o.curLv >= o.targetLv){
-    pauseOrder(o); o.done = true; o.doneAt = now();
-    log('done', `🎉 ${o.client} 完成！Lv.${o.startLv0} → ${o.curLv}`, o.id);
-    toast(`🎉 ${o.client} 練到 Lv.${o.curLv}，完成！`, 'ok'); beep(4);
-  } else toast(`${auto ? '📡 自動升等：' : ''}${o.client} → Lv.${o.curLv}（這等 ${fmtShort(e-last)}）`, 'ok');
+function heroCalc(){
+  const a = +$('#hFrom').value, b = +$('#hTo').value;
+  if (!(b > a)){ $('#hPrice').textContent = '--'; return; }
+  const c = calcPrice(a, b, $('#hTag').checked);
+  $('#hPrice').textContent = money(c.total) + (c.unknown ? '+' : '');
 }
-function undoLevel(o){
-  const l = o.levels.pop(); if (!l) return;
-  o.curLv = l.from; o.done = false; o.doneAt = null; o.lvMarkAt = (o.lvMarkAt ?? 0) - l.ms;
-  log('undo', `${o.client} 撤銷升等，回到 Lv.${o.curLv}`, o.id);
-}
-function softDelete(o){
-  if (o.runningSince) pauseOrder(o, '刪除');
-  o.deleted = true; o.deletedAt = now(); o.deletedBy = me ? me.name : '';
-  if (state.boundId === o.id) state.boundId = null;
-  log('delete', `把 ${o.client} 移到回收桶`, o.id);
-  save(); render();
-  toast(`已把「${o.client}」移到回收桶`, '', { label:'復原', fn: () => restore(o.id) });
-}
-function restore(id){
-  const o = state.orders.find(x => x.id === id); if (!o) return;
-  o.deleted = false; o.deletedAt = null; o.deletedBy = null;
-  log('restore', `從回收桶復原 ${o.client}`, o.id); save(); render(); toast('已復原「' + o.client + '」', 'ok');
-}
-const bound = () => state.orders.find(o => o.id === state.boundId && !o.done && !o.deleted);
+['hFrom','hTo','hTag'].forEach(id => $('#'+id).oninput = heroCalc);
+$('#hGo').onclick = () => { const f = $('#fOrder'); f.from.value = $('#hFrom').value; f.to.value = $('#hTo').value; f.tag.checked = $('#hTag').checked; renderQuote(); };
 
-function stats(o){
-  const e = elapsed(o), gained = o.curLv - o.startLv0, span = Math.max(1, o.targetLv - o.startLv0);
-  const lvDone = o.curLv - o.startLv, avg = lvDone > 0 ? (o.lvMarkAt ?? e) / lvDone : NaN;
-  const left = o.targetLv - o.curLv, thisLv = e - (o.lvMarkAt ?? 0);
-  const isB = o.id === state.boundId && scan.pct != null;
-  const frac = isB && !o.done ? scan.pct/100 : 0;
-  let eta = NaN, etaSrc = '';
-  if (isB && scan.rate > 0.01){ eta = (left*100 - scan.pct) / scan.rate * 3600000; etaSrc = '辨識速度'; }
-  else if (isFinite(avg)){ eta = Math.max(0, avg*left - thisLv); etaSrc = '平均每等'; }
-  const pct = Math.min(100, Math.max(0, (gained + frac) / span * 100));
-  const fracMoney = frac * orderValue(o, o.curLv, o.curLv + 1);
-  const earned = Math.min(o.price||0, orderValue(o, o.startLv0, o.curLv) + fracMoney);
-  const earnedHere = orderValue(o, o.startLv, o.curLv) + fracMoney;
-  const rate = e > 60000 && o.price ? earnedHere / (e/3600000) : NaN;
-  return { e, avg, eta, etaSrc, thisLv, rate, pct, left, gained, isB, earned };
-}
-
-// =====================================================================
-//  分頁
-// =====================================================================
-const VIEWS = {
-  dashboard:{ t:'總覽', s:'工作室即時營運狀況' }, orders:{ t:'代練單', s:'所有委託與進度' },
-  scan:{ t:'共鳴度辨識', s:'分享遊戲畫面，自動讀取共鳴度' }, tools:{ t:'計時工具', s:'加成倒數・副本單趟' },
-  prices:{ t:'價目表與報價', s:'共鳴代練每等價格' }, team:{ t:'成員管理', s:'團隊帳號與權限', admin:true }, logs:{ t:'操作紀錄', s:'誰在什麼時候做了什麼', admin:true },
-};
-let view = 'dashboard';
-function route(){
-  const h = location.hash.slice(1);
-  view = VIEWS[h] ? h : 'dashboard';
-  if (VIEWS[view].admin && !isAdmin()){ view = 'dashboard'; if (h) history.replaceState(null, '', '#dashboard'); }
-  $$('.view').forEach(v => v.classList.toggle('show', v.id === 'v-' + view));
-  $$('#nav a').forEach(a => a.classList.toggle('act', a.dataset.v === view));
-  $('#pgTitle').textContent = VIEWS[view].t; $('#pgSub').textContent = VIEWS[view].s;
-  document.body.classList.remove('nav-open');
-  renderHelp(); render(); window.scrollTo(0,0);
-}
-window.addEventListener('hashchange', route);
-$('#hamb').onclick = () => document.body.classList.toggle('nav-open');
-$('#scrim').onclick = () => document.body.classList.remove('nav-open');
-
-function render(){
-  if (!me) return;
-  renderBadges();
-  if (view === 'dashboard') renderDashboard();
-  if (view === 'orders') renderOrders();
-  if (view === 'scan') renderBindSel();
-  if (view === 'tools') { renderBuffs(); renderLaps(); }
-  if (view === 'prices') { renderPriceTbl(state.prices); renderQuote(); }
-  if (view === 'team' && isAdmin()) renderTeam();
-  if (view === 'logs' && isAdmin()) renderLogs();
-  tick();
-}
-function renderBadges(){
-  const act = live().filter(o => !o.done);
-  $('#bOrders').textContent = act.length;
-  const pend = Object.values(members).filter(m => m.role === 'pending').length;
-  $('#bTeam').style.display = isAdmin() && pend ? '' : 'none'; $('#bTeam').textContent = pend;
-}
-
-// =====================================================================
-//  使用說明
-// =====================================================================
-const HELP = {
-  dashboard: { title:'總覽怎麼看', cols:[
-    ['上方四個數字', ['<b>練出價值</b>：本月每升 1 等，依價目表換算成的金額加總（也就是「已經練出來的錢」）', '<b>練功時數</b>：全團隊本月按「開始」到「暫停」的時間合計', '<b>完成單數</b>：本月練到目標等級的單', '<b>待練金額</b>：所有未完成單還沒練出的價值']],
-    ['圖表與清單', ['<b>近 14 天</b>：每天練出多少錢，滑鼠移到長條上看金額', '<b>正在練功</b>：現在誰在練哪張單、練了多久', '<b>業績排行</b>：可切換營收／時數／升等數；升等算在「按下升等的人」身上', '<b>截止提醒</b>：3 天內到期或已逾期的單']],
-  ], tip:'這一頁每 15 秒自動更新，不用重新整理。' },
-  orders: { title:'代練單使用流程', cols:[
-    ['接單到完成', ['按右上角 <b>＋ 新增代練單</b>，填委託人、起始與目標共鳴等級、是否有吊牌——<b>價格會依價目表自動算好</b>', '別人建的單按 <b>🙋 接單</b> 就變成你的', '開始練按 <b>▶ 開始</b>，休息按 <b>⏸ 暫停</b>（只有按開始的時間會算進時數）', '每升一等按 <b>⬆ 升 1 等</b>；有用共鳴度辨識的話會自動升', '練到目標等級會自動標成「已完成」']],
-    ['其他操作（卡片右上 •••）', ['<b>📋 進度回報</b>：產生一段文字，複製貼給客人', '<b>✏️ 編輯</b>：改資料、改價格、中途接手可填「目前等級」', '<b>升多等…</b>：一次補記好幾等', '<b>↶ 撤銷升等</b>：按錯可以退回上一等', '<b>🗑️ 移到回收桶</b>：刪掉的單可以在「回收桶」復原']],
-    ['找單', ['上方可切換：進行中／我接的／未接／已完成／回收桶', '搜尋框可以找委託人、職業、備註', '右邊可以排序：最新、截止日、進度、練功中優先']],
-  ], tip:'📡 連動：要讓共鳴度辨識自動升等，先在單上按「📡 連動」，再按「▶ 開始」。同一時間只能連動一張單（每台電腦各自設定）。' },
-  scan: { title:'共鳴度辨識怎麼用', cols:[
-    ['第一次設定', ['用電腦版 <b>Chrome 或 Edge</b> 開網站，遊戲設成<b>視窗或無邊框</b>模式', '按 <b>① 分享遊戲視窗</b> → 選「視窗」分頁 → 選艾爾之光', '系統會<b>自動在左下角找到共鳴度條</b>，右邊顯示讀到的 %，和遊戲裡差不多就成功了', '找不到時：確認條上有一點藍色進度，再按 <b>🔍 自動偵測</b>；還是不行就按「手動框選」拖曳框住整條']],
-    ['開始自動升等', ['到「代練單」在要練的單按 <b>📡 連動</b>（或在右邊選單選）', '按那張單的 <b>▶ 開始</b>', '共鳴度從滿條掉回低點時，那張單會<b>自動 +1 等</b>並響提示音', '右邊會顯示每小時速度與預估滿條時間（<b>沒有連動單子也會計算速度</b>，可以先測哪張圖比較快）']],
-    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），位置會自動記住', '改了遊戲視窗大小會自動重新偵測', '系統會<b>讀條旁邊的數字（例如 34.8%）自動校正</b>，誤差約 0.1%；數字讀不到時可以在下方「手動校正」輸入遊戲顯示的 %', '<b>過圖</b>時條會暫時消失，畫面會顯示「過圖中… N 秒」，不會誤判升等；消失超過設定秒數（預設 60 秒）會自動暫停，條回來後自動繼續', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '網頁可以縮成小視窗放旁邊，但<b>不要最小化</b>']],
-  ], tip:'放大條下方的橘線是條的頭尾、紅線是目前填到哪裡；位置不對時按「🔍 自動偵測」重新找。' },
-  tools: { title:'計時工具', cols:[
-    ['加成／藥水倒數', ['吃了經驗藥水或加成，按對應按鈕開始倒數', '要其他時間按 <b>＋ 自訂</b>', '剩 1 分鐘變紅；時間到會響提示音、瀏覽器分頁標題閃爍、左側選單亮紅點', '<b>+5 分</b> 延長、<b>✕</b> 刪除']],
-    ['副本單趟計時', ['進副本時按 <b>開始</b>', '每打完一趟按 <b>完成一趟</b>（或按<b>空白鍵</b>），會自動接著計下一趟', '下方顯示趟數、平均、最快一趟，方便比較哪張圖效率高', '換地圖前可以按 <b>清空</b>']],
-  ], tip:'這一頁的資料只存在你這台電腦，不會同步給其他人。' },
-  prices: { title:'價目表與報價', cols:[
-    ['看價目表', ['「從 100 到 125」代表從 100 等升到 125 等，<b>每升 1 等</b>的價格', '計價看「升等前」的等級：99→100 算 0–100 的價、100→101 算 100–125 的價', '價格空白 = 私訊詳談']],
-    ['幫客人報價', ['在右邊填客人<b>目前等級</b>和<b>想練到幾等</b>，選有沒有吊牌', '下方會列出每段怎麼算和總價', '按 <b>複製報價給客人</b>，貼到 LINE 就是完整報價訊息', '客人確定後按 <b>用這個報價建單</b>，直接開一張代練單']],
-  ], tip:'只有管理員可以修改價目表；改價後只影響之後新建的單，已經建好的單維持原價。' },
-  team: { title:'成員管理（管理員）', cols:[
-    ['核准新成員', ['請新人打開網站，自己按「<b>註冊新帳號</b>」', '他會出現在下方列表，身分是「⏳ 待核准」，左側選單會亮紅點', '把身分改成 <b>成員</b>，對方畫面會自動進入系統']],
-    ['身分說明', ['<b>成員（代練師）</b>：接單、計時、升等、回報、看價目表與總覽', '<b>管理員</b>：以上全部，加上修改價目表、核准成員、看操作紀錄、永久刪除單', '<b>移除</b>：對方立刻失去存取權，要重新註冊並等核准']],
-  ], tip:'表格裡的「本月時數／練出」可以當作薪資或分潤的參考。' },
-  logs: { title:'操作紀錄（管理員）', cols:[
-    ['會記錄什麼', ['新增、編輯、接單、開始、暫停、升等（含自動）、撤銷、完成', '移到回收桶、復原、永久刪除', '價目表修改、成員身分調整']],
-    ['怎麼查', ['右上可以依「人」或「類型」篩選', '時間顯示「幾分鐘前」，滑鼠移上去看完整時間', '只保留最近 300 筆在畫面上']],
-  ], tip:'紀錄任何人都不能修改或刪除，有爭議（例如時數、誰練的）時可以拿來對照。' },
-};
-function renderHelp(){
-  const el = document.querySelector(`.help[data-help="${view}"]`); if (!el) return;
-  const h = HELP[view]; state.helpSeen = state.helpSeen || {};
-  const open = state.helpOpen ? state.helpOpen[view] : undefined;
-  const showIt = open === undefined ? !state.helpSeen[view] : open;
-  el.innerHTML = `<div class="help-h"><b>📖 ${h.title}</b><button class="ghost sm" data-help-close>收起說明</button></div>
-    <div class="help-cols">${h.cols.map(([t, items]) => `<div><h4>${t}</h4><ol>${items.map(i => `<li>${i}</li>`).join('')}</ol></div>`).join('')}</div>
-    ${h.tip ? `<div class="tip">💡 ${h.tip}</div>` : ''}`;
-  el.classList.toggle('show', !!showIt);
-  $('#btnHelp').classList.toggle('on', !!showIt);
-  el.querySelector('[data-help-close]').onclick = () => setHelp(false);
-}
-function setHelp(open){
-  state.helpSeen = state.helpSeen || {}; state.helpOpen = state.helpOpen || {};
-  state.helpSeen[view] = true; state.helpOpen[view] = open; save(); renderHelp();
-  if (open) window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-$('#btnHelp').onclick = () => { const el = document.querySelector(`.help[data-help="${view}"]`); setHelp(!(el && el.classList.contains('show'))); };
-
-// =====================================================================
-//  總覽
-// =====================================================================
-function monthStats(){
-  const ms = monthStart(), per = {};
-  const P = u => { const k = (u && u.uid) || '_'; return per[k] = per[k] || { uid:k, name: nameOf(u) || '（未知）', money:0, levels:0, ms:0, orders:new Set() }; };
-  let revenue = 0, hours = 0, doneN = 0;
-  live().forEach(o => {
-    o.levels.forEach(l => { if (l.at < ms) return; const v = orderValue(o, l.from, l.to), p = P(l.by || o.assignee);
-      p.money += v; p.levels += l.to - l.from; p.orders.add(o.id); revenue += v; });
-    o.sessions.forEach(([a,b,u]) => { const s = Math.max(a, ms); if (b <= s) return;
-      const p = P(u ? { uid:u, name: (members[u]||{}).name } : o.assignee); p.ms += b - s; hours += b - s; });
-    if (o.runningSince){ const s = Math.max(o.runningSince, ms); const p = P(o.runner || o.assignee); p.ms += now() - s; hours += now() - s; }
-    if (o.done && (o.doneAt || 0) >= ms) doneN++;
-  });
-  return { revenue, hours, doneN, per: Object.values(per) };
-}
-function renderDashboard(){
-  if (!dataReady){ $('#kpis').innerHTML = '<div class="skel"></div>'.repeat(4); return; }
-  const m = monthStats(), act = live().filter(o => !o.done);
-  const pending = act.reduce((a,o) => a + (o.price||0) - stats(o).earned, 0);
-  const running = act.filter(o => o.runningSince);
-  const t0 = dayStart(); let today = 0;
-  live().forEach(o => o.levels.forEach(l => { if (l.at >= t0) today += orderValue(o, l.from, l.to); }));
-  const mon = new Date().getMonth() + 1;
-  $('#kpis').innerHTML = `
-    <div class="card kpi"><div class="k">💵 ${mon} 月練出價值</div><div class="v mono">${money(m.revenue)}</div><div class="d">今日 ${money(today)}</div></div>
-    <div class="card kpi"><div class="k">⏱️ ${mon} 月練功時數</div><div class="v mono" data-live="mhours">${fmtH(m.hours)}</div><div class="d">全團隊合計</div></div>
-    <div class="card kpi"><div class="k">✅ ${mon} 月完成單數</div><div class="v mono">${m.doneN}</div><div class="d">進行中 ${act.length} 張・練功中 ${running.length} 張</div></div>
-    <div class="card kpi"><div class="k">📦 待練金額</div><div class="v mono">${money(pending)}</div><div class="d">未完成單尚未練出的價值</div></div>`;
-
-  // 14 天圖
-  const days = [], vals = new Array(14).fill(0);
-  for (let i = 13; i >= 0; i--){ const d = new Date(); d.setDate(d.getDate() - i); days.push(dayStart(d)); }
-  live().forEach(o => o.levels.forEach(l => { const idx = days.findIndex((d,i) => l.at >= d && (i === 13 || l.at < days[i+1])); if (idx >= 0) vals[idx] += orderValue(o, l.from, l.to); }));
-  const max = Math.max(1, ...vals);
-  $('#chartSum').textContent = '合計 ' + money(vals.reduce((a,b)=>a+b,0));
-  $('#revChart').innerHTML = vals.map((v,i) => { const d = new Date(days[i]);
-    return `<div class="c ${i===13?'today':''}" title="${d.getMonth()+1}/${d.getDate()}：${money(v)}"><b>${v ? (v >= 1000 ? (v/1000).toFixed(1)+'k' : Math.round(v)) : ''}</b><i style="height:${Math.max(2, v/max*120)}px"></i><span>${i===13?'今天':(d.getMonth()+1)+'/'+d.getDate()}</span></div>`; }).join('');
-
-  // 正在練功
-  $('#liveList').innerHTML = running.length ? running.map(o => `
-    <div class="live"><span class="pulse"></span><div style="flex:1;min-width:0"><b>${esc(o.client)}</b> <span class="muted">Lv.${o.curLv} → ${o.targetLv}</span><div class="hint">${esc(nameOf(o.runner || o.assignee))} 練功中</div></div>
-      <div class="mono" data-run="${o.id}">${fmt(now() - o.runningSince)}</div></div>`).join('')
-    : '<div class="empty" style="padding:26px"><div class="ico">😴</div>目前沒有人在練功</div>';
-
-  // 排行
-  const k = state.rankBy, list = m.per.filter(p => p.money || p.ms || p.levels).sort((a,b) => (k==='hours' ? b.ms-a.ms : k==='levels' ? b.levels-a.levels : b.money-a.money));
-  $$('#rankSeg button').forEach(b => b.classList.toggle('act', b.dataset.k === k));
-  $('#rankList').innerHTML = list.length ? list.map((p,i) => `
-    <div class="rank"><div class="no n${i+1}">${i+1}</div><div class="avatar sm">${esc(initial(p.name))}</div>
-      <div class="nm"><b>${esc(p.name)}</b>${p.uid===me.uid?' <span class="tag link">我</span>':''}<small>${p.orders.size} 張單・升 ${p.levels} 等</small></div>
-      <div class="amt"><b class="mono">${k==='hours' ? fmtH(p.ms) : k==='levels' ? p.levels + ' 等' : money(p.money)}</b><small>${k==='money' ? fmtH(p.ms) : money(p.money)}</small></div></div>`).join('')
-    : '<div class="empty" style="padding:26px"><div class="ico">🏁</div>本月還沒有紀錄，開始第一張單吧</div>';
-
-  // 截止
-  const soon = act.filter(o => o.deadline).map(o => ({ o, d: new Date(o.deadline + 'T23:59:59').getTime() - now() }))
-    .filter(x => x.d < 3*86400000).sort((a,b) => a.d - b.d);
-  $('#dueList').innerHTML = soon.length ? soon.map(({o,d}) => `
-    <div class="live"><span class="tag ${d<0?'red':d<86400000?'gold':''}">${d<0?'已逾期':d<86400000?'今天':'剩 '+Math.ceil(d/86400000)+' 天'}</span>
-      <div style="flex:1;min-width:0"><b>${esc(o.client)}</b><div class="hint">${esc(o.deadline)}・Lv.${o.curLv}/${o.targetLv}・${esc(o.assignee ? nameOf(o.assignee) : '未接')}</div></div>
-      <div class="bar" style="width:70px"><i style="width:${stats(o).pct}%"></i></div></div>`).join('')
-    : '<div class="empty" style="padding:26px"><div class="ico">👌</div>3 天內沒有到期的單</div>';
-}
-$('#rankSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; state.rankBy = b.dataset.k; save(); renderDashboard(); };
-
-// =====================================================================
-//  代練單列表
-// =====================================================================
-function filtered(){
-  const q = $('#q').value.trim().toLowerCase(), f = state.filter;
-  let list = state.orders.filter(o => {
-    if (f === 'trash') return o.deleted;
-    if (o.deleted) return false;
-    if (f === 'done') return o.done;
-    if (o.done) return false;
-    if (f === 'mine') return o.assignee && o.assignee.uid === me.uid;
-    if (f === 'none') return !o.assignee;
-    return true;
-  });
-  if (q) list = list.filter(o => [o.client, o.job, o.note, nameOf(o.assignee)].join(' ').toLowerCase().includes(q));
-  const s = state.sort;
-  list.sort((a,b) => f === 'trash' ? (b.deletedAt||0) - (a.deletedAt||0) : f === 'done' ? (b.doneAt||0) - (a.doneAt||0)
-    : s === 'due' ? (a.deadline || '9999').localeCompare(b.deadline || '9999')
-    : s === 'progress' ? stats(b).pct - stats(a).pct
-    : s === 'run' ? (!!b.runningSince - !!a.runningSince) || (b.created||0) - (a.created||0)
-    : (b.created||0) - (a.created||0));
-  return list;
-}
-function renderOrders(){
-  const L = live();
-  $('#nActive').textContent = L.filter(o => !o.done).length;
-  $('#nMine').textContent = L.filter(o => !o.done && o.assignee && o.assignee.uid === me.uid).length;
-  $('#nNone').textContent = L.filter(o => !o.done && !o.assignee).length;
-  $('#nDone').textContent = L.filter(o => o.done).length;
-  $('#nTrash').textContent = state.orders.filter(o => o.deleted).length || '';
-  $$('#fSeg button').forEach(b => b.classList.toggle('act', b.dataset.f === state.filter));
-  $('#sortSel').value = state.sort;
-  const box = $('#orders');
-  if (!dataReady){ box.innerHTML = '<div class="skel"></div><div class="skel"></div>'; return; }
-  const list = filtered();
-  if (!list.length){
-    const msg = { trash:['🗑️','回收桶是空的'], done:['🏁','還沒有完成的單'], mine:['🙋','你目前沒有接單'], none:['👍','所有單都有人接了'] }[state.filter] || ['📝','還沒有代練單'];
-    box.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ico">${msg[0]}</div>${$('#q').value ? '找不到符合的單' : msg[1]}${state.filter==='active'&&!$('#q').value?'<br><br><button class="primary" data-new>＋ 新增第一張單</button>':''}</div>`;
-    return;
-  }
-  box.innerHTML = list.map(cardHTML).join('');
-}
-function cardHTML(o){
-  const isB = o.id === state.boundId, mine = o.assignee && o.assignee.uid === me.uid;
-  if (o.deleted) return `
-    <div class="oc" data-id="${o.id}"><div class="oc-top"><div><div class="oc-name">${esc(o.client)}<span class="job">${esc(o.job)}</span></div>
-      <div class="hint">Lv.${o.curLv}/${o.targetLv}・${money(o.price)}・${esc(o.deletedBy||'')} 於 ${dt(o.deletedAt||0)} 刪除</div></div>
-      <div class="row"><button class="sm primary" data-act="restore">復原</button>${isAdmin()?'<button class="sm danger" data-act="purge">永久刪除</button>':''}</div></div></div>`;
-  const runOther = o.runningSince && o.runner && o.runner.uid !== me.uid;
-  const status = o.done ? '<span class="tag done">✓ 已完成</span>' : o.runningSince ? `<span class="tag run">● 練功中${runOther ? '・' + esc(nameOf(o.runner)) : ''}</span>` : '<span class="tag pause">暫停</span>';
-  const who = o.assignee ? `<span class="tag">👤 ${mine ? '我接的' : esc(nameOf(o.assignee))}</span>` : '<span class="tag gold">待接單</span>';
-  const tag = `<span class="tag">${o.hasTag === false ? '無吊牌' : '有吊牌'}</span>`;
-  const due = o.deadline && !o.done ? (() => { const d = new Date(o.deadline+'T23:59:59').getTime() - now();
-    return `<span class="tag ${d<0?'red':d<86400000?'gold':''}">📅 ${d<0?'已逾期':d<86400000?'今天到期':o.deadline.slice(5).replace('-','/')}</span>`; })() : '';
-  const rows = o.levels.slice().reverse().map(l => `<tr><td>Lv.${l.from} → ${l.to}${l.auto?' <span class="tag link">📡</span>':''}</td><td class="mono">${fmtShort(l.ms)}</td><td>${esc(nameOf(l.by)||'')}</td><td class="r mono">${money(orderValue(o,l.from,l.to))}</td><td class="muted">${dt(l.at)}</td></tr>`).join('');
-  return `
-  <div class="oc ${o.runningSince?'running':''} ${o.done?'done':''} ${isB?'bound':''}" data-id="${o.id}">
-    <div class="oc-top">
-      <div style="min-width:0"><div class="oc-name">${esc(o.client)}<span class="job">${esc(o.job)}</span></div>
-        <div class="oc-tags">${status}${who}${tag}${due}${isB?'<span class="tag link">📡 連動中</span>':''}</div></div>
-      <div class="menu"><button class="ghost sm" data-act="menu" aria-label="更多">•••</button>
-        <div class="menu-pop">
-          <button data-act="report">📋 進度回報</button>
-          <button data-act="edit">✏️ 編輯</button>
-          ${o.done?'':`<button data-act="lvN">⬆ 升多等…</button>`}
-          <button data-act="undo" ${o.levels.length?'':'disabled'}>↶ 撤銷升等</button>
-          ${o.done||mine?'':`<button data-act="take">🙋 ${o.assignee?'改由我接':'接這張單'}</button>`}
-          <hr><button data-act="del" class="danger">🗑️ 移到回收桶</button>
-        </div></div>
-    </div>
-    <div class="oc-clock"><div class="t mono" data-f="clock">00:00:00</div><div class="lv">Lv.${o.startLv0} → ${o.targetLv}<br><b class="mono" data-f="lvnow">Lv.${o.curLv}</b></div></div>
-    <div class="bar"><i data-f="bar"></i></div>
-    <div class="oc-m">
-      <div><div class="k">本等已花</div><div class="v mono" data-f="thisLv">--</div></div>
-      <div><div class="k">平均每等</div><div class="v mono" data-f="avg">--</div></div>
-      <div><div class="k" data-f="etaK">預估剩餘</div><div class="v mono" data-f="eta">--</div></div>
-      <div><div class="k">已練出 / 總價</div><div class="v mono" data-f="earn">--</div></div>
-      <div><div class="k">換算時薪</div><div class="v mono" data-f="rate">--</div></div>
-      <div><div class="k">進度</div><div class="v mono" data-f="pct">--</div></div>
-    </div>
-    <div class="oc-act">
-      ${o.done ? `<span class="hint">完成於 ${dt(o.doneAt||0)}</span>` : o.runningSince ? `<button class="warn" data-act="pause">⏸ 暫停</button>` : `<button class="primary" data-act="start">▶ 開始</button>`}
-      ${o.done ? '' : `<button data-act="lv1">⬆ 升 1 等</button><button class="${isB?'on':''}" data-act="bind" title="連動共鳴度辨識">📡 ${isB?'取消連動':'連動'}</button>`}
-      <span class="sp"></span>
-      ${!o.assignee && !o.done ? '<button class="sm" data-act="take">🙋 接單</button>' : ''}
-    </div>
-    ${o.note?`<div class="note">📝 ${esc(o.note)}</div>`:''}
-    ${o.levels.length?`<details class="hist"><summary>升等紀錄 ${o.levels.length} 筆</summary><div class="tbl-wrap"><table class="t" style="margin-top:6px"><tr><th>等級</th><th>花費</th><th>代練師</th><th class="r">價值</th><th>時間</th></tr>${rows}</table></div></details>`:''}
-  </div>`;
-}
-$('#fSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; state.filter = b.dataset.f; save(); renderOrders(); tick(); };
-$('#sortSel').onchange = e => { state.sort = e.target.value; save(); renderOrders(); tick(); };
-$('#q').oninput = () => { renderOrders(); tick(); };
-document.addEventListener('click', e => {
-  if (e.target.closest('[data-new]')) openOrder();
-  if (!e.target.closest('.menu')) $$('.menu.open').forEach(m => m.classList.remove('open'));
-});
-$('#orders').addEventListener('click', e => {
-  const btn = e.target.closest('[data-act]'); if (!btn || btn.disabled) return;
-  const card = btn.closest('.oc'); const o = state.orders.find(x => x.id === card.dataset.id); if (!o) return;
-  const act = btn.dataset.act; unlockAudio();
-  if (act === 'menu'){ const m = btn.closest('.menu'); const was = m.classList.contains('open'); $$('.menu.open').forEach(x => x.classList.remove('open')); m.classList.toggle('open', !was); return; }
-  $$('.menu.open').forEach(x => x.classList.remove('open'));
-  if (act === 'restore') return restore(o.id);
-  if (act === 'purge') return confirmBox(`永久刪除「${o.client}」？`, '這個動作無法復原，所有升等與時數紀錄都會消失。', () => { state.orders = state.orders.filter(x => x !== o); log('purge', `永久刪除 ${o.client}`); save(); render(); });
-  if (act === 'take'){ o.assignee = meRef(); log('take', `接下 ${o.client}`, o.id); toast('已接下 ' + o.client, 'ok'); }
-  if (act === 'start') startOrder(o);
-  if (act === 'pause'){ pauseOrder(o); if (scan.autoPaused === o.id) scan.autoPaused = null; }
-  if (act === 'lv1') levelUp(o, 1);
-  if (act === 'undo') undoLevel(o);
-  if (act === 'bind') return setBound(state.boundId === o.id ? null : o.id);
-  if (act === 'lvN') return askNumber(`${o.client} 升了幾等？`, `目前 Lv.${o.curLv}，目標 Lv.${o.targetLv}`, 2, o.targetLv - o.curLv, n => { levelUp(o, n); save(); render(); });
-  if (act === 'edit') return openOrder(o);
-  if (act === 'report') return openReport(o);
-  if (act === 'del') return confirmBox(`把「${o.client}」移到回收桶？`, '之後可以在「回收桶」復原。', () => softDelete(o));
-  save(); render();
-});
-function setBound(id){
-  state.boundId = id || null; save(); render();
-  if (id) toast(vid.videoWidth && scan.region ? '已連動，共鳴度滿條會自動升等' : '已連動，記得到「共鳴度辨識」分享遊戲視窗', 'ok', vid.videoWidth ? null : { label:'前往', fn: () => location.hash = 'scan' });
-}
-
-// =====================================================================
-//  新增 / 編輯
-// =====================================================================
-let editing = null, priceManual = false;
-function fillAssignee(sel, cur){
-  const opts = Object.entries(members).filter(([,m]) => m.role === 'member' || m.role === 'admin');
-  sel.innerHTML = '<option value="">（先不指定）</option>' + opts.map(([u,m]) => `<option value="${u}">${esc(m.name)}${u===me.uid?'（我）':''}</option>`).join('');
-  sel.value = cur || '';
-}
-function openOrder(o, preset){
-  editing = o || null; const f = $('#fOrder'); f.reset(); $$('#fOrder .err').forEach(x => x.textContent = '');
-  $('#mOrderTitle').textContent = o ? '編輯代練單' : '新增代練單';
-  priceManual = false;
-  fillAssignee(f.assignee, o ? (o.assignee && o.assignee.uid) : me.uid);
-  if (o){
-    f.client.value = o.client; f.job.value = o.job||''; f.startLv.value = o.startLv0; f.targetLv.value = o.targetLv; f.curLv.value = o.curLv;
-    f.price.value = o.price||0; f.deadline.value = o.deadline||''; f.note.value = o.note||''; f.autoLv.checked = o.autoLv !== false; f.hasTag.checked = o.hasTag !== false;
-    const c = calcPriceWith(o.priceTable || state.prices, o.startLv0, o.targetLv, f.hasTag.checked);
-    priceManual = !(c.unknown === 0 && c.total === o.price);
-  } else if (preset){ f.startLv.value = preset.from; f.targetLv.value = preset.to; f.hasTag.checked = preset.tag; }
-  updatePriceCalc(!o);
-  show('#mOrder'); setTimeout(() => f.client.focus(), 60);
-}
-function updatePriceCalc(fill = true){
-  const f = $('#fOrder'), a = +f.startLv.value, b = +f.targetLv.value, tag = f.hasTag.checked, box = $('#priceCalc');
-  if (!(b > a)){ box.innerHTML = '<span class="red">目標等級要比起始等級高</span>'; return; }
-  const tbl = editing && editing.priceTable ? editing.priceTable : state.prices;
-  const c = calcPriceWith(tbl, a, b, tag);
-  if (fill && !priceManual) f.price.value = c.total;
-  let h = c.parts.map(p => `${p.key}：${p.n} 等 × $${p.v} = $${(p.n*p.v).toLocaleString()}`).join('<br>');
-  h += `${h?'<br>':''}<b>價目表計算：$${c.total.toLocaleString()}</b>（${tag?'有吊牌':'無吊牌'}・共 ${b-a} 等）`;
-  if (c.unknown) h += `<br><span style="color:var(--warn)">⚠️ 有 ${c.unknown} 等屬於「私訊詳談」區間，未計入，請自行填寫總價。</span>`;
-  if (priceManual) h += `<br><span style="color:var(--blue)">目前使用手動總價</span>・<a href="#" id="priceReset">改回價目表價格</a>`;
-  box.innerHTML = h;
-  const r = $('#priceReset'); if (r) r.onclick = e => { e.preventDefault(); priceManual = false; updatePriceCalc(); };
-}
-['startLv','targetLv','hasTag'].forEach(n => $('#fOrder')[n].addEventListener('input', () => updatePriceCalc()));
-$('#fOrder').price.addEventListener('input', () => { priceManual = true; updatePriceCalc(false); });
-$('#fOrder').addEventListener('submit', e => { e.preventDefault(); $('#saveOrder').click(); });
-$('#btnNewTop').onclick = () => openOrder();
-$('#saveOrder').onclick = () => {
-  const f = $('#fOrder'), E = (k, m) => { const el = $(`#fOrder [data-err="${k}"]`); if (el) el.textContent = m; };
-  $$('#fOrder .err').forEach(x => x.textContent = '');
-  const aUid = f.assignee.value;
-  const v = { client:f.client.value.trim(), job:f.job.value.trim(), startLv0:+f.startLv.value, targetLv:+f.targetLv.value,
-    price:Math.max(0, +f.price.value||0), deadline:f.deadline.value, note:f.note.value.trim(), autoLv:f.autoLv.checked, hasTag:f.hasTag.checked,
-    assignee: aUid ? { uid:aUid, name:(members[aUid]||{}).name || '' } : null };
-  const cur = f.curLv.value === '' ? null : +f.curLv.value;
-  let bad = false;
-  if (!v.client){ E('client','請填委託人'); bad = true; }
-  if (!(v.targetLv > v.startLv0)){ E('targetLv','目標等級要比起始等級高'); bad = true; }
-  if (cur != null && (cur < v.startLv0 || cur > v.targetLv)){ E('curLv','要介於起始與目標等級之間'); bad = true; }
-  if (bad) return;
-  if (editing){
-    const o = editing;
-    Object.assign(o, v);
-    if (cur != null && cur !== o.curLv){ const done = o.levels.reduce((a,l) => a + l.to - l.from, 0); o.curLv = cur; o.startLv = cur - done; }
-    if (!o.levels.length && cur == null){ o.curLv = v.startLv0; o.startLv = v.startLv0; }
-    o.done = o.curLv >= o.targetLv; if (o.done && !o.doneAt) o.doneAt = now(); if (!o.done) o.doneAt = null;
-    log('edit', `編輯 ${o.client}`, o.id);
-  } else {
-    const c = cur ?? v.startLv0;
-    const o = { id:uid(), ...v, priceTable: JSON.parse(JSON.stringify(state.prices)), createdBy: me.name, created: now(),
-      startLv:c, curLv:c, acc:0, runningSince:null, sessions:[], levels:[], lvMarkAt:null, done:false };
-    state.orders.unshift(o);
-    log('create', `新增 ${o.client}（Lv.${o.startLv0} → ${o.targetLv}・${money(o.price)}）${o.assignee ? '，接單：' + o.assignee.name : ''}`, o.id);
-    if (state.filter === 'done' || state.filter === 'trash' || state.filter === 'none' && o.assignee) state.filter = 'active';
-    if (view !== 'orders') location.hash = 'orders';
-  }
-  save(); hide('#mOrder'); render(); toast(editing ? '已儲存' : '已新增代練單', 'ok');
-};
-
-// 回報
-function openReport(o){
-  const s = stats(o);
-  $('#reportText').value =
-`【B服代練工作室｜進度回報】
-委託人：${o.client}${o.job ? '（' + o.job + '）' : ''}
-目前等級：Lv.${o.curLv}${s.isB ? `（共鳴度 ${scan.pct.toFixed(1)}%）` : ''}
-目標等級：Lv.${o.targetLv}
-完成進度：${s.pct.toFixed(1)}%
-累計練功：${fmt(s.e)}
-${o.done ? '✅ 已完成，感謝您的委託！' : '預估還需：約 ' + fmtShort(s.eta)}${s.isB && scan.rate > 0 ? `\n目前速度：每小時約 ${scan.rate.toFixed(1)}%` : ''}
-回報時間：${new Date().toLocaleString('zh-TW', { hour12:false })}`;
-  show('#mReport');
-}
-$('#copyReport').onclick = () => copyText($('#reportText').value, '已複製回報');
-
-// =====================================================================
-//  共鳴度辨識
-// =====================================================================
-const vid = $('#vid'), viewC = $('#view'), vctx = viewC.getContext('2d');
-const work = document.createElement('canvas'), wctx = work.getContext('2d', { willReadFrequently: true });
-const zoom = $('#zoom'), zctx = zoom.getContext('2d');
-const scan = { region: state.region, pct: null, last: null, rate: 0, hist: [], segStart: null, idleSince: now(), idleWarned: false, lostSince: null };
-let drag = null;
-if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) $('#noSupport').style.display = 'block';
-$('#optWin').value = state.opt.win; $('#winLbl').textContent = state.opt.win;
-$('#optIdle').checked = state.opt.idle; $('#optIdleMin').value = state.opt.idleMin; $('#optLost').checked = state.opt.lost;
-$('#optLostSec').value = state.opt.lostSec ?? 60; $('#optResume').checked = state.opt.resume !== false; $('#optOcr').checked = state.opt.ocr !== false;
-['optWin','optIdle','optIdleMin','optLost','optLostSec','optResume','optOcr'].forEach(id => $('#'+id).onchange = () => {
-  state.opt = { win:+$('#optWin').value||10, idle:$('#optIdle').checked, idleMin:+$('#optIdleMin').value||3, lost:$('#optLost').checked,
-    lostSec: Math.max(10, +$('#optLostSec').value||60), resume:$('#optResume').checked, ocr:$('#optOcr').checked };
-  if (state.opt.ocr && vid.videoWidth) ocrInit(); updateOcrUi();
-  $('#winLbl').textContent = state.opt.win; save();
-});
-function renderBindSel(){
-  if (state.boundId && !bound()) state.boundId = null;
-  $('#bindSel').innerHTML = '<option value="">（不連動）</option>' + live().filter(o => !o.done).map(o =>
-    `<option value="${o.id}" ${o.id===state.boundId?'selected':''}>${esc(o.client)}・Lv.${o.curLv}</option>`).join('');
-}
-$('#bindSel').onchange = e => setBound(e.target.value);
-let sharing = false;
-$('#btnShare').onclick = async () => {
-  unlockAudio(); sharing = true;
-  try {
-    const stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 5 }, audio: false });
-    vid.srcObject = stream; await vid.play();
-    stream.getVideoTracks()[0].addEventListener('ended', () => { toast('畫面分享已停止', 'err'); $('#ph').style.display=''; viewC.style.display='none'; scan.pct=null; $('#pct').textContent='--'; updateScanChip(); });
-    $('#ph').style.display = 'none'; viewC.style.display = 'block'; $('#btnPick').disabled = false; $('#btnAuto').disabled = false;
-    if (state.opt.ocr !== false) ocrInit();
-    const had = scan.region ? { ...scan.region } : null;
-    scan.lastAuto = now();   // 交給下面處理，避免背景同時偵測
-    await waitFrame();
-    const sameSize = had && had.vw === vid.videoWidth && had.vh === vid.videoHeight && had.geo;
-    if (sameSize){ scan.region = had; toast('已套用上次的共鳴度條位置', 'ok'); }
-    else if (!autoDetect(true)) { scan.region = null; toast('沒有自動找到共鳴度條：請確認條上有一點藍色進度，再按「🔍 自動偵測」，或手動框選', 'err'); }
-    sharing = false;
-  } catch (e) {
-    sharing = false;
-    if (e.name !== 'NotAllowedError') { $('#noSupport').style.display = 'block'; $('#noSupport').textContent = '無法分享畫面（' + e.name + '）。請用電腦版 Chrome / Edge。'; }
-  }
-};
-$('#btnPick').onclick = () => { scan.region = null; state.region = null; save(); toast('請在畫面上拖曳框住共鳴度條'); };
-$('#btnAuto').onclick = () => { if (!autoDetect(true)) toast('找不到共鳴度條：請確認遊戲畫面左下角看得到共鳴度條，而且條上有藍色進度', 'err'); };
-function waitFrame(){ return new Promise(res => { let n = 0; const t = setInterval(() => { if (vid.videoWidth || ++n > 40){ clearInterval(t); setTimeout(res, 300); } }, 50); }); }
-
-// ---------- 數字辨識（Tesseract.js）：讀條旁邊的「34.8%」來校正 ----------
-const ocr = { worker:null, state:'off', busy:false, lastRun:0, Ls:[], err:'' };
-function loadScript(src){ return new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = () => rej(new Error('載入失敗')); document.head.appendChild(el); }); }
-async function ocrInit(){
-  if (ocr.state !== 'off' && ocr.state !== 'fail') return;
-  ocr.state = 'loading'; updateOcrUi();
-  try {
-    if (!window.Tesseract) await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
-    ocr.worker = await Tesseract.createWorker('eng', 1, { logger: () => {} });
-    await ocr.worker.setParameters({ tessedit_char_whitelist: '0123456789.%', tessedit_pageseg_mode: '7' });
-    ocr.state = 'ready';
-  } catch(e){ console.warn('ocr', e); ocr.state = 'fail'; ocr.err = e.message || String(e); }
-  updateOcrUi();
-}
-function updateOcrUi(){
-  const el = $('#ocrInfo'); if (!el) return;
-  if (state.opt.ocr === false){ el.textContent = '數字辨識：已關閉（只用條的長度計算）'; return; }
-  const o = scan.ocr;
-  el.innerHTML = ocr.state === 'loading' ? '數字辨識：載入中…（第一次需要下載，約 10～30 秒）'
-    : ocr.state === 'fail' ? `<span class="red">數字辨識無法使用（${esc(ocr.err)}），改用條的長度；可用下方手動校正</span>`
-    : ocr.state === 'ready' ? (o ? `數字辨識：讀到 <b class="mono" style="color:var(--text)">${o.v.toFixed(1)}%</b>（信心 ${Math.round(o.conf)}）${scan.calibrated ? '・<span class="ok">已自動校正條長度</span>' : ''}` : '數字辨識：已啟動，等待讀到數字…')
-    : '數字辨識：分享畫面後自動啟動';
-}
-const ocrC = document.createElement('canvas'), ocrX = ocrC.getContext('2d', { willReadFrequently: true });
-function ocrCrop(){
-  const r = scan.region, g = r && r.geo; if (!g) return null;
-  const x0 = r.x + g.x0, y0 = r.y + g.y0, y1 = r.y + g.y1, h = y1 - y0 + 1, L = g.x1 - g.x0 + 1;
-  const cx0 = Math.max(0, x0 - Math.round(L * 0.2)), cx1 = x0 - 3;
-  const cy0 = Math.max(0, y0 - Math.round(1.6*h) - 2), cy1 = Math.min(vid.videoHeight, y1 + Math.round(1.6*h) + 3);
-  const w = cx1 - cx0, hh = cy1 - cy0; if (w < 10 || hh < 5) return null;
-  ocrC.width = w; ocrC.height = hh; ocrX.drawImage(vid, cx0, cy0, w, hh, 0, 0, w, hh);
-  const d = ocrX.getImageData(0, 0, w, hh).data, on = (x, y) => { const i = (y*w + x)*4; return Math.max(d[i], d[i+1], d[i+2]) > 110; };
-  const cols = []; for (let x = 0; x < w; x++){ for (let y = 0; y < hh; y++) if (on(x, y)){ cols.push(x); break; } }
-  if (!cols.length) return null;
-  // 取最右邊那一群字（就是「34.8%」，左邊的「共鳴度」不要）
-  const gapMax = Math.max(4, Math.round(h * 1.2)); let gs = cols[0], ge = cols[0], grp = [];
-  for (let i = 1; i < cols.length; i++){ if (cols[i] - ge > gapMax){ grp.push([gs, ge]); gs = cols[i]; } ge = cols[i]; }
-  grp.push([gs, ge]); [gs, ge] = grp[grp.length - 1];
-  let ry0 = hh, ry1 = -1; for (let y = 0; y < hh; y++) for (let x = gs; x <= ge; x++) if (on(x, y)){ ry0 = Math.min(ry0, y); ry1 = Math.max(ry1, y); break; }
-  if (ry1 < 0 || ge - gs < 6) return null;
-  const tx0 = Math.max(0, gs - 3), tx1 = Math.min(w - 1, ge + 3), ty0 = Math.max(0, ry0 - 2), ty1 = Math.min(hh - 1, ry1 + 2);
-  const tw = tx1 - tx0 + 1, th = ty1 - ty0 + 1;
-  const bw = document.createElement('canvas'); bw.width = tw; bw.height = th; const bx = bw.getContext('2d'); const id = bx.createImageData(tw, th);
-  for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++){ const v = on(tx0 + x, ty0 + y) ? 0 : 255, i = (y*tw + x)*4; id.data[i] = id.data[i+1] = id.data[i+2] = v; id.data[i+3] = 255; }
-  bx.putImageData(id, 0, 0);
-  const S = 6, out = document.createElement('canvas'); out.width = tw*S + 40; out.height = th*S + 40; const ox = out.getContext('2d');
-  ox.fillStyle = '#fff'; ox.fillRect(0, 0, out.width, out.height); ox.imageSmoothingEnabled = true; ox.imageSmoothingQuality = 'high'; ox.drawImage(bw, 20, 20, tw*S, th*S);
-  return out;
-}
-function ocrTick(rr){
-  if (state.opt.ocr === false || ocr.state !== 'ready' || ocr.busy || now() - ocr.lastRun < 900 || rr.pct == null || !scan.region || !scan.region.geo) return;
-  const c = ocrCrop(); if (!c) return;
-  ocr.busy = true; ocr.lastRun = now();
-  const t = now(), end = rr.end, bar = rr.pct, g = scan.region.geo;
-  ocr.worker.recognize(c).then(res => {
-    const txt = (res.data.text || '').replace(/\s/g, ''), conf = res.data.confidence || 0;
-    const m = txt.match(/(\d{1,3}\.\d)%?/) || txt.match(/(\d{1,3})%/); if (!m) return;
-    const v = +m[1]; if (!(v >= 0 && v <= 100)) return;
-    scan.ocr = { v, conf, t };
-    // 自動校正條長度：用「數字」反推真正的條長
-    if (conf >= 70 && v >= 8 && v <= 99.5 && Math.abs(v - bar) < 8 && end > g.x0 && scan.region && scan.region.geo === g){
-      ocr.Ls.push((end - g.x0 + 1) * 100 / v); if (ocr.Ls.length > 7) ocr.Ls.shift();
-      if (ocr.Ls.length >= 3){
-        const L = ocr.Ls.slice().sort((a,b) => a-b)[ocr.Ls.length >> 1], nx1 = Math.round(g.x0 + L - 1);
-        if (Math.abs(nx1 - g.x1) >= 1 && Math.abs(nx1 - g.x1) < (g.x1 - g.x0) * 0.25){ g.x1 = nx1; scan.recal = true; save(); }
-        scan.calibrated = true;
-      }
-    }
-    updateOcrUi();
-  }).catch(e => console.warn('ocr', e)).finally(() => { ocr.busy = false; });
-}
-$('#calBtn').onclick = () => {
-  const v = +$('#calIn').value, g = scan.region && scan.region.geo, end = scan.lastEnd;
-  if (!g || end == null || end < g.x0) return toast('請先分享畫面並讓系統找到共鳴度條', 'err');
-  if (!(v >= 5 && v < 100)) return toast('請輸入遊戲裡顯示的共鳴度（5～99.9）', 'err');
-  g.x1 = Math.round(g.x0 + (end - g.x0 + 1) * 100 / v - 1); scan.recal = true; scan.calibrated = true; save();
-  toast(`已校正：條長 ${g.x1 - g.x0 + 1} px`, 'ok'); $('#calIn').value = '';
-};
-
-// ---------- 自動偵測：在畫面左下角找藍色共鳴度條 ----------
-const isFillPx = (d, i) => { const r=d[i], g=d[i+1], b=d[i+2]; return b>140 && g>110 && r<130 && b-r>80; };
-function detectBar(d, w, h){
-  const rows = [];
-  for (let y = 0; y < h; y++){
-    let best = null, s = -1, gap = 0, last = -1;
-    for (let x = 0; x <= w; x++){
-      const on = x < w && isFillPx(d, (y*w+x)*4);
-      if (on){ if (s < 0) s = x; last = x; gap = 0; }
-      else if (s >= 0 && (x === w || ++gap > 2)){ const len = last - s + 1; if (!best || len > best.len) best = { s, e:last, len }; s = -1; gap = 0; }
-    }
-    rows.push(best && best.len >= 4 ? best : null);
-  }
-  let bands = [], cur = null;
-  rows.forEach((r, y) => {
-    if (r && cur && Math.abs(r.s - cur.s0) <= 3){ cur.y1 = y; cur.ends.push(r.e); cur.starts.push(r.s); }
-    else { if (cur) bands.push(cur); cur = r ? { y0:y, y1:y, s0:r.s, ends:[r.e], starts:[r.s] } : null; }
-  });
-  if (cur) bands.push(cur);
-  const med = a => a.slice().sort((p,q) => p-q)[a.length >> 1];
-  bands = bands.filter(b => b.y1 - b.y0 + 1 >= 4 && b.y1 - b.y0 + 1 <= 30).map(b => ({ ...b, x0: med(b.starts), fe: med(b.ends), th: b.y1 - b.y0 + 1 }));
-  if (!bands.length) return null;
-  bands.sort((a,b) => (b.fe - b.x0) * b.th - (a.fe - a.x0) * a.th);
-  const B = bands[0], yc = (B.y0 + B.y1) >> 1;
-  const ya = Math.max(0, B.y0 - 3), yb = Math.min(h-1, B.y1 + 3);
-  const diff = (y1, y2, x) => { const i=(y1*w+x)*4, j=(y2*w+x)*4; return Math.abs(d[i]-d[j]) + Math.abs(d[i+1]-d[j+1]) + Math.abs(d[i+2]-d[j+2]); };
-  let x1 = B.fe, miss = 0;
-  for (let x = B.fe + 1; x < w; x++){
-    if (diff(yc, ya, x) > 30 && diff(yc, yb, x) > 30){ x1 = x; miss = 0; } else if (++miss > 6) break;
-  }
-  if (x1 - B.x0 < 60) return null;     // 太短，不是共鳴度條
-  return { y: yc, y0: B.y0, y1: B.y1, x0: B.x0, x1, fe: B.fe };
-}
-// 依固定位置讀：從左端往右找連續的藍色（允許小缺口，特效粒子不會干擾）；條被擋住時回傳 null
-function readFixed(d, w, h, g){
-  let best = -1;
-  for (const y of [g.y - 1, g.y, g.y + 1]){
-    if (y < 0 || y >= h) continue;
-    let end = -1, gap = 0;
-    for (let x = g.x0; x <= g.x1; x++){
-      if (isFillPx(d, (y*w+x)*4)){ end = x; gap = 0; } else if (end >= 0 ? ++gap > 3 : x > g.x0 + 3) break;
-    }
-    best = Math.max(best, end);
-  }
-  // 驗證底條還在（沒有被選單、讀取畫面擋住）
-  const ya = Math.max(0, g.y0 - 3), yb = Math.min(h - 1, g.y1 + 3);
-  const diff = (y1, y2, x) => { const i=(y1*w+x)*4, j=(y2*w+x)*4; return Math.abs(d[i]-d[j]) + Math.abs(d[i+1]-d[j+1]) + Math.abs(d[i+2]-d[j+2]); };
-  let ok = 0, n = 0;
-  for (let x = g.x0; x <= g.x1; x += 4){ n++; if ((best >= 0 && x <= best) || (diff(g.y, ya, x) > 30 && diff(g.y, yb, x) > 30)) ok++; }
-  if (ok / n < 0.7) return { pct:null, gone:true, dbg:'共鳴度條不見了（過圖、讀取畫面或被擋住）' };
-  // 藍色填滿的顏色應該和偵測當時差不多；過圖淡出、畫面變暗時會差很多
-  if (best >= g.x0 + 2){
-    const i = (g.y*w + g.x0 + 2)*4, c = [d[i], d[i+1], d[i+2]];
-    if (!g.fc) g.fc = c;
-    else if (Math.abs(c[0]-g.fc[0]) + Math.abs(c[1]-g.fc[1]) + Math.abs(c[2]-g.fc[2]) > 60){
-      if (!g.fcBad) g.fcBad = now();
-      if (now() - g.fcBad > 20000){ g.fc = c; g.fcBad = null; }   // 顏色一直不一樣：當成新的基準（例如換了畫質設定）
-      else return { pct:null, gone:true, dbg:'畫面變暗（過圖淡出中）' };
-    } else g.fcBad = null;
-  }
-  // 完全沒有藍色：可能是真的 0%，也可能是條變暗；前一次有進度就先當成讀不到
-  if (best < 0 && scan.last != null && scan.last > 1) return { pct:null, gone:true, dbg:'看不到藍色進度（過圖中？）' };
-  const pct = best < 0 ? 0 : Math.min(100, (best - g.x0 + 1) / (g.x1 - g.x0 + 1) * 100);
-  return { pct: Math.round(pct*10)/10, dbg:`自動定位 條=${g.x0}-${g.x1} 填滿=${best}`, x0:g.x0, x1:g.x1, end:best };
-}
-function autoDetect(announce){
-  const W = vid.videoWidth, H = vid.videoHeight; if (!W) return false;
-  // 先找左下角（下方 18%、左邊 60%），找不到再找整個畫面下半部
-  const areas = [[0, Math.floor(H*0.82), Math.floor(W*0.6), H - Math.floor(H*0.82)], [0, Math.floor(H*0.5), W, H - Math.floor(H*0.5)]];
-  for (const [X, Y, w, h] of areas){
-    work.width = w; work.height = h; wctx.drawImage(vid, X, Y, w, h, 0, 0, w, h);
-    const g = detectBar(wctx.getImageData(0, 0, w, h).data, w, h);
-    if (!g) continue;
-    const pad = 6, rx = X + g.x0 - pad, ry = Y + g.y0 - pad;
-    const r = { x: Math.max(0, rx), y: Math.max(0, ry), w: g.x1 - g.x0 + pad*2 + 1, h: g.y1 - g.y0 + pad*2 + 1, vw: W, vh: H };
-    r.geo = { x0: X + g.x0 - r.x, x1: X + g.x1 - r.x, y: Y + g.y - r.y, y0: Y + g.y0 - r.y, y1: Y + g.y1 - r.y };
-    scan.region = state.region = r; scan.raw = []; ocr.Ls = []; scan.calibrated = false; save(); resetScanSegment();
-    if (announce) toast(`✅ 已自動找到共鳴度條（目前約 ${((g.fe - g.x0 + 1) / (g.x1 - g.x0 + 1) * 100).toFixed(1)}%）`, 'ok');
-    return true;
-  }
-  return false;
-}
-const vscale = () => vid.videoWidth / viewC.width;
-function evPos(e){ const r = viewC.getBoundingClientRect(); return { x:(e.clientX-r.left)*viewC.width/r.width, y:(e.clientY-r.top)*viewC.height/r.height }; }
-viewC.addEventListener('mousedown', e => { const p = evPos(e); drag = { x0:p.x, y0:p.y, x1:p.x, y1:p.y }; });
-window.addEventListener('mousemove', e => { if (drag){ const p = evPos(e); drag.x1 = p.x; drag.y1 = p.y; } });
-window.addEventListener('mouseup', () => {
-  if (!drag) return; const k = vscale();
-  const x = Math.min(drag.x0,drag.x1)*k, y = Math.min(drag.y0,drag.y1)*k, w = Math.abs(drag.x1-drag.x0)*k, h = Math.abs(drag.y1-drag.y0)*k;
-  drag = null;
-  if (w > 20 && h > 2){
-    const r = { x:Math.max(0,Math.round(x)), y:Math.max(0,Math.round(y-4)), w:Math.round(w), h:Math.round(h+8) };
-    r.w = Math.min(r.w, vid.videoWidth-r.x); r.h = Math.min(r.h, vid.videoHeight-r.y);
-    r.vw = vid.videoWidth; r.vh = vid.videoHeight;
-    work.width = r.w; work.height = r.h; wctx.drawImage(vid, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
-    const g = detectBar(wctx.getImageData(0, 0, r.w, r.h).data, r.w, r.h);
-    if (g) r.geo = { x0:g.x0, x1:g.x1, y:g.y, y0:g.y0, y1:g.y1 };
-    scan.region = state.region = r; scan.raw = []; save(); resetScanSegment(); toast('框選完成，請確認右邊讀到的數字', 'ok');
-  }
-});
-function drawView(){
-  if (!vid.videoWidth || view !== 'scan') return;
-  const W = Math.min(vid.videoWidth, 1000);
-  if (viewC.width !== W){ viewC.width = W; viewC.height = Math.round(vid.videoHeight * W / vid.videoWidth); }
-  vctx.drawImage(vid, 0, 0, viewC.width, viewC.height);
-  const k = vscale(); vctx.lineWidth = 2;
-  if (scan.region){ vctx.strokeStyle = '#5ee0c7'; vctx.strokeRect(scan.region.x/k, scan.region.y/k, scan.region.w/k, scan.region.h/k); }
-  if (drag){ vctx.strokeStyle = '#ffb648'; vctx.strokeRect(drag.x0, drag.y0, drag.x1-drag.x0, drag.y1-drag.y0); }
-}
-function readBar(data, w, h){
-  const isFill = i => { const r=data[i], g=data[i+1], b=data[i+2]; return b>140 && g>110 && r<130 && b-r>80; };
-  let bestY=-1, bestN=0;
-  for (let y=0; y<h; y++){ let n=0; for (let x=0; x<w; x++) if (isFill((y*w+x)*4)) n++; if (n>bestN){ bestN=n; bestY=y; } }
-  const y = bestY < 0 ? (h>>1) : bestY;
-  let segs=[], s=-1;
-  for (let x=0; x<=w; x++){
-    let on=false; if (x<w){ const i=(y*w+x)*4; on = Math.max(data[i],data[i+1],data[i+2]) > 18; }
-    if (on && s<0) s=x; if (!on && s>=0){ segs.push([s,x-1]); s=-1; }
-  }
-  if (!segs.length) return { pct:null, dbg:'找不到條' };
-  const [x0,x1] = segs.reduce((a,b) => (b[1]-b[0] > a[1]-a[0] ? b : a));
-  if (x1-x0 < 20) return { pct:null, dbg:'找不到條，請重新框選' };
-  let end=-1; for (let x=x0; x<=x1; x++) if (isFill((y*w+x)*4)) end=x;
-  const pct = end<0 ? 0 : Math.min(100,(end-x0+1)/(x1-x0+1)*100);
-  return { pct:Math.round(pct*10)/10, dbg:`row=${y} 條=${x0}-${x1} 填滿=${end}`, x0, x1, end };
-}
-function resetScanSegment(){ scan.hist = []; scan.segStart = null; scan.segT0 = null; scan.rate = 0; scan.idleSince = now(); scan.idleWarned = false; drawChart(); }
-function updateScanChip(){
-  const c = $('#scanChip'), o = bound();
-  if (scan.pct == null && !vid.videoWidth){ c.style.display = 'none'; $('#bScan').style.display = 'none'; return; }
-  c.style.display = ''; c.innerHTML = `📡 <b class="mono">${scan.pct != null ? scan.pct.toFixed(1) + '%' : '讀取中'}</b>${scan.rate > 0.01 ? `<span class="mono">・${scan.rate.toFixed(1)}%/時</span>` : ''}${o ? '・' + esc(o.client) : ''}`;
-  $('#bScan').style.display = ''; $('#bScan').textContent = scan.pct != null ? scan.pct.toFixed(0) + '%' : '…';
-}
-$('#scanChip').onclick = () => location.hash = 'scan';
-$('#btnRateReset').onclick = () => { resetScanSegment(); ['#sRate','#sAvg','#sPer','#sEta','#sGain','#sTime'].forEach(x => $(x).textContent = '--'); toast('已重設練等速度', 'ok'); };
-function scanStep(){
-  if (sharing) return;
-  if (vid.videoWidth && scan.region && scan.region.vw && (scan.region.vw !== vid.videoWidth || scan.region.vh !== vid.videoHeight)){
-    if (autoDetect(false)) toast('遊戲視窗大小改變，已重新找到共鳴度條', 'ok'); else { scan.region = null; toast('遊戲視窗大小改變，請按「🔍 自動偵測」', 'err'); }
-  }
-  if (vid.videoWidth && !scan.region && (!scan.lastAuto || now() - scan.lastAuto > 5000)){ scan.lastAuto = now(); autoDetect(true); }
-  const r0 = scan.region;
-  if (!vid.videoWidth || !r0){ $('#dbg').textContent = vid.videoWidth ? '找不到共鳴度條，每 5 秒自動再找一次（條上要有藍色進度）' : '尚未分享畫面'; updateScanChip(); return; }
-  work.width = r0.w; work.height = r0.h;
-  wctx.drawImage(vid, r0.x, r0.y, r0.w, r0.h, 0, 0, r0.w, r0.h);
-  const img = wctx.getImageData(0, 0, r0.w, r0.h);
-  const rr = r0.geo ? readFixed(img.data, r0.w, r0.h, r0.geo) : readBar(img.data, r0.w, r0.h);
-  // 連續讀到幾次（條剛出現時要確認）；即時值不再取中位數，沒有延遲
-  scan.raw = scan.raw || [];
-  if (rr.pct == null) scan.raw = []; else { scan.raw.push(rr.pct); if (scan.raw.length > 3) scan.raw.shift(); }
-  if (rr.pct != null) scan.lastEnd = rr.end;
-  ocrTick(rr);
-  let src = '條長度';
-  const r = Object.assign({}, rr);
-  // 剛讀到的數字（同一秒內）最準，直接用；否則用校正過的條長度
-  if (r.pct != null && scan.ocr && now() - scan.ocr.t < 1500 && scan.ocr.conf >= 60 && Math.abs(scan.ocr.v - r.pct) < 3){ r.pct = scan.ocr.v; src = '數字'; }
-  // 共鳴度只會增加（滿條除外）：比上次低一點點多半是特效遮擋，維持上次的值
-  if (r.pct != null && scan.last != null && !scan.recal && r.pct < scan.last && scan.last - r.pct < 40) r.pct = scan.last;
-  if (r.pct != null) scan.recal = false;
-  if (view === 'scan'){
-    zoom.width = r0.w; zoom.height = r0.h; zctx.putImageData(img, 0, 0);
-    if (r.pct != null){ zctx.fillStyle='rgba(255,182,72,.9)'; zctx.fillRect(r.x0,0,1,r0.h); zctx.fillRect(r.x1,0,1,r0.h);
-      if (r.end>=0){ zctx.fillStyle='#ff6b81'; zctx.fillRect(r.end,0,1,r0.h); } }
-    $('#dbg').textContent = (r.dbg || '') + (r.pct != null ? `・來源：${src}` : '');
-  }
-  const o = bound();
-  if (r.pct == null){
-    scan.pct = null;
-    if (!scan.lostSince) scan.lostSince = now();
-    const lostS = Math.round((now() - scan.lostSince) / 1000), lim = state.opt.lostSec || 60;
-    $('#pct').textContent = (scan.autoPaused ? '⏸ 已暫停・' : '過圖中… ') + lostS + ' 秒'; $('#pct').classList.add('bad');
-    if (state.opt.lost && o && o.runningSince && now() - scan.lostSince > lim*1000){
-      pauseOrder(o, `共鳴度條消失超過 ${lim} 秒`); scan.autoPaused = o.id; save(); render(); beep(2);
-      toast(`共鳴度條消失超過 ${lim} 秒，已暫停「${o.client}」${state.opt.resume !== false ? '（條出現後會自動繼續）' : ''}`, 'err');
-    }
-    updateScanChip(); return;
-  }
-  // 條剛出現：等連續 2 次讀到才算數（避免過圖時一閃而過的畫面，也讓「過圖期間滿條」能被正確判斷）
-  if (scan.raw.length < 2){ updateScanChip(); return; }
-  if (scan.lostSince){
-    const gone = now() - scan.lostSince;
-    scan.lostSince = null; scan.idleSince = now(); scan.idleWarned = false;   // 過圖時間不算進「沒增加」
-    if (scan.autoPaused){
-      const po = state.orders.find(x => x.id === scan.autoPaused); scan.autoPaused = null;
-      if (po && po === o && !po.runningSince && !po.done && state.opt.resume !== false){
-        startOrder(po); save(); render(); toast(`共鳴度條回來了，已自動繼續「${po.client}」`, 'ok');
-      }
-    } else if (gone > 3000 && view === 'scan') toast(`過圖完成（${Math.round(gone/1000)} 秒）`, 'ok');
-  }
-  $('#pct').classList.remove('bad'); $('#pct').textContent = r.pct.toFixed(1) + '%';
-  let rolled = false;
-  if (scan.last != null && scan.last > 75 && scan.last - r.pct > 40 && r.pct < 30){
-    scan.lowN = (scan.lowN || 0) + 1;
-    if (scan.lowN < 2){ updateScanChip(); return; }   // 再確認一次
-  } else scan.lowN = 0;
-  if (scan.lowN >= 2){
-    scan.lowN = 0; rolled = true; beep(3);
-    if (o && o.runningSince && o.autoLv){ levelUp(o, 1, true); save(); render(); } else toast('🎉 共鳴度滿條！', 'ok');
-  }
-  if (scan.last == null || r.pct > scan.last + 0.05 || rolled){ scan.idleSince = now(); scan.idleWarned = false; }
-  scan.last = r.pct; scan.pct = r.pct; updateScanChip();
-  if (state.opt.idle && o && o.runningSince && !scan.idleWarned && now() - scan.idleSince > state.opt.idleMin*60000){
-    scan.idleWarned = true; beep(2); toast(`⚠️ 已 ${state.opt.idleMin} 分鐘共鳴度沒增加，角色還在打嗎？`, 'err');
-  }
-  const t = now(), prev = scan.hist.length ? scan.hist[scan.hist.length-1][1] : null;
-  let total = prev == null ? r.pct : Math.floor(prev/100)*100 + r.pct; if (rolled) total += 100;
-  if (scan.segStart == null){ scan.segStart = total; scan.segT0 = t; }
-  scan.hist.push([t, total]); if (scan.hist.length > 20000) scan.hist.splice(0, 5000);
-  const win = state.opt.win*60000, rec = scan.hist.filter(h => t - h[0] <= win);
-  if (rec.length >= 2 && rec[rec.length-1][0] - rec[0][0] >= 30000){
-    const n=rec.length, t0=rec[0][0]; let sx=0,sy=0,sxx=0,sxy=0;
-    rec.forEach(([a,b]) => { const x=(a-t0)/3600000; sx+=x; sy+=b; sxx+=x*x; sxy+=x*b; });
-    scan.rate = (n*sxy - sx*sy) / (n*sxx - sx*sx || 1);
-    $('#sRate').textContent = scan.rate.toFixed(1) + '%/時';
-    $('#sEta').textContent = scan.rate > 0.01 ? fmtShort((100 - r.pct)/scan.rate*3600000) : '--';
-    $('#sPer').textContent = scan.rate > 0.01 ? fmtShort(100/scan.rate*3600000) : '--';
-  } else { scan.rate = 0; $('#sRate').textContent = '計算中…'; $('#sEta').textContent = '--'; $('#sPer').textContent = '--'; }
-  const gain = total - scan.segStart, segMs = t - scan.segT0;
-  $('#sGain').textContent = '+' + gain.toFixed(1) + '%';
-  $('#sTime').textContent = fmt(segMs);
-  $('#sAvg').textContent = segMs > 60000 ? (gain / (segMs/3600000)).toFixed(1) + '%/時' : '計算中…';
-  updateScanChip();
-  if (view === 'scan') drawChart();
-}
-function drawChart(){
-  const c = $('#chart'), ctx = c.getContext('2d'), dpr = devicePixelRatio || 1;
-  const W = c.width = c.clientWidth*dpr, H = c.height = c.clientHeight*dpr; ctx.clearRect(0,0,W,H);
-  const h = scan.hist; if (h.length < 2 || !W) return;
-  const t0=h[0][0], t1=h[h.length-1][0]; let v0=Infinity, v1=-Infinity; h.forEach(p=>{ if(p[1]<v0)v0=p[1]; if(p[1]>v1)v1=p[1]; });
-  const pad=10*dpr, X=t=>pad+(t-t0)/Math.max(1,t1-t0)*(W-2*pad), Y=v=>H-pad-(v-v0)/Math.max(.5,v1-v0)*(H-2*pad);
-  const g = ctx.createLinearGradient(0,0,W,0); g.addColorStop(0,'#5ee0c7'); g.addColorStop(1,'#7aa8ff');
-  ctx.strokeStyle=g; ctx.lineWidth=2*dpr; ctx.beginPath();
-  const st = Math.max(1, Math.floor(h.length/500));
-  h.forEach((p,i) => { if (i%st && i!==h.length-1) return; i ? ctx.lineTo(X(p[0]),Y(p[1])) : ctx.moveTo(X(p[0]),Y(p[1])); });
-  ctx.stroke();
-}
-
-// =====================================================================
-//  計時工具
-// =====================================================================
-$$('[data-buff]').forEach(b => b.onclick = () => { unlockAudio(); const [n,m] = b.dataset.buff.split('|'); addBuff(n, +m); });
-$('#btnCustomBuff').onclick = () => {
-  $('#iTitle').textContent = '自訂倒數'; $('#iSub').textContent = '倒數存在這台電腦';
-  $('#iBody').innerHTML = `<div class="field"><label>名稱<input id="bName" value="自訂" maxlength="20"></label></div><div class="field"><label>分鐘<input id="bMin" type="number" min="1" max="1440" value="15"></label></div>`;
-  inputFn = () => { unlockAudio(); addBuff($('#bName').value || '自訂', Math.max(1, +$('#bMin').value || 15)); };
-  show('#mInput');
-};
-function addBuff(name, min){ state.buffs.push({ id:uid(), name, end:now()+min*60000, alerted:false }); save(); renderBuffs(); toast(`已開始「${name}」${min} 分鐘倒數`, 'ok'); }
-function renderBuffs(){
-  $('#buffs').innerHTML = state.buffs.length ? state.buffs.map(b =>
-    `<div class="buff" data-id="${b.id}"><div><div>${esc(b.name)}</div><div class="left mono" data-f="left">--</div></div>
-     <div class="row"><button class="sm" data-b="add">+5 分</button><button class="sm ghost danger" data-b="del">✕</button></div></div>`).join('')
-    : '<div class="empty" style="padding:24px">目前沒有倒數</div>';
-  tickBuffs();
-}
-$('#buffs').addEventListener('click', e => {
-  const btn = e.target.closest('[data-b]'); if (!btn) return;
-  const b = state.buffs.find(x => x.id === btn.closest('.buff').dataset.id); if (!b) return;
-  if (btn.dataset.b === 'del') state.buffs = state.buffs.filter(x => x !== b); else { b.end = Math.max(b.end, now()) + 300000; b.alerted = false; }
-  save(); renderBuffs();
-});
-let flashing = false;
-function tickBuffs(){
-  let over = false;
-  state.buffs.forEach(b => {
-    const left = b.end - now();
-    if (left <= 0){ over = true; if (!b.alerted){ b.alerted = true; save(); beep(4); toast(`⏰「${b.name}」時間到！`, 'err', { label:'查看', fn: () => location.hash = 'tools' }); } }
-    const el = document.querySelector(`.buff[data-id="${b.id}"]`); if (!el) return;
-    el.querySelector('[data-f=left]').textContent = left > 0 ? fmt(left) : '時間到！';
-    el.classList.toggle('ending', left > 0 && left < 60000); el.classList.toggle('over', left <= 0);
-  });
-  flashing = over; $('#bTools').style.display = over ? '' : 'none';
-}
-$('#lapStart').onclick = () => { state.lapStart = state.lapStart ? null : now(); save(); renderLaps(); };
-$('#lapMark').onclick = () => {
-  if (!state.lapStart){ state.lapStart = now(); save(); renderLaps(); return; }
-  const t = now(); state.laps.push(t - state.lapStart); state.lapStart = t; save(); renderLaps();
-};
-document.addEventListener('keydown', e => { if (view === 'tools' && e.code === 'Space' && !e.target.closest('input,textarea,select,button') && !$('.modal-bg.show')){ e.preventDefault(); $('#lapMark').click(); } });
-$('#lapClear').onclick = () => confirmBox('清空所有單趟紀錄？', '', () => { state.laps = []; state.lapStart = null; save(); renderLaps(); });
-function renderLaps(){
-  const L = state.laps, best = L.length ? Math.min(...L) : null;
-  $('#lapStart').textContent = state.lapStart ? '停止' : '開始'; $('#lapStart').className = state.lapStart ? 'warn' : 'primary';
-  $('#lapCount').textContent = L.length;
-  $('#lapAvg').textContent = L.length ? fmtLap(L.reduce((a,b) => a+b, 0) / L.length) : '--';
-  $('#lapBest').textContent = best ? fmtLap(best) : '--';
-  $('#lapList').innerHTML = L.map((v,i) => ({v,i})).reverse().map(({v,i}) => `<div><span>第 ${i+1} 趟</span><span style="${v===best?'color:var(--accent)':''}">${fmtLap(v)}</span></div>`).join('');
-}
-
-// =====================================================================
-//  價目表 / 報價
-// =====================================================================
-function renderPriceTbl(list){
-  const adm = isAdmin(), dis = adm ? '' : 'disabled';
-  $('#priceAdminBtns').style.display = adm ? '' : 'none';
-  $('#priceTbl').innerHTML = `<tr><th>從</th><th>到</th><th>有吊牌 / 等</th><th>無吊牌 / 等</th>${adm?'<th></th>':''}</tr>` + list.map((p,i) => `
-    <tr data-i="${i}">
-      <td><input type="number" data-k="lo" value="${p.lo}" style="width:76px" ${dis}></td>
-      <td><input type="number" data-k="hi" value="${p.hi ?? ''}" placeholder="以上" style="width:76px" ${dis}></td>
-      <td><input type="number" data-k="tag" value="${p.tag ?? ''}" placeholder="私訊詳談" style="width:110px" ${dis}></td>
-      <td><input type="number" data-k="noTag" value="${p.noTag ?? ''}" placeholder="私訊詳談" style="width:110px" ${dis}></td>
-      ${adm?`<td><button class="xs ghost danger" data-del="${i}">✕</button></td>`:''}</tr>`).join('');
-}
-function readPriceTbl(){
-  return $$('#priceTbl tr[data-i]').map(tr => {
-    const g = k => { const v = tr.querySelector(`[data-k=${k}]`).value; return v === '' ? null : +v; };
-    return { lo:g('lo') ?? 0, hi:g('hi'), tag:g('tag'), noTag:g('noTag') };
-  }).sort((a,b) => a.lo - b.lo);
-}
-$('#priceTbl').addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (!d) return; const l = readPriceTbl(); l.splice(+d.dataset.del, 1); renderPriceTbl(l); });
-$('#priceAdd').onclick = () => { const l = readPriceTbl(), last = l[l.length-1]; l.push({ lo: last ? (last.hi ?? last.lo + 25) : 0, hi:null, tag:null, noTag:null }); renderPriceTbl(l); };
-$('#priceDefault').onclick = () => renderPriceTbl(DEFAULT_PRICES);
-$('#priceSave').onclick = () => {
-  const l = readPriceTbl();
-  for (let i = 0; i < l.length; i++){
-    if (l[i].hi != null && l[i].hi <= l[i].lo) return toast(`第 ${i+1} 列：「到」要大於「從」`, 'err');
-    if (i && l[i-1].hi != null && l[i].lo < l[i-1].hi) return toast(`第 ${i+1} 列和上一列的區間重疊了`, 'err');
-  }
-  state.prices = l; renderQuote();
-  backend.putPrices(l).then(() => { toast('價目表已更新，全團隊同步', 'ok'); log('price', '更新價目表'); }).catch(syncErr);
-};
 function renderQuote(){
-  const a = +$('#qFrom').value, b = +$('#qTo').value, tag = $('#qTag').checked;
-  if (!(b > a)){ $('#qOut').innerHTML = '<span class="red">目標等級要比目前等級高</span>'; return; }
+  const f = $('#fOrder'), a = +f.from.value, b = +f.to.value, tag = f.tag.checked, q = $('#quote');
+  if (!(b > a)){ q.innerHTML = '<div style="color:var(--danger)">目標等級要比目前等級高</div>'; return; }
   const c = calcPrice(a, b, tag);
-  $('#qOut').innerHTML = c.parts.map(p => `${p.key}：${p.n} 等 × $${p.v} = $${(p.n*p.v).toLocaleString()}`).join('<br>')
-    + `<div style="font-size:22px;margin-top:6px"><b class="mono">${money(c.total)}</b> <span class="muted" style="font-size:13px">${tag?'有吊牌':'無吊牌'}・${b-a} 等</span></div>`
-    + (c.unknown ? `<div style="color:var(--warn)">⚠️ 其中 ${c.unknown} 等為私訊詳談，未計入</div>` : '');
+  q.innerHTML = `<div style="font-weight:700;margin-bottom:8px">🧾 報價明細</div>
+    ${c.parts.map(p => `<div class="row"><span>${p.key}　${p.n} 等 × ${money(p.v)}</span><span class="mono">${money(p.n*p.v)}</span></div>`).join('')}
+    ${c.unknown ? `<div class="row" style="color:var(--gold)"><span>私訊報價區間　${c.unknown} 等</span><span>另議</span></div>` : ''}
+    <div class="total"><span style="color:var(--muted)">共鳴 ${a} → ${b}・${tag ? '有吊牌' : '無吊牌'}・${b-a} 等</span><b class="mono">${money(c.total)}${c.unknown ? '<span style="font-size:15px;color:var(--gold)"> + 私訊</span>' : ''}</b></div>`;
 }
-['qFrom','qTo','qTag'].forEach(id => $('#'+id).oninput = renderQuote);
-$('#qCopy').onclick = () => {
-  const a = +$('#qFrom').value, b = +$('#qTo').value, tag = $('#qTag').checked, c = calcPrice(a, b, tag);
-  if (!(b > a)) return toast('目標等級要比目前等級高', 'err');
-  copyText(`【B服代練工作室｜共鳴代練報價】
-共鳴等級：${a} → ${b}（共 ${b-a} 等）
-方案：${tag ? '有吊牌（200% 經驗徽章）' : '無吊牌'}
-${c.parts.map(p => `・${p.key}：${p.n} 等 × $${p.v}`).join('\n')}
-報價：${money(c.total)} TWD${c.unknown ? `\n※ 其中 ${c.unknown} 等（225 以上）另行私訊報價` : ''}
-如需委託請直接私訊，謝謝！`, '已複製報價');
-};
-$('#qCreate').onclick = () => openOrder(null, { from:+$('#qFrom').value, to:+$('#qTo').value, tag:$('#qTag').checked });
+['from','to','tag'].forEach(n => $('#fOrder')[n].addEventListener('input', renderQuote));
 
-// =====================================================================
-//  成員
-// =====================================================================
-const ROLE = { pending:'⏳ 待核准', member:'成員', admin:'管理員' };
-function renderTeam(){
-  const adm = isAdmin();
-  $('#teamHint').textContent = adm ? '你是管理員，可以核准與調整身分' : '只有管理員可以修改身分';
-  $('#siteUrl').textContent = location.origin + location.pathname;
-  const ms = monthStats(), per = Object.fromEntries(ms.per.map(p => [p.uid, p]));
-  const list = Object.entries(members).sort((a,b) => (a[1].role === 'pending' ? -1 : 0) - (b[1].role === 'pending' ? -1 : 0) || (a[1].created||0) - (b[1].created||0));
-  $('#memberTbl').innerHTML = `<tr><th>成員</th><th>身分</th><th class="r">本月時數</th><th class="r">本月練出</th><th>加入</th>${adm?'<th></th>':''}</tr>` + list.map(([u, m]) => `
-    <tr data-uid="${u}">
-      <td><div class="row" style="flex-wrap:nowrap"><div class="avatar sm">${esc(initial(m.name))}</div><div><b>${esc(m.name)}</b>${u===me.uid?' <span class="tag link">我</span>':''}<div class="hint">${esc(m.email)}</div></div></div></td>
-      <td>${adm && u !== me.uid ? `<select data-role>${Object.entries(ROLE).map(([k,v]) => `<option value="${k}" ${m.role===k?'selected':''}>${v}</option>`).join('')}</select>`
-        : `<span class="tag ${m.role==='admin'?'gold':m.role==='pending'?'red':''}">${ROLE[m.role]||m.role}</span>`}</td>
-      <td class="r mono">${per[u] ? fmtH(per[u].ms) : '-'}</td><td class="r mono">${per[u] ? money(per[u].money) : '-'}</td>
-      <td class="muted">${m.created ? new Date(m.created).toLocaleDateString('zh-TW') : ''}</td>
-      ${adm ? `<td class="r">${u !== me.uid ? '<button class="xs ghost danger" data-rm>移除</button>' : ''}</td>` : ''}</tr>`).join('');
-}
-$('#memberTbl').addEventListener('change', e => {
-  const s = e.target.closest('[data-role]'); if (!s) return; const u = s.closest('tr').dataset.uid, m = members[u];
-  backend.setRole(u, s.value).then(() => { toast(`${m.name} → ${ROLE[s.value]}`, 'ok'); log('member', `把 ${m.name} 設為${ROLE[s.value]}`); }).catch(syncErr);
+// ---------------- 下單 ----------------
+function toast(m, err){ const t = $('#toast'); t.textContent = m; t.className = 'toast show' + (err ? ' err' : ''); clearTimeout(t._t); t._t = setTimeout(() => t.className = 'toast', 3500); }
+$('#fOrder').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, E = (k, m) => { const el = f.querySelector(`[data-err="${k}"]`); if (el) el.textContent = m; };
+  f.querySelectorAll('.err').forEach(x => x.textContent = ''); $('#submitErr').textContent = '';
+  const from = Math.floor(+f.from.value), to = Math.floor(+f.to.value), tag = f.tag.checked;
+  const discord = f.discord.value.trim(), charName = f.charName.value.trim(), job = f.job.value.trim(), note = f.note.value.trim();
+  let bad = false;
+  if (!(to > from) || from < 0 || to > 999){ E('to', '目標等級要比目前等級高（0～999）'); bad = true; }
+  if (discord.length < 2){ E('discord', '請填 Discord 帳號，我們才能聯絡你'); bad = true; }
+  if (!f.agree.checked){ E('agree', '請先閱讀常見問題並勾選'); bad = true; }
+  if (/密碼|password|pw[:：]/i.test(note)){ E('agree', '備註裡好像有密碼，請刪掉，帳號資料請在 Discord 私訊提供'); bad = true; }
+  if (bad) return;
+  try { const last = +localStorage.getItem('req-last') || 0; if (Date.now() - last < 60000){ $('#submitErr').textContent = '剛剛已經送出過了，請稍等一分鐘再送'; return; } } catch(_){}
+  const c = calcPrice(from, to, tag);
+  const data = { discord, charName, job, fromLv: from, toLv: to, hasTag: tag, quote: c.total, unknown: c.unknown, note, status: 'new', created: Date.now() };
+  const btn = $('#submitBtn'); btn.disabled = true; btn.textContent = '送出中…';
+  try {
+    const id = await api.addRequest(data);
+    try { localStorage.setItem('req-last', String(Date.now())); } catch(_){}
+    $('#reqNo').textContent = id.slice(0, 6).toUpperCase(); $('#reqDc').textContent = discord;
+    f.style.display = 'none'; $('#doneBox').classList.add('show');
+    $('#order').scrollIntoView({ behavior: 'smooth' });
+  } catch(err){
+    console.error(err); $('#submitErr').textContent = '送出失敗，請稍後再試或直接到 Discord 私訊我們（' + (err.code || err.message || '') + '）';
+  }
+  btn.disabled = S.site.open === false; btn.textContent = S.site.open === false ? '目前暫停接單' : '送出委託';
 });
-$('#memberTbl').addEventListener('click', e => {
-  if (!e.target.closest('[data-rm]')) return; const u = e.target.closest('tr').dataset.uid, m = members[u];
-  confirmBox(`移除 ${m.name}？`, '他將無法再看到工作室資料，之後需重新註冊並等待核准。', () =>
-    backend.removeMember(u).then(() => { toast('已移除 ' + m.name); log('member', `移除成員 ${m.name}`); }).catch(syncErr));
-});
-$('#copyUrl').onclick = () => copyText(location.origin + location.pathname, '已複製網址');
+$('#againBtn').onclick = () => { const f = $('#fOrder'); f.reset(); f.style.display = ''; $('#doneBox').classList.remove('show'); renderQuote(); };
 
-// =====================================================================
-//  操作紀錄
-// =====================================================================
-const LOGT = { create:['📝','新增'], edit:['✏️','編輯'], take:['🙋','接單'], start:['▶️','開始'], pause:['⏸️','暫停'], level:['⬆️','升等'], auto:['📡','自動升等'],
-  undo:['↶','撤銷'], done:['🎉','完成'], delete:['🗑️','刪除'], restore:['♻️','復原'], purge:['❌','永久刪除'], price:['💰','價目表'], member:['👥','成員'], import:['📥','匯入'] };
-function renderLogs(){
-  const who = $('#logWho'), typ = $('#logType'), wv = who.value, tv = typ.value;
-  const names = [...new Set(logs.map(l => l.name))];
-  who.innerHTML = '<option value="">所有人</option>' + names.map(n => `<option ${n===wv?'selected':''}>${esc(n)}</option>`).join('');
-  typ.innerHTML = '<option value="">所有類型</option>' + Object.entries(LOGT).map(([k,v]) => `<option value="${k}" ${k===tv?'selected':''}>${v[1]}</option>`).join('');
-  const list = logs.filter(l => (!wv || l.name === wv) && (!tv || l.type === tv));
-  $('#logList').innerHTML = list.length ? list.map(l => `
-    <div class="log"><div class="ic">${(LOGT[l.type]||['•'])[0]}</div><div class="tx"><b>${esc(l.name)}</b> ${esc(l.text)}</div><div class="tm" title="${new Date(l.at).toLocaleString('zh-TW')}">${ago(l.at)}</div></div>`).join('')
-    : '<div class="empty"><div class="ico">🕘</div>還沒有紀錄</div>';
-}
-$('#logWho').onchange = $('#logType').onchange = renderLogs;
-
-// =====================================================================
-//  即時更新
-// =====================================================================
-function tick(){
-  if (!me) return;
-  if (view === 'orders') state.orders.forEach(o => {
-    if (o.deleted) return;
-    const card = document.querySelector(`.oc[data-id="${o.id}"]`); if (!card) return;
-    const s = stats(o), q = f => card.querySelector(`[data-f=${f}]`); if (!q('clock')) return;
-    q('clock').textContent = fmt(s.e);
-    q('bar').style.width = s.pct + '%';
-    q('lvnow').textContent = `Lv.${o.curLv}${s.isB && !o.done ? ' +' + scan.pct.toFixed(1) + '%' : ''}`;
-    q('thisLv').textContent = o.done ? '--' : (fmtShort(s.thisLv) === '--' ? '0 分' : fmtShort(s.thisLv));
-    q('avg').textContent = fmtShort(s.avg);
-    q('etaK').textContent = s.etaSrc ? `預估剩餘・${s.etaSrc}` : '預估剩餘';
-    q('eta').textContent = o.done ? '完成' : fmtShort(s.eta);
-    q('earn').textContent = o.price ? `${money(s.earned)} / ${money(o.price)}` : '未填價格';
-    q('rate').textContent = isFinite(s.rate) ? money(s.rate) + '/時' : '--';
-    q('pct').textContent = s.pct.toFixed(1) + '%';
-  });
-  if (view === 'dashboard') $$('[data-run]').forEach(el => { const o = state.orders.find(x => x.id === el.dataset.run); if (o && o.runningSince) el.textContent = fmt(now() - o.runningSince); });
-  tickBuffs();
-  $('#lapNow').textContent = state.lapStart ? fmtLap(now() - state.lapStart) : '00:00.0';
-}
-
-// =====================================================================
-//  對話框 / 提示
-// =====================================================================
-function show(s){ $(s).classList.add('show'); }
-function hide(s){ $(s).classList.remove('show'); }
-$$('.modal-bg').forEach(m => m.addEventListener('mousedown', e => { if (e.target === m) m.classList.remove('show'); }));
-$$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('.modal-bg').classList.remove('show')));
-document.addEventListener('keydown', e => { if (e.key === 'Escape'){ $$('.modal-bg.show').forEach(m => m.classList.remove('show')); document.body.classList.remove('nav-open'); } });
-let confirmFn = null, inputFn = null;
-function confirmBox(t, sub, fn){ $('#cTitle').textContent = t; $('#cSub').textContent = sub || ''; confirmFn = fn; show('#mConfirm'); }
-$('#cOk').onclick = () => { hide('#mConfirm'); confirmFn && confirmFn(); };
-function askNumber(title, sub, def, max, fn){
-  $('#iTitle').textContent = title; $('#iSub').textContent = sub || '';
-  $('#iBody').innerHTML = `<div class="field full"><label>等級數<input id="askN" type="number" min="1" max="${max}" value="${Math.min(def, max)}"></label></div>`;
-  inputFn = () => { const n = Math.min(max, Math.floor(+$('#askN').value)); if (n > 0) fn(n); };
-  show('#mInput'); setTimeout(() => $('#askN').select(), 60);
-}
-$('#iOk').onclick = () => { hide('#mInput'); inputFn && inputFn(); };
-$('#iBody').addEventListener('keydown', e => { if (e.key === 'Enter') $('#iOk').click(); });
-function toast(msg, kind = '', action){
-  const t = document.createElement('div'); t.className = 'toast ' + kind; t.innerHTML = `<span>${esc(msg)}</span>`;
-  if (action){ const b = document.createElement('button'); b.className = 'sm'; b.textContent = action.label; b.onclick = () => { action.fn(); t.remove(); }; t.appendChild(b); }
-  $('#toasts').appendChild(t); while ($('#toasts').children.length > 4) $('#toasts').firstChild.remove();
-  setTimeout(() => t.remove(), action ? 6000 : 3200);
-}
-async function copyText(txt, okMsg){
-  try { await navigator.clipboard.writeText(txt); toast(okMsg || '已複製', 'ok'); }
-  catch(e){ const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); toast(okMsg || '已複製', 'ok'); } catch(_){ toast('複製失敗，請手動選取', 'err'); } ta.remove(); }
-}
-let actx = null;
-function unlockAudio(){ try{ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){} }
-function beep(n=1){ if(!actx) return; try{ for(let i=0;i<n;i++){ const o=actx.createOscillator(), g=actx.createGain(); o.frequency.value = i%2?1046:880;
-  const t=actx.currentTime+i*.25; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.3,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+.2);
-  o.connect(g).connect(actx.destination); o.start(t); o.stop(t+.22);} }catch(e){} }
-document.addEventListener('pointerdown', unlockAudio, { once: true });
-
-// =====================================================================
-//  登入
-// =====================================================================
-function showScreen(name){
-  ['Loading','Auth','Pending','Setup'].forEach(n => $('#scr'+n).classList.toggle('show', n === name));
-  $('#app').classList.toggle('show', name === 'App');
-}
-let regMode = false;
-function setAuthMode(reg){
-  regMode = reg; $('#tabLogin').classList.toggle('act', !reg); $('#tabReg').classList.toggle('act', reg);
-  $('#regName').style.display = reg ? '' : 'none'; $('#authBtn').textContent = reg ? '註冊' : '登入';
-  $('#fAuth').pw.autocomplete = reg ? 'new-password' : 'current-password'; authMsg('');
-}
-$('#tabLogin').onclick = () => setAuthMode(false);
-$('#tabReg').onclick = () => setAuthMode(true);
-function authMsg(t, ok){ const m = $('#authMsg'); m.textContent = t; m.classList.toggle('ok', !!ok); }
-const ERR = {
-  'auth/invalid-credential':'帳號或密碼錯誤', 'auth/wrong-password':'密碼錯誤', 'auth/user-not-found':'找不到這個帳號',
-  'auth/email-already-in-use':'這個 Email 已經註冊過了，請直接登入', 'auth/weak-password':'密碼至少要 6 碼',
-  'auth/invalid-email':'Email 格式不正確', 'auth/missing-password':'請輸入密碼', 'auth/too-many-requests':'嘗試次數過多，請稍後再試',
-  'auth/network-request-failed':'網路連線失敗', 'permission-denied':'沒有權限（請確認 Firestore 規則是最新版）',
-  'auth/operation-not-allowed':'Firebase 尚未啟用 Email/密碼登入'
+// ---------------- 資料 ----------------
+let api = { addRequest: async () => { throw new Error('尚未連線'); } };
+window.Front = {
+  attach(a){
+    api = a;
+    a.watchPrices(list => { if (list && list.length) S.prices = list; renderPrices(); });
+    a.watchSite(site => { if (site) S.site = site; renderSite(); });
+  }
 };
-const errText = e => ERR[e && e.code] || (e && (e.code || e.message)) || '發生錯誤';
-$('#fAuth').addEventListener('submit', async e => {
-  e.preventDefault(); const f = e.target;
-  const email = f.email.value.trim(), pw = f.pw.value, name = f.name.value.trim();
-  if (regMode && !name) return authMsg('請填暱稱');
-  if (!/^\S+@\S+\.\S+$/.test(email)) return authMsg('請輸入正確的 Email');
-  if (pw.length < 6) return authMsg('密碼至少要 6 碼');
-  $('#authBtn').disabled = true; authMsg(regMode ? '註冊中…' : '登入中…', true);
-  try { regMode ? await backend.register(email, pw, name) : await backend.login(email, pw); }
-  catch(err){ authMsg(errText(err)); }
-  $('#authBtn').disabled = false;
-});
-$('#btnForgot').onclick = async () => {
-  const email = $('#fAuth').email.value.trim();
-  if (!email) return authMsg('請先在上面填 Email，再按「忘記密碼」');
-  try { await backend.reset(email); authMsg('已寄出重設密碼信，請到信箱收信', true); } catch(err){ authMsg(errText(err)); }
-};
-function doLogout(){
-  const o = state.orders.find(x => x.runningSince && x.runner && me && x.runner.uid === me.uid && !x.deleted);
-  if (o) return confirmBox('你還有單在計時中', `「${o.client}」正在計時，登出前要先暫停嗎？`, () => { pauseOrder(o, '登出'); save(); setTimeout(() => backend.logout(), 400); });
-  backend.logout();
-}
-$('#btnLogout').onclick = doLogout; $('#btnLogout2').onclick = () => backend.logout();
-
-// 匯入單機版的單
-function checkImport(){
-  let old = [];
-  try { const s = JSON.parse(localStorage.getItem('elsword-leveling-timer-v2')) || JSON.parse(localStorage.getItem('elsword-leveling-timer-v1')); old = (s && s.orders) || []; } catch(e){}
-  let skip = false; try { skip = localStorage.getItem('team-imported') === '1'; } catch(e){}
-  old = old.filter(o => !state.orders.find(x => x.id === o.id));
-  const box = $('#importBox');
-  if (!old.length || skip){ box.style.display = 'none'; return; }
-  box.style.display = '';
-  box.innerHTML = `📥 這台電腦有 <b>${old.length}</b> 張單機版的舊單。 <button class="sm primary" id="doImport">匯入到工作室</button> <button class="sm ghost" id="skipImport">不用了</button>`;
-  $('#doImport').onclick = () => {
-    old.forEach(o => { o = normOrder(o); o.runningSince = null; o.assignee = o.assignee || meRef(); o.created = o.created || now(); o.sessions = o.sessions.map(s => [s[0], s[1], me.uid]); state.orders.push(o); });
-    try { localStorage.setItem('team-imported','1'); } catch(e){}
-    log('import', `匯入 ${old.length} 張單機版舊單`); save(); render(); box.style.display = 'none'; toast(`已匯入 ${old.length} 張單`, 'ok');
-  };
-  $('#skipImport').onclick = () => { try { localStorage.setItem('team-imported','1'); } catch(e){} box.style.display = 'none'; };
-}
-
-let unsubs = [], unsubMe = null;
-let unsubLogs = null;
-function applyRole(){
-  const adm = isAdmin();
-  document.body.classList.toggle('is-admin', adm);
-  if (adm && !unsubLogs && backend) unsubLogs = backend.watchLogs(l => { logs = l; if (view === 'logs') renderLogs(); }, e => console.warn('logs', e));
-  if (!adm && unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; logs = []; }
-  if (!adm && VIEWS[view] && VIEWS[view].admin) location.hash = 'dashboard';
-}
-function stopData(){ if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
-function startData(){
-  if (unsubs.length) return;
-  unsubs.push(backend.watchOrders(list => {
-    state.orders = list.map(normOrder);
-    synced.clear(); state.orders.forEach(o => synced.set(o.id, JSON.stringify(o)));
-    dataReady = true; setSync(true); render(); checkImport();
-  }, syncErr));
-  unsubs.push(backend.watchPrices(list => {
-    if (list && list.length) state.prices = list; else if (isAdmin()) backend.putPrices(DEFAULT_PRICES).catch(() => {});
-    if (view === 'prices') render();
-  }, () => {}));
-  unsubs.push(backend.watchMembers(m => { members = m; render(); }, () => {}));
-
-}
-window.App = {
-  attach(b){
-    backend = b;
-    b.onAuth(user => {
-      if (unsubMe){ unsubMe(); unsubMe = null; }
-      stopData(); me = null;
-      if (!user){ showScreen('Auth'); return; }
-      showScreen('Loading');
-      unsubMe = b.watchMe(user.uid, m => {
-        if (!m){
-          b.createMe(user.uid, { name: user.displayName || user.email.split('@')[0], email: user.email, role:'pending', created: now() }).catch(() => {});
-          $('#pendEmail').textContent = user.email; showScreen('Pending'); return;
-        }
-        const wasIn = !!me;
-        me = { uid: user.uid, ...m };
-        if (m.role !== 'member' && m.role !== 'admin'){ stopData(); me = null; $('#pendEmail').textContent = user.email; showScreen('Pending'); return; }
-        $('#meName').textContent = m.name; $('#meRole').textContent = m.role === 'admin' ? '管理員' : '代練師'; $('#meAv').textContent = initial(m.name);
-        showScreen('App'); startData(); applyRole(); if (!wasIn) route(); else render();
-      }, err => { console.error(err); $('#pendEmail').textContent = user.email; showScreen('Pending'); });
-    });
-  },
-  showSetup(){ showScreen('Setup'); },
-  loadFailed(e){ showScreen('Setup'); $('#cfgMsg').textContent = '連線失敗：' + (e.message || e); }
-};
-$('#cfgSave').onclick = () => {
-  let cfg; try { cfg = Function('"use strict";return (' + $('#cfgText').value.trim().replace(/^[^{]*/, '').replace(/;?\s*$/, '') + ')')(); } catch(e){}
-  if (!cfg || !cfg.apiKey || !cfg.projectId){ $('#cfgMsg').textContent = '格式不對，請貼 firebaseConfig 的 { … } 那一段'; return; }
-  try { localStorage.setItem('fb-config', JSON.stringify(cfg)); } catch(e){}
-  location.reload();
-};
-
-// 啟動
-setInterval(tick, 250);
-setInterval(() => { if (me && view === 'dashboard') renderDashboard(); }, 15000);
-setInterval(() => { document.title = flashing && (Date.now()/1000|0) % 2 ? '⏰ 時間到！｜B服代練工作室' : (VIEWS[view] ? VIEWS[view].t + '｜' : '') + 'B服代練工作室'; }, 500);
-try {
-  const w = new Worker(URL.createObjectURL(new Blob(['setInterval(()=>postMessage(0),1000)'], { type:'text/javascript' })));
-  w.onmessage = () => { try { scanStep(); } catch(e){ $('#dbg').textContent = '錯誤：' + e.message; } };
-} catch(e){ setInterval(() => { try { scanStep(); } catch(_){} }, 1000); }
-(function frame(){ drawView(); requestAnimationFrame(frame); })();
+renderSite(); renderPrices();
 </script>
 
 <script type="module">
-// =====================================================================
-//  Firebase 設定
-// =====================================================================
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAqJzMNsxaGX2L53LozPPBpshjfda7JPtA",
   authDomain: "boost-70cf2.firebaseapp.com",
@@ -1869,45 +442,18 @@ const FIREBASE_CONFIG = {
   appId: "1:1000095594482:web:16306642fae64622da9d6b",
   measurementId: "G-PPBNB0C7G1"
 };
-
-let cfg = FIREBASE_CONFIG;
-try { if (!cfg) cfg = JSON.parse(localStorage.getItem('fb-config')); } catch(e){}
-
-if (window.__MOCK_BACKEND) App.attach(window.__MOCK_BACKEND);
-else if (!cfg) App.showSetup();
+if (window.__MOCK_PUBLIC) Front.attach(window.__MOCK_PUBLIC);
 else {
   try {
-    const V = '10.12.2', base = `https://www.gstatic.com/firebasejs/${V}/`;
-    const [{ initializeApp }, A, F] = await Promise.all([
-      import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
-    const app = initializeApp(cfg), auth = A.getAuth(app), db = F.getFirestore(app);
-    // Firestore 不能存「陣列裡的陣列」：sessions 轉成物件
-    const toDb = o => { const c = JSON.parse(JSON.stringify(o)); c.sessions = (c.sessions||[]).map(([a,b,u]) => ({ a, b, u: u ?? null })); return c; };
-    const fromDb = d => { const o = d.data(); o.id = d.id; o.sessions = (o.sessions||[]).map(s => [s.a, s.b, s.u ?? null]); return o; };
-    App.attach({
-      onAuth: cb => A.onAuthStateChanged(auth, cb),
-      login: (e,p) => A.signInWithEmailAndPassword(auth, e, p),
-      register: async (e,p,name) => {
-        const c = await A.createUserWithEmailAndPassword(auth, e, p);
-        await A.updateProfile(c.user, { displayName: name });
-        await F.setDoc(F.doc(db,'members',c.user.uid), { name, email:e, role:'pending', created:Date.now() });
-      },
-      reset: e => A.sendPasswordResetEmail(auth, e),
-      logout: () => A.signOut(auth),
-      watchMe: (uid, cb, err) => F.onSnapshot(F.doc(db,'members',uid), s => cb(s.exists() ? s.data() : null), err),
-      createMe: (uid, data) => F.setDoc(F.doc(db,'members',uid), data),
-      watchMembers: (cb, err) => F.onSnapshot(F.collection(db,'members'), qs => { const m = {}; qs.forEach(d => m[d.id] = d.data()); cb(m); }, err),
-      setRole: (uid, role) => F.updateDoc(F.doc(db,'members',uid), { role }),
-      removeMember: uid => F.deleteDoc(F.doc(db,'members',uid)),
-      watchOrders: (cb, err) => F.onSnapshot(F.collection(db,'orders'), qs => cb(qs.docs.map(fromDb)), err),
-      putOrder: o => F.setDoc(F.doc(db,'orders',o.id), toDb(o)),
-      delOrder: id => F.deleteDoc(F.doc(db,'orders',id)),
-      watchPrices: (cb, err) => F.onSnapshot(F.doc(db,'settings','prices'), s => cb(s.exists() ? s.data().list : null), err),
-      putPrices: list => F.setDoc(F.doc(db,'settings','prices'), { list }),
-      addLog: entry => F.addDoc(F.collection(db,'logs'), entry),
-      watchLogs: (cb, err) => F.onSnapshot(F.query(F.collection(db,'logs'), F.orderBy('at','desc'), F.limit(300)), qs => cb(qs.docs.map(d => d.data())), err),
+    const base = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    const [{ initializeApp }, F] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-firestore.js')]);
+    const db = F.getFirestore(initializeApp(FIREBASE_CONFIG));
+    Front.attach({
+      watchPrices: cb => F.onSnapshot(F.doc(db, 'settings', 'prices'), s => cb(s.exists() ? s.data().list : null), e => console.warn(e)),
+      watchSite: cb => F.onSnapshot(F.doc(db, 'settings', 'site'), s => cb(s.exists() ? s.data() : null), e => console.warn(e)),
+      addRequest: async data => (await F.addDoc(F.collection(db, 'requests'), data)).id,
     });
-  } catch(e){ console.error(e); App.loadFailed(e); }
+  } catch(e){ console.error(e); }
 }
 </script>
 </body>

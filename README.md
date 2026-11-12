@@ -1,10 +1,8 @@
-# B服代練工作室｜代練管理系統
+# B服代練工作室
 
-網址：https://ting631107.github.io/boost-timer/
+- 前台（客人）：https://ting631107.github.io/boost-timer/
+  介紹、價目表（與後台同步）、線上報價、下單表單（送到後台「新委託」）、委託流程、常見問題、公告
+- 後台（工作室）：https://ting631107.github.io/boost-timer/admin.html
+  總覽儀表板、新委託、代練單、共鳴度螢幕辨識、計時工具、價目表與報價、前台設定、成員管理、操作紀錄
 
-- 總覽儀表板：本月練出價值、時數、完成單數、代練師業績排行、近 14 天圖表、截止提醒
-- 代練單：搜尋、篩選、排序、接單、計時、升等紀錄、回收桶（可復原）
-- 共鳴度螢幕辨識：滿條自動升等、掛機提醒、讀不到自動暫停
-- 價目表與報價試算（管理員可修改）
-- 成員管理（註冊需管理員核准）、操作紀錄
-- 後端：Firebase Authentication + Cloud Firestore（規則見 firestore.rules）
+後端：Firebase Authentication + Cloud Firestore（規則見 firestore.rules）
