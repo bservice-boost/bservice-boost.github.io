@@ -32,7 +32,13 @@ service cloud.firestore {
     // 前台委託：任何人都能「新增」（欄位與長度都會檢查），只有成員能看、能改
     match /requests/{reqId} {
       allow create: if request.resource.data.keys().hasOnly(
-                         ['discord','charName','job','fromLv','toLv','hasTag','quote','unknown','note','status','created'])
+                         ['discord','charName','job','fromLv','toLv','hasTag','quote','unknown','note','booster','status','created'])
+                    && (!('booster' in request.resource.data) || request.resource.data.booster == null
+                        || (request.resource.data.booster is map
+                            && request.resource.data.booster.keys().hasOnly(['uid','name','auto'])
+                            && request.resource.data.booster.uid is string && request.resource.data.booster.uid.size() <= 64
+                            && request.resource.data.booster.name is string && request.resource.data.booster.name.size() <= 30
+                            && request.resource.data.booster.auto is bool))
                     && request.resource.data.status == 'new'
                     && request.resource.data.discord is string
                     && request.resource.data.discord.size() >= 2 && request.resource.data.discord.size() <= 50
@@ -65,6 +71,12 @@ service cloud.firestore {
         && request.resource.data.report.ref.size() >= 5 && request.resource.data.report.ref.size() <= 40
         && request.resource.data.report.name is string && request.resource.data.report.name.size() <= 30
         && request.resource.data.report.at is int);
+    }
+
+    // 公開資訊：前台顯示的代練師狀態（只有名字與單量），所有人可讀，成員可寫
+    match /public/{docId} {
+      allow read: if true;
+      allow write: if isMember();
     }
 
     // 操作紀錄：只有管理員能看；成員能新增（只能用自己的名義）；任何人都不能修改或刪除

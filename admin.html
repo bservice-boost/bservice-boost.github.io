@@ -961,9 +961,10 @@ const HELP = {
   team: { title:'成員管理（管理員）', cols:[
     ['核准新成員', ['請新人打開網站，自己按「<b>註冊新帳號</b>」', '他會出現在下方列表，身分是「⏳ 待核准」，左側選單會亮紅點', '把身分改成 <b>成員</b>，對方畫面會自動進入系統']],
     ['身分說明', ['<b>成員（代練師）</b>：接單、計時、升等、回報、看價目表與總覽', '<b>管理員</b>：以上全部，加上修改價目表、核准成員、看操作紀錄、永久刪除單', '<b>移除</b>：對方立刻失去存取權，要重新註冊並等核准']],
+    ['前台可被指定', ['勾選「顯示」的成員會出現在前台下單表單，客人可以指定他', '前台只看得到名字、介紹和「空閒／進行中幾張／練功中」，看不到任何客人資料', '不接單的管理員可以取消勾選']],
   ], tip:'表格裡的「本月時數／練出」可以當作薪資或分潤的參考。' },
   requests: { title:'處理前台委託', cols:[
-    ['收到委託', ['客人在前台填單送出後，會<b>即時出現</b>在「新委託」並響提示音，左側選單會亮紅點', '卡片上有客人的 Discord、角色、職業、等級區間、方案與<b>系統報價</b>', '按 <b>📋 複製 Discord</b> 到 Discord 加好友或私訊']],
+    ['收到委託', ['客人在前台填單送出後，會<b>即時出現</b>在「新委託」並響提示音，左側選單會亮紅點', '客人可以<b>指定代練師</b>，或不指定由系統分配給目前單最少的人；卡片會顯示「🎯 客人指定」或「🎲 系統分配」，被指定的人會收到通知', '卡片上有客人的 Discord、角色、職業、等級區間、方案與<b>系統報價</b>', '按 <b>📋 複製 Discord</b> 到 Discord 加好友或私訊']],
     ['處理流程', ['聯絡後按 <b>💬 標記已聯絡</b>，其他人就知道有人在處理', '客人確認後按 <b>✅ 轉成代練單</b>：會自動帶入資料開新單，委託移到「已成交」', '不接的委託按 <b>婉拒</b>（可以再改回新委託）', '「已成交」的卡片可以點「查看代練單」']],
   ], tip:'客人填的報價是依當時的價目表算的；轉單時會用現在的價目表重算，可以在單子上調整總價。' },
   pay: { title:'收款流程', cols:[
@@ -1115,7 +1116,22 @@ function trBanner(o){
     : isAdmin() ? '<button class="xs" data-act="tr-ok">管理員直接同意</button><button class="xs ghost" data-act="tr-no">拒絕</button>' : '';
   return `<div class="infobox" style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px"><span style="flex:1;min-width:180px">${txt}<span class="hint">・${ago(r.at||0)}</span></span>${btns}</div>`;
 }
-let trSeen = null;
+let trSeen = null, pubBoosters = undefined, pubTimer = null;
+// 前台要看的「代練師狀態」：只放名字、單量、是否練功中（不含任何客人資料）
+function boostersNow(){
+  return Object.entries(members).filter(([,m]) => (m.role === 'member' || m.role === 'admin') && m.listed !== false)
+    .map(([uid, m]) => { const mine = live().filter(o => !o.done && o.assignee && o.assignee.uid === uid);
+      return { uid, name: m.name || '', intro: m.intro || '', active: mine.length, running: mine.some(o => o.runningSince) }; })
+    .sort((a,b) => a.name.localeCompare(b.name));
+}
+function syncBoosters(){
+  if (!me || !dataReady || pubBoosters === undefined || !Object.keys(members).length) return;
+  clearTimeout(pubTimer);
+  pubTimer = setTimeout(() => {
+    const cur = boostersNow();
+    if (JSON.stringify(cur) !== JSON.stringify(pubBoosters || [])){ pubBoosters = cur; backend.putBoosters(cur).catch(e => console.warn('boosters', e)); }
+  }, 1500);
+}
 function checkTransfers(){
   const mineReq = state.orders.filter(o => !o.deleted && o.transferReq && o.assignee && o.assignee.uid === me.uid);
   const key = o => o.id + ':' + o.transferReq.uid + ':' + o.transferReq.at;
@@ -1250,7 +1266,7 @@ function openOrder(o, preset){
   editing = o || null; const f = $('#fOrder'); f.reset(); $$('#fOrder .err').forEach(x => x.textContent = '');
   $('#mOrderTitle').textContent = o ? '編輯代練單' : '新增代練單';
   priceManual = false;
-  fillAssignee(f.assignee, o ? (o.assignee && o.assignee.uid) : me.uid);
+  fillAssignee(f.assignee, o ? (o.assignee && o.assignee.uid) : (preset && preset.assignee) || me.uid);
   if (o){
     f.client.value = o.client; f.job.value = o.job||''; f.startLv.value = o.startLv0; f.targetLv.value = o.targetLv; f.curLv.value = o.curLv;
     f.price.value = o.price||0; f.deadline.value = o.deadline||''; f.note.value = o.note||''; f.autoLv.checked = o.autoLv !== false; f.hasTag.checked = o.hasTag !== false; f.contact.value = o.contact || '';
@@ -1808,16 +1824,23 @@ function renderTeam(){
   $('#siteUrl').textContent = location.origin + location.pathname;
   const ms = monthStats(), per = Object.fromEntries(ms.per.map(p => [p.uid, p]));
   const list = Object.entries(members).sort((a,b) => (a[1].role === 'pending' ? -1 : 0) - (b[1].role === 'pending' ? -1 : 0) || (a[1].created||0) - (b[1].created||0));
-  $('#memberTbl').innerHTML = `<tr><th>成員</th><th>身分</th><th class="r">本月時數</th><th class="r">本月練出</th><th>加入</th>${adm?'<th></th>':''}</tr>` + list.map(([u, m]) => `
+  $('#memberTbl').innerHTML = `<tr><th>成員</th><th>身分</th><th>前台可被指定</th><th class="r">本月時數</th><th class="r">本月練出</th><th>加入</th>${adm?'<th></th>':''}</tr>` + list.map(([u, m]) => `
     <tr data-uid="${u}">
       <td><div class="row" style="flex-wrap:nowrap"><div class="avatar sm">${esc(initial(m.name))}</div><div><b>${esc(m.name)}</b>${u===me.uid?' <span class="tag link">我</span>':''}<div class="hint">${esc(m.email)}</div></div></div></td>
       <td>${adm && u !== me.uid ? `<select data-role>${Object.entries(ROLE).map(([k,v]) => `<option value="${k}" ${m.role===k?'selected':''}>${v}</option>`).join('')}</select>`
         : `<span class="tag ${m.role==='admin'?'gold':m.role==='pending'?'red':''}">${ROLE[m.role]||m.role}</span>`}</td>
+      <td>${m.role === 'member' || m.role === 'admin' ? (adm ? `<label class="inline"><input type="checkbox" data-listed ${m.listed !== false ? 'checked' : ''}> 顯示</label>
+          <input data-intro value="${esc(m.intro || '')}" placeholder="前台介紹（選填）" maxlength="30" style="width:150px;margin-top:4px;padding:4px 8px;font-size:12.5px">`
+          : (m.listed !== false ? '<span class="tag done">顯示</span>' : '<span class="tag">不顯示</span>')) : '<span class="hint">-</span>'}</td>
       <td class="r mono">${per[u] ? fmtH(per[u].ms) : '-'}</td><td class="r mono">${per[u] ? money(per[u].money) : '-'}</td>
       <td class="muted">${m.created ? new Date(m.created).toLocaleDateString('zh-TW') : ''}</td>
       ${adm ? `<td class="r">${u !== me.uid ? '<button class="xs ghost danger" data-rm>移除</button>' : ''}</td>` : ''}</tr>`).join('');
 }
 $('#memberTbl').addEventListener('change', e => {
+  const lc = e.target.closest('[data-listed]'), it = e.target.closest('[data-intro]');
+  if (lc || it){ const u = e.target.closest('tr').dataset.uid, m = members[u];
+    const patch = lc ? { listed: lc.checked } : { intro: it.value.trim() };
+    return backend.updateMember(u, patch).then(() => { toast(lc ? `${m.name}：前台${lc.checked ? '顯示' : '不顯示'}` : `已更新 ${m.name} 的介紹`, 'ok'); log('member', lc ? `${m.name} 前台${lc.checked ? '顯示' : '隱藏'}` : `更新 ${m.name} 的前台介紹`); }).catch(syncErr); }
   const s = e.target.closest('[data-role]'); if (!s) return; const u = s.closest('tr').dataset.uid, m = members[u];
   backend.setRole(u, s.value).then(() => { toast(`${m.name} → ${ROLE[s.value]}`, 'ok'); log('member', `把 ${m.name} 設為${ROLE[s.value]}`); }).catch(syncErr);
 });
@@ -1841,7 +1864,7 @@ function renderRequests(){
     const ord = r.orderId && state.orders.find(o => o.id === r.orderId);
     return `<div class="oc" data-rid="${esc(r.id)}">
       <div class="oc-top"><div style="min-width:0"><div class="oc-name">${esc(r.charName || '（未填角色）')}<span class="job">${esc(r.job)}</span></div>
-        <div class="oc-tags"><span class="tag ${st[1]}">${st[0]}</span><span class="tag">#${no}</span><span class="tag">${r.hasTag ? '有吊牌' : '無吊牌'}</span><span class="tag">${ago(r.created||0)}</span>${r.by ? `<span class="tag">處理：${esc(r.by)}</span>` : ''}</div></div>
+        <div class="oc-tags"><span class="tag ${st[1]}">${st[0]}</span><span class="tag">#${no}</span>${r.booster ? `<span class="tag ${r.booster.uid === me.uid ? 'link' : ''}">${r.booster.auto ? '🎲 系統分配' : '🎯 客人指定'}：${esc(r.booster.uid === me.uid ? '我' : (members[r.booster.uid] || r.booster).name)}</span>` : ''}<span class="tag">${r.hasTag ? '有吊牌' : '無吊牌'}</span><span class="tag">${ago(r.created||0)}</span>${r.by ? `<span class="tag">處理：${esc(r.by)}</span>` : ''}</div></div>
         <div style="text-align:right"><div class="mono" style="font-size:22px;font-weight:700">${money(c.total)}${c.unknown ? '<span class="hint">＋私訊</span>' : ''}</div><div class="hint">客人看到 ${money(r.quote)}</div></div></div>
       <div class="oc-clock" style="margin:12px 0 6px"><div><div class="hint">共鳴等級</div><b class="mono" style="font-size:20px">Lv.${r.fromLv} → ${r.toLv}</b> <span class="hint">（${r.toLv - r.fromLv} 等）</span></div>
         <div style="text-align:right"><div class="hint">Discord</div><b>${esc(r.discord)}</b></div></div>
@@ -1865,7 +1888,8 @@ $('#reqList').addEventListener('click', e => {
   if (act === 'copy') return copyText(r.discord, '已複製 Discord：' + r.discord);
   if (act === 'open'){ state.filter = 'active'; $('#q').value = r.charName || r.discord; location.hash = 'orders'; return; }
   if (act === 'accept') return openOrder(null, { from:r.fromLv, to:r.toLv, tag:r.hasTag, client: r.charName || r.discord, job:r.job, contact:r.discord,
-    note: [`前台委託 #${no}`, r.note].filter(Boolean).join('\n'), reqId:r.id });
+    note: [`前台委託 #${no}`, r.booster ? (r.booster.auto ? '系統分配：' : '客人指定：') + r.booster.name : '', r.note].filter(Boolean).join('\n'), reqId:r.id,
+    assignee: r.booster && members[r.booster.uid] ? r.booster.uid : null });
   if (act === 'del') return confirmBox(`刪除委託 #${no}？`, '刪除後無法復原。', () => backend.deleteRequest(r.id).then(() => log('request', `刪除前台委託 #${no}`)).catch(syncErr));
   const st = { contacted:'contacted', reject:'rejected', new:'new' }[act]; if (!st) return;
   backend.updateRequest(r.id, { status: st, by: me.name, at: now() }).then(() => {
@@ -1875,7 +1899,10 @@ $('#reqList').addEventListener('click', e => {
 function onRequests(list){
   const fresh = reqSeen ? list.filter(r => (r.status || 'new') === 'new' && !reqSeen.has(r.id)) : [];
   reqSeen = new Set(list.map(r => r.id)); requests = list;
-  if (fresh.length){ beep(3); fresh.forEach(r => toast(`📨 新委託：${r.charName || r.discord}（Lv.${r.fromLv} → ${r.toLv}）`, 'ok', { label:'查看', fn: () => { reqFilter = 'new'; location.hash = 'requests'; } })); }
+  if (fresh.length){ beep(3); fresh.forEach(r => toast(r.booster && r.booster.uid === me.uid
+    ? `📨 ${r.booster.auto ? '系統分配' : '客人指定'}給你的新委託：${r.charName || r.discord}（Lv.${r.fromLv} → ${r.toLv}）`
+    : `📨 新委託：${r.charName || r.discord}（Lv.${r.fromLv} → ${r.toLv}）${r.booster ? '・' + (r.booster.auto ? '分配' : '指定') + '給 ' + r.booster.name : ''}`,
+    'ok', { label:'查看', fn: () => { reqFilter = 'new'; location.hash = 'requests'; } })); }
   renderBadges(); if (view === 'requests') renderRequests();
 }
 
@@ -2236,19 +2263,20 @@ function applyRole(){
   if (!adm && unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; logs = []; }
   if (!adm && VIEWS[view] && VIEWS[view].admin) location.hash = 'dashboard';
 }
-function stopData(){ trSeen = null; requests = []; reqSeen = null; site = null; payments = []; paySeen = null; payCfg = null; if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
+function stopData(){ trSeen = null; pubBoosters = undefined; clearTimeout(pubTimer); requests = []; reqSeen = null; site = null; payments = []; paySeen = null; payCfg = null; if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
 function startData(){
   if (unsubs.length) return;
   unsubs.push(backend.watchOrders(list => {
     state.orders = list.map(normOrder);
     synced.clear(); state.orders.forEach(o => synced.set(o.id, JSON.stringify(o)));
-    dataReady = true; setSync(true); render(); checkImport(); checkTransfers();
+    dataReady = true; setSync(true); render(); checkImport(); checkTransfers(); syncBoosters();
   }, syncErr));
   unsubs.push(backend.watchPrices(list => {
     if (list && list.length) state.prices = list; else if (isAdmin()) backend.putPrices(DEFAULT_PRICES).catch(() => {});
     if (view === 'prices') render();
   }, () => {}));
-  unsubs.push(backend.watchMembers(m => { members = m; render(); }, () => {}));
+  unsubs.push(backend.watchMembers(m => { members = m; render(); syncBoosters(); }, () => {}));
+  unsubs.push(backend.watchBoosters(l => { pubBoosters = l || []; syncBoosters(); }, () => { pubBoosters = []; }));
   unsubs.push(backend.watchRequests(onRequests, e => console.warn('requests', e)));
   unsubs.push(backend.watchSite(v => { site = v; if (view === 'site' && !siteDirty) renderSiteForm(); }, () => {}));
   unsubs.push(backend.watchPayments(onPayments, e => console.warn('payments', e)));
@@ -2339,6 +2367,9 @@ else {
       createMe: (uid, data) => F.setDoc(F.doc(db,'members',uid), data),
       watchMembers: (cb, err) => F.onSnapshot(F.collection(db,'members'), qs => { const m = {}; qs.forEach(d => m[d.id] = d.data()); cb(m); }, err),
       setRole: (uid, role) => F.updateDoc(F.doc(db,'members',uid), { role }),
+      updateMember: (uid, patch) => F.updateDoc(F.doc(db,'members',uid), patch),
+      watchBoosters: (cb, err) => F.onSnapshot(F.doc(db,'public','boosters'), s => cb(s.exists() ? s.data().list : null), err),
+      putBoosters: list => F.setDoc(F.doc(db,'public','boosters'), { list, updated: Date.now() }),
       removeMember: uid => F.deleteDoc(F.doc(db,'members',uid)),
       watchOrders: (cb, err) => F.onSnapshot(F.collection(db,'orders'), qs => cb(qs.docs.map(fromDb)), err),
       putOrder: o => F.setDoc(F.doc(db,'orders',o.id), toDb(o)),

@@ -134,6 +134,18 @@ table.pt .dm{color:var(--gold);font-size:13.5px}
 .faq details[open] summary::after{transform:rotate(45deg)}
 .faq details p{margin:0 0 18px;color:#c3cbea;white-space:pre-wrap}
 
+/* boosters */
+.bpick{display:grid;gap:8px;margin-top:6px}
+.bopt{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:10px 13px;cursor:pointer;transition:.15s}
+.bopt:hover{border-color:var(--accent)}
+.bopt.sel{border-color:var(--accent);box-shadow:0 0 0 3px rgba(94,224,199,.15);background:rgba(94,224,199,.06)}
+.bopt input{display:none}
+.bopt .av{width:36px;height:36px;border-radius:50%;background:var(--grad);color:#07131a;font-weight:900;display:flex;align-items:center;justify-content:center;flex:none}
+.bopt .av.rnd{background:var(--panel3);color:var(--text);font-size:18px}
+.bopt .nm{flex:1;min-width:0;color:var(--text);font-size:14.5px}
+.bopt .nm small{display:block;color:var(--muted);font-size:12.5px}
+.bst{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.bst.free{background:rgba(79,209,139,.14);color:var(--ok)} .bst.busy{background:rgba(255,200,97,.14);color:var(--gold)} .bst.run{background:rgba(122,168,255,.15);color:var(--blue)}
 /* contacts */
 .contacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;max-width:860px;margin:0 auto;text-align:left}
 .ct{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px}
@@ -242,6 +254,7 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
           <label>角色名稱<input name="charName" maxlength="30" placeholder="遊戲內角色名稱"></label>
           <label>職業<input name="job" maxlength="40" placeholder="例：艾索德・騎士皇帝"></label>
           <label class="full">Discord 帳號 *<input name="discord" maxlength="50" placeholder="例：yourname 或 yourname#1234"><div class="err" data-err="discord"></div></label>
+          <div class="full" id="boosterBox" style="display:none"><label style="margin-bottom:0">指定代練師</label><div class="bpick" id="bpick"></div></div>
           <label class="full">備註<textarea name="note" rows="3" maxlength="500" placeholder="希望完成時間、可上線時段、其他需求…"></textarea></label>
           <div class="full warnnote">🔒 <b>請勿在表單填寫遊戲帳號密碼。</b>確認委託後，工作人員會在 Discord 私訊與你聯繫。</div>
           <label class="full chk"><input type="checkbox" name="agree"> 我已閱讀<a href="#faq">常見問題</a>與委託流程</label>
@@ -253,7 +266,7 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
       <div class="done" id="doneBox">
         <div class="ok">✅</div>
         <h3 style="margin:6px 0">委託已送出！</h3>
-        <p style="color:var(--muted)">你的委託編號是 <code class="mono" id="reqNo"></code><br>工作人員會盡快加 Discord 好友 <b id="reqDc"></b> 與你聯繫。<br>想更快的話，也可以直接加下面任一位工作人員好友，私訊委託編號。</p>
+        <p style="color:var(--muted)">你的委託編號是 <code class="mono" id="reqNo"></code><br><span id="reqBooster"></span><br>工作人員會盡快加 Discord 好友 <b id="reqDc"></b> 與你聯繫。<br>想更快的話，也可以直接加下面任一位工作人員好友，私訊委託編號。</p>
         <div class="contacts" id="doneContacts" style="margin-top:14px;grid-template-columns:1fr"></div>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
           <button id="againBtn">再填一張</button>
@@ -336,7 +349,29 @@ const DEFAULT_SITE = {
     { q:'可以知道代練進度嗎？', a:'可以，隨時在 Discord 私訊負責的工作人員，會回報目前等級、進度百分比與預估剩餘時間。' },
     { q:'怎麼付款？', a:'確認報價與細節後，工作人員會在 Discord 私訊傳專屬付款連結給你，可以用銀行轉帳或 PayPal 付款。送出網站表單不會扣款。' } ],
 };
-const S = { prices: DEFAULT_PRICES, site: DEFAULT_SITE };
+const S = { prices: DEFAULT_PRICES, site: DEFAULT_SITE, boosters: [] };
+let pickUid = '';
+function bStatus(b){ return b.running ? ['run', '練功中・' + (b.active || 1) + ' 張單'] : b.active ? ['busy', '進行中 ' + b.active + ' 張單'] : ['free', '目前空閒']; }
+function renderBoosters(){
+  const list = (S.boosters || []).filter(b => b && b.uid && b.name);
+  $('#boosterBox').style.display = list.length ? '' : 'none';
+  if (pickUid && !list.find(b => b.uid === pickUid)) pickUid = '';
+  const minA = list.length ? Math.min(...list.map(b => b.active || 0)) : 0;
+  $('#bpick').innerHTML = `<label class="bopt ${!pickUid ? 'sel' : ''}"><input type="radio" name="booster" value="" ${!pickUid ? 'checked' : ''}><div class="av rnd">🎲</div>
+      <div class="nm">不指定<small>系統從目前單子最少的代練師中隨機分配</small></div></label>`
+    + list.map(b => { const st = bStatus(b); return `<label class="bopt ${pickUid === b.uid ? 'sel' : ''}"><input type="radio" name="booster" value="${esc(b.uid)}" ${pickUid === b.uid ? 'checked' : ''}>
+      <div class="av">${esc((b.name.trim()[0] || '?').toUpperCase())}</div><div class="nm">${esc(b.name)}${b.intro ? `<small>${esc(b.intro)}</small>` : ''}</div><span class="bst ${st[0]}">${st[1]}</span></label>`; }).join('');
+}
+document.addEventListener('change', e => { if (e.target.name === 'booster'){ pickUid = e.target.value; renderBoosters(); } });
+function pickBooster(){
+  const list = (S.boosters || []).filter(b => b && b.uid && b.name);
+  if (!list.length) return null;
+  if (pickUid){ const b = list.find(x => x.uid === pickUid); if (b) return { uid: b.uid, name: b.name, auto: false }; }
+  const minA = Math.min(...list.map(b => (b.active || 0) + (b.running ? 0.5 : 0)));
+  const pool = list.filter(b => (b.active || 0) + (b.running ? 0.5 : 0) === minA);
+  const b = pool[Math.floor(Math.random() * pool.length)];
+  return { uid: b.uid, name: b.name, auto: true };
+}
 
 function calcPrice(from, to, tag){
   let total = 0, unknown = 0; const parts = [];
@@ -423,12 +458,14 @@ $('#fOrder').addEventListener('submit', async e => {
   if (bad) return;
   try { const last = +localStorage.getItem('req-last') || 0; if (Date.now() - last < 60000){ $('#submitErr').textContent = '剛剛已經送出過了，請稍等一分鐘再送'; return; } } catch(_){}
   const c = calcPrice(from, to, tag);
-  const data = { discord, charName, job, fromLv: from, toLv: to, hasTag: tag, quote: c.total, unknown: c.unknown, note, status: 'new', created: Date.now() };
+  const booster = pickBooster();
+  const data = { discord, charName, job, fromLv: from, toLv: to, hasTag: tag, quote: c.total, unknown: c.unknown, note, booster, status: 'new', created: Date.now() };
   const btn = $('#submitBtn'); btn.disabled = true; btn.textContent = '送出中…';
   try {
     const id = await api.addRequest(data);
     try { localStorage.setItem('req-last', String(Date.now())); } catch(_){}
     $('#reqNo').textContent = id.slice(0, 6).toUpperCase(); $('#reqDc').textContent = discord;
+    $('#reqBooster').innerHTML = booster ? (booster.auto ? `系統已為你分配代練師 <b>${esc(booster.name)}</b>。` : `你指定的代練師是 <b>${esc(booster.name)}</b>。`) : '';
     f.style.display = 'none'; $('#doneBox').classList.add('show');
     $('#order').scrollIntoView({ behavior: 'smooth' });
   } catch(err){
@@ -441,7 +478,7 @@ document.addEventListener('click', async e => {
   try { await navigator.clipboard.writeText(b.dataset.copy); toast('已複製 Discord 使用者名稱：' + b.dataset.copy + '，到 Discord 新增好友貼上即可'); }
   catch(_){ toast('請手動複製：' + b.dataset.copy); }
 });
-$('#againBtn').onclick = () => { const f = $('#fOrder'); f.reset(); f.style.display = ''; $('#doneBox').classList.remove('show'); renderQuote(); };
+$('#againBtn').onclick = () => { const f = $('#fOrder'); f.reset(); pickUid = ''; renderBoosters(); f.style.display = ''; $('#doneBox').classList.remove('show'); renderQuote(); };
 
 // ---------------- 資料 ----------------
 let api = { addRequest: async () => { throw new Error('尚未連線'); } };
@@ -450,6 +487,7 @@ window.Front = {
     api = a;
     a.watchPrices(list => { if (list && list.length) S.prices = list; renderPrices(); });
     a.watchSite(site => { if (site) S.site = site; renderSite(); });
+    if (a.watchBoosters) a.watchBoosters(list => { S.boosters = list || []; renderBoosters(); });
   }
 };
 renderSite(); renderPrices();
@@ -474,6 +512,7 @@ else {
     Front.attach({
       watchPrices: cb => F.onSnapshot(F.doc(db, 'settings', 'prices'), s => cb(s.exists() ? s.data().list : null), e => console.warn(e)),
       watchSite: cb => F.onSnapshot(F.doc(db, 'settings', 'site'), s => cb(s.exists() ? s.data() : null), e => console.warn(e)),
+      watchBoosters: cb => F.onSnapshot(F.doc(db, 'public', 'boosters'), s => cb(s.exists() ? s.data().list : []), e => console.warn(e)),
       addRequest: async data => (await F.addDoc(F.collection(db, 'requests'), data)).id,
     });
   } catch(e){ console.error(e); }
