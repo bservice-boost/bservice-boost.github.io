@@ -618,10 +618,13 @@ body.is-admin a.admin-only{display:flex !important}
           </div>
           <div class="grid" style="gap:16px;align-content:start">
             <div class="card">
-              <div class="card-h"><h3>💬 Discord</h3></div>
-              <div class="field"><label>Discord 邀請連結（https:// 開頭）<input id="stDc" maxlength="200" placeholder="https://discord.gg/xxxxxx"></label><div class="err" id="stDcErr"></div></div>
-              <div class="field" style="margin-top:10px"><label>聯絡區文字<input id="stContact" maxlength="80"></label></div>
-              <div class="hint" style="margin-top:8px">沒填連結的話，前台的 Discord 按鈕會先隱藏。</div>
+              <div class="card-h"><h3>💬 Discord 聯絡人</h3><button class="sm" id="stCtAdd">＋ 新增</button></div>
+              <div class="hint" style="margin:-6px 0 10px">前台會列出這些工作人員的 Discord 使用者名稱，客人可以一鍵複製、加好友私訊。</div>
+              <div id="stCts" style="display:grid;gap:8px"></div>
+              <div class="field" style="margin-top:12px"><label>聯絡區文字<input id="stContact" maxlength="80"></label></div>
+              <details style="margin-top:12px"><summary class="hint" style="cursor:pointer">之後有開 Discord 群組的話（選填）</summary>
+                <div class="field" style="margin-top:8px"><label>群組邀請連結<input id="stDc" maxlength="200" placeholder="https://discord.gg/xxxxxx"></label><div class="err" id="stDcErr"></div></div>
+              </details>
             </div>
             <div class="card">
               <div class="card-h"><h3>💳 付款方式</h3><small class="muted">顯示在客人的付款頁</small></div>
@@ -938,7 +941,7 @@ const HELP = {
     ['圖表與清單', ['<b>近 14 天</b>：每天練出多少錢，滑鼠移到長條上看金額', '<b>正在練功</b>：現在誰在練哪張單、練了多久', '<b>業績排行</b>：可切換營收／時數／升等數；升等算在「按下升等的人」身上', '<b>截止提醒</b>：3 天內到期或已逾期的單']],
   ], tip:'這一頁每 15 秒自動更新，不用重新整理。' },
   orders: { title:'代練單使用流程', cols:[
-    ['接單到完成', ['按右上角 <b>＋ 新增代練單</b>，填委託人、起始與目標共鳴等級、是否有吊牌——<b>價格會依價目表自動算好</b>', '別人建的單按 <b>🙋 接單</b> 就變成你的', '開始練按 <b>▶ 開始</b>，休息按 <b>⏸ 暫停</b>（只有按開始的時間會算進時數）', '每升一等按 <b>⬆ 升 1 等</b>；有用共鳴度辨識的話會自動升', '練到目標等級會自動標成「已完成」']],
+    ['接單到完成', ['按右上角 <b>＋ 新增代練單</b>，填委託人、起始與目標共鳴等級、是否有吊牌——<b>價格會依價目表自動算好</b>', '沒人接的單按 <b>🙋 接單</b> 就變成你的；別人已經接的單要按 ••• →「<b>請求接手</b>」，<b>原接單人同意後</b>才會轉給你（管理員可以直接指定）', '開始練按 <b>▶ 開始</b>，休息按 <b>⏸ 暫停</b>（只有按開始的時間會算進時數）', '每升一等按 <b>⬆ 升 1 等</b>；有用共鳴度辨識的話會自動升', '練到目標等級會自動標成「已完成」']],
     ['其他操作（卡片右上 •••）', ['<b>📋 進度回報</b>：產生一段文字，複製貼給客人', '<b>✏️ 編輯</b>：改資料、改價格、中途接手可填「目前等級」', '<b>升多等…</b>：一次補記好幾等', '<b>↶ 撤銷升等</b>：按錯可以退回上一等', '<b>🗑️ 移到回收桶</b>：刪掉的單可以在「回收桶」復原']],
     ['找單', ['上方可切換：進行中／我接的／未接／已完成／回收桶', '搜尋框可以找委託人、職業、備註', '右邊可以排序：最新、截止日、進度、練功中優先']],
   ], tip:'📡 連動：要讓共鳴度辨識自動升等，先在單上按「📡 連動」，再按「▶ 開始」。同一時間只能連動一張單（每台電腦各自設定）。' },
@@ -968,7 +971,7 @@ const HELP = {
     ['對帳', ['客人付完會回報「帳號後五碼」或「PayPal 交易編號」，這裡會亮紅點並響提示音', '到網銀或 PayPal 後台核對金額與後五碼／交易編號', '核對無誤按 <b>✅ 確認收款</b>（管理員），客人的付款頁會自動顯示「已確認收款」', '對不上可以按「退回」，客人頁面會回到等待付款']],
   ], tip:'付款方式（銀行帳號、PayPal.me）在「前台設定」→「付款方式」填寫。系統不會自動扣款或驗證，一定要以銀行／PayPal 實際入帳為準。' },
   site: { title:'前台設定（管理員）', cols:[
-    ['可以改什麼', ['<b>接單狀態</b>：暫停時前台會顯示「暫停接單」，表單不能送出', '<b>公告</b>：顯示在前台最上方的黃色橫條', '<b>標語、介紹、四個特色、常見問題</b>：前台各區塊的文字', '<b>Discord 邀請連結</b>：前台所有「加入 Discord」按鈕會連到這裡']],
+    ['可以改什麼', ['<b>接單狀態</b>：暫停時前台會顯示「暫停接單」，表單不能送出', '<b>公告</b>：顯示在前台最上方的黃色橫條', '<b>標語、介紹、四個特色、常見問題</b>：前台各區塊的文字', '<b>Discord 聯絡人</b>：前台列出的工作人員 Discord 帳號，客人複製後加好友私訊']],
     ['小提醒', ['改完按右邊 <b>儲存並更新前台</b>，客人重新整理就會看到', '價目表在「價目表與報價」修改，前台自動同步', '按「開啟前台預覽」看實際效果']],
   ] },
   logs: { title:'操作紀錄（管理員）', cols:[
@@ -1103,6 +1106,22 @@ function renderOrders(){
   }
   box.innerHTML = list.map(cardHTML).join('');
 }
+function trBanner(o){
+  const r = o.transferReq; if (!r || o.done) return '';
+  const mine = o.assignee && o.assignee.uid === me.uid, asker = r.uid === me.uid;
+  const txt = mine ? `🙋 <b>${esc(r.name)}</b> 想接手這張單` : asker ? `⏳ 已請求接手，等待 <b>${esc(nameOf(o.assignee))}</b> 同意` : `🙋 ${esc(r.name)} 請求接手中（等待 ${esc(nameOf(o.assignee))} 同意）`;
+  const btns = mine ? '<button class="xs primary" data-act="tr-ok">同意轉給他</button><button class="xs" data-act="tr-no">拒絕</button>'
+    : asker ? '<button class="xs" data-act="tr-cancel">取消請求</button>'
+    : isAdmin() ? '<button class="xs" data-act="tr-ok">管理員直接同意</button><button class="xs ghost" data-act="tr-no">拒絕</button>' : '';
+  return `<div class="infobox" style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px"><span style="flex:1;min-width:180px">${txt}<span class="hint">・${ago(r.at||0)}</span></span>${btns}</div>`;
+}
+let trSeen = null;
+function checkTransfers(){
+  const mineReq = state.orders.filter(o => !o.deleted && o.transferReq && o.assignee && o.assignee.uid === me.uid);
+  const key = o => o.id + ':' + o.transferReq.uid + ':' + o.transferReq.at;
+  if (trSeen) mineReq.filter(o => !trSeen.has(key(o))).forEach(o => { beep(2); toast(`🙋 ${o.transferReq.name} 想接手「${o.client}」`, 'ok', { label:'查看', fn: () => { state.filter = 'mine'; location.hash = 'orders'; render(); } }); });
+  trSeen = new Set(mineReq.map(key));
+}
 function cardHTML(o){
   const isB = o.id === state.boundId, mine = o.assignee && o.assignee.uid === me.uid;
   if (o.deleted) return `
@@ -1128,7 +1147,10 @@ function cardHTML(o){
           <button data-act="edit">✏️ 編輯</button>
           ${o.done?'':`<button data-act="lvN">⬆ 升多等…</button>`}
           <button data-act="undo" ${o.levels.length?'':'disabled'}>↶ 撤銷升等</button>
-          ${o.done||mine?'':`<button data-act="take">🙋 ${o.assignee?'改由我接':'接這張單'}</button>`}
+          ${o.done||mine?'':(!o.assignee ? '<button data-act="take">🙋 接這張單</button>'
+            : o.transferReq && o.transferReq.uid === me.uid ? '<button data-act="tr-cancel">↩ 取消接手請求</button>'
+            : `<button data-act="take" ${o.transferReq ? 'disabled title="已經有人在請求接手"' : ''}>🙋 請求接手</button>`)}
+          ${isAdmin() && o.assignee && !o.done ? '<button data-act="reassign">👥 指定接單人（管理員）</button>' : ''}
           <hr><button data-act="del" class="danger">🗑️ 移到回收桶</button>
         </div></div>
     </div>
@@ -1148,6 +1170,7 @@ function cardHTML(o){
       <span class="sp"></span>
       ${!o.assignee && !o.done ? '<button class="sm" data-act="take">🙋 接單</button>' : ''}
     </div>
+    ${trBanner(o)}
     ${o.note?`<div class="note">📝 ${esc(o.note)}</div>`:''}
     ${o.levels.length?`<details class="hist"><summary>升等紀錄 ${o.levels.length} 筆</summary><div class="tbl-wrap"><table class="t" style="margin-top:6px"><tr><th>等級</th><th>花費</th><th>代練師</th><th class="r">價值</th><th>時間</th></tr>${rows}</table></div></details>`:''}
   </div>`;
@@ -1167,7 +1190,36 @@ $('#orders').addEventListener('click', e => {
   $$('.menu.open').forEach(x => x.classList.remove('open'));
   if (act === 'restore') return restore(o.id);
   if (act === 'purge') return confirmBox(`永久刪除「${o.client}」？`, '這個動作無法復原，所有升等與時數紀錄都會消失。', () => { state.orders = state.orders.filter(x => x !== o); log('purge', `永久刪除 ${o.client}`); save(); render(); });
-  if (act === 'take'){ o.assignee = meRef(); log('take', `接下 ${o.client}`, o.id); toast('已接下 ' + o.client, 'ok'); }
+  if (act === 'take'){
+    if (!o.assignee){ o.assignee = meRef(); log('take', `接下 ${o.client}`, o.id); toast('已接下 ' + o.client, 'ok'); }
+    else if (o.assignee.uid !== me.uid){
+      if (o.transferReq) return toast(`${o.transferReq.name} 已經在請求接手這張單`, 'err');
+      o.transferReq = { uid: me.uid, name: me.name, at: now() };
+      log('take', `請求接手 ${o.client}（目前接單人：${nameOf(o.assignee)}）`, o.id);
+      toast(`已送出接手請求，等待 ${nameOf(o.assignee)} 同意`, 'ok');
+    }
+  }
+  if (act === 'tr-cancel'){ o.transferReq = null; log('take', `取消接手 ${o.client} 的請求`, o.id); toast('已取消接手請求'); }
+  if (act === 'tr-no'){ const r = o.transferReq; o.transferReq = null; log('take', `拒絕 ${r ? r.name : ''} 接手 ${o.client}`, o.id); toast('已拒絕接手請求'); }
+  if (act === 'tr-ok'){
+    const r = o.transferReq; if (!r) return;
+    const from = nameOf(o.assignee), byAdmin = !(o.assignee && o.assignee.uid === me.uid);
+    if (o.runningSince) pauseOrder(o, '轉單');
+    if (state.boundId === o.id) state.boundId = null;
+    o.assignee = { uid: r.uid, name: r.name }; o.transferReq = null;
+    log('take', `${byAdmin ? '管理員同意，' : '同意，'}把 ${o.client} 從 ${from} 轉給 ${r.name}`, o.id);
+    toast(`已把「${o.client}」轉給 ${r.name}`, 'ok');
+  }
+  if (act === 'reassign'){
+    const opts = Object.entries(members).filter(([,m]) => m.role === 'member' || m.role === 'admin');
+    $('#iTitle').textContent = `指定「${o.client}」的接單人`; $('#iSub').textContent = '管理員可以直接轉單，不用原接單人同意';
+    $('#iBody').innerHTML = `<div class="field full"><label>接單人<select id="raSel">${opts.map(([u,m]) => `<option value="${u}" ${o.assignee && o.assignee.uid===u ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select></label></div>`;
+    inputFn = () => { const u = $('#raSel').value, m = members[u]; if (!m || (o.assignee && o.assignee.uid === u)) return;
+      const from = nameOf(o.assignee); if (o.runningSince) pauseOrder(o, '轉單');
+      o.assignee = { uid: u, name: m.name }; o.transferReq = null; log('take', `管理員把 ${o.client} 從 ${from} 轉給 ${m.name}`, o.id);
+      save(); render(); toast(`已轉給 ${m.name}`, 'ok'); };
+    show('#mInput'); return;
+  }
   if (act === 'start') startOrder(o);
   if (act === 'pause'){ pauseOrder(o); if (scan.autoPaused === o.id) scan.autoPaused = null; }
   if (act === 'lv1') levelUp(o, 1);
@@ -1964,17 +2016,17 @@ $('#pySave').onclick = () => {
 // =====================================================================
 const SITE_DEFAULT = {
   open: true, openText: '', announce: { on: false, text: '' },
-  tagline: '專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由專人在 Discord 與你聯繫。',
+  tagline: '專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由工作人員在 Discord 私訊與你聯繫。',
   intro: '我們是專注艾爾之光共鳴等級的代練團隊，由代練師親自操作練功，每一等的時間都有系統紀錄，練到哪裡隨時回報給你。',
   features: [ { icon:'🎮', t:'專人親自代練', d:'由團隊代練師親自操作練功，有問題隨時找得到人。' }, { icon:'📊', t:'進度清楚透明', d:'練功時間與每一等都有系統紀錄，隨時可以詢問目前進度。' },
-    { icon:'💰', t:'價格公開', d:'依共鳴等級區間計價，下單前就能在網站上算出價格。' }, { icon:'💬', t:'Discord 專人聯繫', d:'下單後由專人在 Discord 與你確認所有細節。' } ],
-  discordUrl: '', contactText: '加入我們的 Discord，有任何問題都可以私訊。',
+    { icon:'💰', t:'價格公開', d:'依共鳴等級區間計價，下單前就能在網站上算出價格。' }, { icon:'💬', t:'Discord 專人私訊', d:'下單後由工作人員加你好友，一對一私訊確認所有細節。' } ],
+  discordUrl: '', contacts: [], contactText: '在 Discord 加任一位工作人員為好友，直接私訊即可。',
   faq: [ { q:'什麼是「吊牌」？', a:'吊牌是 200% 經驗徽章。有吊牌練得比較快，所以每等價格比較低。' },
     { q:'價格怎麼算？', a:'依「升等前」所在的共鳴等級區間，每升 1 等計價。例如 99→100 算 0–100 區間、100→101 算 100–125 區間。跨區間會自動分段計算，225 等以上請私訊報價。' },
     { q:'需要提供哪些資料？', a:'角色名稱、職業、目前與目標共鳴等級，以及 Discord 帳號。遊戲帳號相關資料請只在 Discord 私訊中提供，不要填在網站表單。' },
-    { q:'送出委託後多久開始？', a:'我們會在 Discord 與你確認時間，確認後就會安排代練師開始。' },
-    { q:'可以知道代練進度嗎？', a:'可以，隨時在 Discord 詢問，代練師會回報目前等級、進度百分比與預估剩餘時間。' },
-    { q:'怎麼付款？', a:'確認報價與細節後，會在 Discord 告知付款方式。送出網站表單不會扣款。' } ],
+    { q:'送出委託後多久開始？', a:'工作人員會加你的 Discord 好友確認時間，確認後就會安排代練師開始。' },
+    { q:'可以知道代練進度嗎？', a:'可以，隨時在 Discord 私訊負責的工作人員，會回報目前等級、進度百分比與預估剩餘時間。' },
+    { q:'怎麼付款？', a:'確認報價與細節後，工作人員會在 Discord 私訊傳專屬付款連結給你，可以用銀行轉帳或 PayPal 付款。送出網站表單不會扣款。' } ],
 };
 function siteVal(){ return Object.assign(JSON.parse(JSON.stringify(SITE_DEFAULT)), site || {}); }
 function renderSiteForm(){
@@ -1983,11 +2035,22 @@ function renderSiteForm(){
   $('#stAnOn').checked = !!(v.announce && v.announce.on); $('#stAnText').value = (v.announce && v.announce.text) || '';
   $('#stTagline').value = v.tagline || ''; $('#stIntro').value = v.intro || '';
   $('#stDc').value = v.discordUrl || ''; $('#stContact').value = v.contactText || ''; $('#stDcErr').textContent = '';
+  renderCtEditor(v.contacts && v.contacts.length ? v.contacts : [{ name: me.name, discord: '', role: '客服／代練' }]);
   const feats = (v.features || []).concat(SITE_DEFAULT.features).slice(0, 4);
   $('#stFeat').innerHTML = feats.map((f,i) => `<div class="row" style="flex-wrap:nowrap" data-fi="${i}"><input data-k="icon" value="${esc(f.icon)}" style="width:54px;text-align:center" maxlength="4"><input data-k="t" value="${esc(f.t)}" style="width:150px" maxlength="20"><input data-k="d" value="${esc(f.d)}" style="flex:1;min-width:0" maxlength="80"></div>`).join('');
   renderFaqEditor(v.faq || []);
   siteDirty = false;
 }
+function renderCtEditor(list){
+  $('#stCts').innerHTML = list.map((c,i) => `<div class="row" style="flex-wrap:nowrap" data-ci="${i}">
+    <input data-k="name" value="${esc(c.name)}" placeholder="名字" style="width:96px" maxlength="16">
+    <input data-k="discord" value="${esc(c.discord)}" placeholder="Discord 使用者名稱" style="flex:1;min-width:0" maxlength="40">
+    <input data-k="role" value="${esc(c.role)}" placeholder="說明（選填）" style="width:110px" maxlength="20">
+    <button class="xs ghost danger" data-rmc="${i}">✕</button></div>`).join('') || '<div class="hint">還沒有聯絡人</div>';
+}
+function readCts(){ return $$('#stCts [data-ci]').map(el => ({ name: el.querySelector('[data-k=name]').value.trim(), discord: el.querySelector('[data-k=discord]').value.trim().replace(/^@/, ''), role: el.querySelector('[data-k=role]').value.trim() })); }
+$('#stCtAdd').onclick = () => { const l = readCts(); l.push({ name:'', discord:'', role:'' }); renderCtEditor(l); siteDirty = true; };
+$('#stCts').addEventListener('click', e => { const b = e.target.closest('[data-rmc]'); if (!b) return; const l = readCts(); l.splice(+b.dataset.rmc, 1); renderCtEditor(l); siteDirty = true; });
 function renderFaqEditor(list){
   $('#stFaq').innerHTML = list.map((f,i) => `<div class="card" style="padding:12px;background:var(--bg2)" data-qi="${i}">
     <div class="row" style="flex-wrap:nowrap"><input data-k="q" value="${esc(f.q)}" placeholder="問題" style="flex:1" maxlength="60">
@@ -2006,13 +2069,16 @@ $('#stFaq').addEventListener('click', e => {
 $('#v-site').addEventListener('input', () => { siteDirty = true; });
 $('#stSave').onclick = () => {
   const dc = $('#stDc').value.trim();
+  const badCt = readCts().find(c => c.discord && !/^[A-Za-z0-9_.]{2,32}(#\d{4})?$/.test(c.discord));
+  if (badCt) return toast(`「${badCt.discord}」看起來不是 Discord 使用者名稱（只能有英文、數字、底線、點）`, 'err');
+  if (!readCts().some(c => c.discord)) return toast('請至少填一位工作人員的 Discord 使用者名稱，客人才聯絡得到你們', 'err');
   if (dc && !/^https:\/\/(discord\.gg|discord\.com|www\.discord\.com)\//.test(dc)){ $('#stDcErr').textContent = '請貼 Discord 邀請連結，例如 https://discord.gg/xxxx'; return; }
   const data = {
     open: $('#stOpen').checked, openText: $('#stOpenText').value.trim(),
     announce: { on: $('#stAnOn').checked, text: $('#stAnText').value.trim() },
     tagline: $('#stTagline').value.trim(), intro: $('#stIntro').value.trim(),
     features: $$('#stFeat [data-fi]').map(el => ({ icon: el.querySelector('[data-k=icon]').value.trim(), t: el.querySelector('[data-k=t]').value.trim(), d: el.querySelector('[data-k=d]').value.trim() })).filter(f => f.t),
-    faq: readFaq().filter(f => f.q && f.a), discordUrl: dc, contactText: $('#stContact').value.trim(), updated: now(), updatedBy: me.name,
+    faq: readFaq().filter(f => f.q && f.a), discordUrl: dc, contacts: readCts().filter(c => c.discord), contactText: $('#stContact').value.trim(), updated: now(), updatedBy: me.name,
   };
   backend.putSite(data).then(() => { siteDirty = false; toast('前台已更新', 'ok'); log('site', `更新前台設定${data.open ? '' : '（暫停接單）'}`); }).catch(syncErr);
 };
@@ -2170,13 +2236,13 @@ function applyRole(){
   if (!adm && unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; logs = []; }
   if (!adm && VIEWS[view] && VIEWS[view].admin) location.hash = 'dashboard';
 }
-function stopData(){ requests = []; reqSeen = null; site = null; payments = []; paySeen = null; payCfg = null; if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
+function stopData(){ trSeen = null; requests = []; reqSeen = null; site = null; payments = []; paySeen = null; payCfg = null; if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
 function startData(){
   if (unsubs.length) return;
   unsubs.push(backend.watchOrders(list => {
     state.orders = list.map(normOrder);
     synced.clear(); state.orders.forEach(o => synced.set(o.id, JSON.stringify(o)));
-    dataReady = true; setSync(true); render(); checkImport();
+    dataReady = true; setSync(true); render(); checkImport(); checkTransfers();
   }, syncErr));
   unsubs.push(backend.watchPrices(list => {
     if (list && list.length) state.prices = list; else if (isAdmin()) backend.putPrices(DEFAULT_PRICES).catch(() => {});

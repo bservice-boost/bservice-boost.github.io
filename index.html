@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>B服代練工作室｜艾爾之光 共鳴代練</title>
-<meta name="description" content="B服代練工作室：艾爾之光共鳴等級代練。線上即時報價、價格透明、Discord 專人聯繫。">
+<meta name="description" content="B服代練工作室：艾爾之光共鳴等級代練。線上即時報價、價格透明、Discord 專人私訊聯繫。">
 <meta property="og:title" content="B服代練工作室｜艾爾之光 共鳴代練">
 <meta property="og:description" content="線上即時報價、價格透明、Discord 專人聯繫。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235ee0c7'/%3E%3Cstop offset='1' stop-color='%237aa8ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z' fill='%230b1220'/%3E%3C/svg%3E">
@@ -134,6 +134,16 @@ table.pt .dm{color:var(--gold);font-size:13.5px}
 .faq details[open] summary::after{transform:rotate(45deg)}
 .faq details p{margin:0 0 18px;color:#c3cbea;white-space:pre-wrap}
 
+/* contacts */
+.contacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;max-width:860px;margin:0 auto;text-align:left}
+.ct{background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+.ct .av{width:44px;height:44px;border-radius:50%;background:var(--discord);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.ct .nm{flex:1;min-width:0}
+.ct .nm b{display:block;font-size:15.5px}
+.ct .nm small{display:block;color:var(--muted);font-size:12.5px}
+.ct .nm .id{font-family:"JetBrains Mono",monospace;color:#c9d0ff;font-size:14px;word-break:break-all}
+.ct button{padding:7px 12px;font-size:13px;border-radius:9px}
+.howadd{max-width:860px;margin:18px auto 0;color:var(--muted);font-size:13.5px}
 /* contact / footer */
 .contact{text-align:center;background:radial-gradient(600px 300px at 50% 0%,rgba(88,101,242,.22),transparent 70%)}
 footer{border-top:1px solid var(--line);padding:28px 0;color:var(--dim);font-size:13px}
@@ -168,7 +178,7 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
     <p class="lead" id="tagline">專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由專人在 Discord 與你聯繫。</p>
     <div class="cta">
       <a class="btn primary" href="#order">💰 立即報價下單</a>
-      <a class="btn discord" id="heroDc" href="#contact" target="_blank" rel="noopener"><svg width="20" height="20"><use href="#dc"/></svg>加入 Discord</a>
+      <a class="btn discord" id="heroDc" href="#contact"><svg width="20" height="20"><use href="#dc"/></svg>Discord 私訊我們</a>
     </div>
     <div class="stats">
       <div><b class="mono" id="stLow">$30</b><span>每等最低價</span></div>
@@ -214,14 +224,14 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
           <li id="dmNote">225 等以上請私訊詳談。</li>
         </ul>
       </div>
-      <div class="tagnote">💡 不確定要選哪個方案？直接到下方填單，在備註寫「想諮詢」，我們會在 Discord 跟你說明。</div>
+      <div class="tagnote">💡 不確定要選哪個方案？直接到下方填單，在備註寫「想諮詢」，我們會在 Discord 私訊跟你說明。</div>
     </div>
   </div>
 </div></section>
 
 <!-- ===== 線上下單 ===== -->
 <section class="s" id="order"><div class="wrap">
-  <div class="s-h"><small>ORDER</small><h2>線上報價・下單</h2><p>填好資料送出後，我們會在 Discord 與你確認細節與付款方式。送出不會馬上扣款。</p></div>
+  <div class="s-h"><small>ORDER</small><h2>線上報價・下單</h2><p>填好資料送出後，工作人員會加你的 Discord 好友，私訊確認細節與付款方式。送出不會馬上扣款。</p></div>
   <div class="order">
     <div class="card">
       <form id="fOrder" novalidate>
@@ -233,7 +243,7 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
           <label>職業<input name="job" maxlength="40" placeholder="例：艾索德・騎士皇帝"></label>
           <label class="full">Discord 帳號 *<input name="discord" maxlength="50" placeholder="例：yourname 或 yourname#1234"><div class="err" data-err="discord"></div></label>
           <label class="full">備註<textarea name="note" rows="3" maxlength="500" placeholder="希望完成時間、可上線時段、其他需求…"></textarea></label>
-          <div class="full warnnote">🔒 <b>請勿在表單填寫遊戲帳號密碼。</b>確認委託後，我們會在 Discord 私訊與你聯繫。</div>
+          <div class="full warnnote">🔒 <b>請勿在表單填寫遊戲帳號密碼。</b>確認委託後，工作人員會在 Discord 私訊與你聯繫。</div>
           <label class="full chk"><input type="checkbox" name="agree"> 我已閱讀<a href="#faq">常見問題</a>與委託流程</label>
           <div class="full err" data-err="agree"></div>
         </div>
@@ -243,9 +253,9 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
       <div class="done" id="doneBox">
         <div class="ok">✅</div>
         <h3 style="margin:6px 0">委託已送出！</h3>
-        <p style="color:var(--muted)">你的委託編號是 <code class="mono" id="reqNo"></code><br>我們會盡快透過 Discord 聯繫 <b id="reqDc"></b>，<br>也可以直接加入我們的 Discord 私訊並提供委託編號。</p>
+        <p style="color:var(--muted)">你的委託編號是 <code class="mono" id="reqNo"></code><br>工作人員會盡快加 Discord 好友 <b id="reqDc"></b> 與你聯繫。<br>想更快的話，也可以直接加下面任一位工作人員好友，私訊委託編號。</p>
+        <div class="contacts" id="doneContacts" style="margin-top:14px;grid-template-columns:1fr"></div>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
-          <a class="btn discord" id="doneDc" href="#contact" target="_blank" rel="noopener"><svg width="20" height="20"><use href="#dc"/></svg>前往 Discord</a>
           <button id="againBtn">再填一張</button>
         </div>
       </div>
@@ -256,7 +266,7 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
         <h3 style="margin:0 0 6px;font-size:16px">⏱️ 送出後會發生什麼？</h3>
         <ol style="margin:0;padding-left:20px;color:#c3cbea;font-size:14px">
           <li>工作室後台會立即收到你的委託</li>
-          <li>專人透過 Discord 與你確認時間、細節與付款方式</li>
+          <li>工作人員加你的 Discord 好友，私訊確認時間、細節與付款方式</li>
           <li>確認後安排代練師開始，過程中隨時可以詢問進度</li>
         </ol>
       </div>
@@ -270,7 +280,7 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
   <div class="steps">
     <div class="card"><h4>線上報價</h4><p>輸入目前與目標共鳴等級，立即看到價格。</p></div>
     <div class="card"><h4>送出委託</h4><p>留下 Discord 帳號與角色資料。</p></div>
-    <div class="card"><h4>Discord 確認</h4><p>專人聯繫，確認細節、時間與付款方式。</p></div>
+    <div class="card"><h4>Discord 確認</h4><p>工作人員私訊聯繫，確認細節、時間與付款方式。</p></div>
     <div class="card"><h4>開始代練</h4><p>代練師開始練功，全程紀錄時間與等級。</p></div>
     <div class="card"><h4>完成交付</h4><p>達到目標等級後通知你，完成委託。</p></div>
   </div>
@@ -284,8 +294,10 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
 
 <!-- ===== 聯絡 ===== -->
 <section class="s contact" id="contact"><div class="wrap">
-  <div class="s-h" style="margin-bottom:24px"><small>CONTACT</small><h2>還有問題？直接問我們</h2><p id="contactTxt">加入我們的 Discord，有任何問題都可以私訊。</p></div>
-  <a class="btn discord" id="footDc" href="#" target="_blank" rel="noopener" style="padding:14px 28px;font-size:16px"><svg width="22" height="22"><use href="#dc"/></svg><span id="dcLabel">加入 Discord</span></a>
+  <div class="s-h" style="margin-bottom:24px"><small>CONTACT</small><h2>還有問題？直接私訊我們</h2><p id="contactTxt">在 Discord 加任一位工作人員為好友，直接私訊即可。</p></div>
+  <div class="contacts" id="contacts"></div>
+  <div class="howadd">📱 怎麼加好友：打開 Discord →「好友」→「新增好友」→ 貼上上面的使用者名稱 → 送出好友邀請。</div>
+  <a class="btn discord" id="footDc" href="#" target="_blank" rel="noopener" style="margin-top:18px;display:none"><svg width="20" height="20"><use href="#dc"/></svg>加入 Discord 群組</a>
 </div></section>
 
 <footer><div class="wrap">
@@ -314,15 +326,15 @@ const DEFAULT_SITE = {
     { icon:'🎮', t:'專人親自代練', d:'由團隊代練師親自操作練功，有問題隨時找得到人。' },
     { icon:'📊', t:'進度清楚透明', d:'練功時間與每一等都有系統紀錄，隨時可以詢問目前進度。' },
     { icon:'💰', t:'價格公開', d:'依共鳴等級區間計價，下單前就能在網站上算出價格。' },
-    { icon:'💬', t:'Discord 專人聯繫', d:'下單後由專人在 Discord 與你確認所有細節。' } ],
-  discordUrl: '', contactText: '加入我們的 Discord，有任何問題都可以私訊。',
+    { icon:'💬', t:'Discord 專人私訊', d:'下單後由工作人員加你好友，一對一私訊確認所有細節。' } ],
+  discordUrl: '', contacts: [], contactText: '在 Discord 加任一位工作人員為好友，直接私訊即可。',
   faq: [
     { q:'什麼是「吊牌」？', a:'吊牌是 200% 經驗徽章。有吊牌練得比較快，所以每等價格比較低。' },
     { q:'價格怎麼算？', a:'依「升等前」所在的共鳴等級區間，每升 1 等計價。例如 99→100 算 0–100 區間、100→101 算 100–125 區間。跨區間會自動分段計算，225 等以上請私訊報價。' },
     { q:'需要提供哪些資料？', a:'角色名稱、職業、目前與目標共鳴等級，以及 Discord 帳號。遊戲帳號相關資料請只在 Discord 私訊中提供，不要填在網站表單。' },
-    { q:'送出委託後多久開始？', a:'我們會在 Discord 與你確認時間，確認後就會安排代練師開始。' },
-    { q:'可以知道代練進度嗎？', a:'可以，隨時在 Discord 詢問，代練師會回報目前等級、進度百分比與預估剩餘時間。' },
-    { q:'怎麼付款？', a:'確認報價與細節後，會在 Discord 告知付款方式。送出網站表單不會扣款。' } ],
+    { q:'送出委託後多久開始？', a:'工作人員會加你的 Discord 好友確認時間，確認後就會安排代練師開始。' },
+    { q:'可以知道代練進度嗎？', a:'可以，隨時在 Discord 私訊負責的工作人員，會回報目前等級、進度百分比與預估剩餘時間。' },
+    { q:'怎麼付款？', a:'確認報價與細節後，工作人員會在 Discord 私訊傳專屬付款連結給你，可以用銀行轉帳或 PayPal 付款。送出網站表單不會扣款。' } ],
 };
 const S = { prices: DEFAULT_PRICES, site: DEFAULT_SITE };
 
@@ -352,7 +364,13 @@ function renderSite(){
   $('#faqList').innerHTML = (s.faq && s.faq.length ? s.faq : DEFAULT_SITE.faq).map(f =>
     `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('');
   const url = /^https:\/\//.test(s.discordUrl || '') ? s.discordUrl : '';
-  ['#heroDc','#footDc','#doneDc'].forEach(id => { const a = $(id); a.style.display = url ? '' : 'none'; if (url) a.href = url; });
+  const fd = $('#footDc'); fd.style.display = url ? 'inline-flex' : 'none'; if (url) fd.href = url;
+  const cts = (s.contacts || []).filter(c => c && c.discord);
+  const ctHtml = cts.length ? cts.map(c => `<div class="ct"><div class="av"><svg width="22" height="22"><use href="#dc"/></svg></div>
+      <div class="nm"><b>${esc(c.name || '工作人員')}</b>${c.role ? `<small>${esc(c.role)}</small>` : ''}<span class="id">${esc(c.discord)}</span></div>
+      <button data-copy="${esc(c.discord)}">複製</button></div>`).join('')
+    : '<div class="ct" style="justify-content:center;color:var(--muted)">聯絡方式整理中，請先使用上方「線上下單」，我們會主動聯繫你。</div>';
+  $('#contacts').innerHTML = ctHtml; $('#doneContacts').innerHTML = cts.length ? ctHtml : '';
   $('#submitBtn').disabled = !open;
   $('#submitBtn').textContent = open ? '送出委託' : '目前暫停接單';
 }
@@ -414,9 +432,14 @@ $('#fOrder').addEventListener('submit', async e => {
     f.style.display = 'none'; $('#doneBox').classList.add('show');
     $('#order').scrollIntoView({ behavior: 'smooth' });
   } catch(err){
-    console.error(err); $('#submitErr').textContent = '送出失敗，請稍後再試或直接到 Discord 私訊我們（' + (err.code || err.message || '') + '）';
+    console.error(err); $('#submitErr').textContent = '送出失敗，請稍後再試，或直接在 Discord 私訊我們的工作人員（' + (err.code || err.message || '') + '）';
   }
   btn.disabled = S.site.open === false; btn.textContent = S.site.open === false ? '目前暫停接單' : '送出委託';
+});
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-copy]'); if (!b) return;
+  try { await navigator.clipboard.writeText(b.dataset.copy); toast('已複製 Discord 使用者名稱：' + b.dataset.copy + '，到 Discord 新增好友貼上即可'); }
+  catch(_){ toast('請手動複製：' + b.dataset.copy); }
 });
 $('#againBtn').onclick = () => { const f = $('#fOrder'); f.reset(); f.style.display = ''; $('#doneBox').classList.remove('show'); renderQuote(); };
 
