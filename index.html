@@ -480,6 +480,11 @@ body.is-admin a.admin-only{display:flex !important}
               <label class="inline"><input type="checkbox" id="optLost" checked> 讀不到條（過圖／離開）超過 <input type="number" id="optLostSec" min="10" max="600" value="60" style="width:64px"> 秒自動暫停計時</label>
               <label class="inline"><input type="checkbox" id="optResume" checked> 共鳴度條重新出現時，自動繼續計時</label>
             </div>
+            <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line2);display:grid;gap:9px;font-size:13px">
+              <label class="inline"><input type="checkbox" id="optOcr" checked> 讀取條旁邊的數字自動校正（最精準；第一次使用會下載約 5MB）</label>
+              <div class="hint" id="ocrInfo">數字辨識：尚未啟動</div>
+              <div class="row"><span class="hint">手動校正：遊戲顯示</span><input type="number" id="calIn" step="0.1" min="1" max="99.9" placeholder="34.8" style="width:80px"><span class="hint">%</span><button class="xs" id="calBtn">校正</button></div>
+            </div>
             <div class="hint mono" id="dbg" style="margin-top:8px;font-size:11px"></div>
           </div>
         </div>
@@ -630,7 +635,7 @@ const initial = s => (String(s||'?').trim()[0] || '?').toUpperCase();
 // =====================================================================
 const KEY = 'bstudio-local-v1';
 let state = { orders: [], buffs: [], laps: [], lapStart: null, boundId: null, region: null, filter:'active', sort:'new', rankBy:'money',
-              opt: { win: 10, idle: true, idleMin: 3, lost: true, lostSec: 60, resume: true } };
+              opt: { win: 10, idle: true, idleMin: 3, lost: true, lostSec: 60, resume: true, ocr: true } };
 try {
   const s = JSON.parse(localStorage.getItem(KEY)) || JSON.parse(localStorage.getItem('elsword-leveling-timer-team-v1'));
   if (s) { delete s.orders; delete s.prices; state = Object.assign(state, s, { opt: Object.assign(state.opt, s.opt || {}) }); }
@@ -827,7 +832,7 @@ const HELP = {
   scan: { title:'共鳴度辨識怎麼用', cols:[
     ['第一次設定', ['用電腦版 <b>Chrome 或 Edge</b> 開網站，遊戲設成<b>視窗或無邊框</b>模式', '按 <b>① 分享遊戲視窗</b> → 選「視窗」分頁 → 選艾爾之光', '系統會<b>自動在左下角找到共鳴度條</b>，右邊顯示讀到的 %，和遊戲裡差不多就成功了', '找不到時：確認條上有一點藍色進度，再按 <b>🔍 自動偵測</b>；還是不行就按「手動框選」拖曳框住整條']],
     ['開始自動升等', ['到「代練單」在要練的單按 <b>📡 連動</b>（或在右邊選單選）', '按那張單的 <b>▶ 開始</b>', '共鳴度從滿條掉回低點時，那張單會<b>自動 +1 等</b>並響提示音', '右邊會顯示每小時速度與預估滿條時間（<b>沒有連動單子也會計算速度</b>，可以先測哪張圖比較快）']],
-    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），位置會自動記住', '改了遊戲視窗大小會自動重新偵測', '<b>過圖</b>時條會暫時消失，畫面會顯示「過圖中… N 秒」，不會誤判升等；消失超過設定秒數（預設 60 秒）會自動暫停，條回來後自動繼續', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '網頁可以縮成小視窗放旁邊，但<b>不要最小化</b>']],
+    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），位置會自動記住', '改了遊戲視窗大小會自動重新偵測', '系統會<b>讀條旁邊的數字（例如 34.8%）自動校正</b>，誤差約 0.1%；數字讀不到時可以在下方「手動校正」輸入遊戲顯示的 %', '<b>過圖</b>時條會暫時消失，畫面會顯示「過圖中… N 秒」，不會誤判升等；消失超過設定秒數（預設 60 秒）會自動暫停，條回來後自動繼續', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '網頁可以縮成小視窗放旁邊，但<b>不要最小化</b>']],
   ], tip:'放大條下方的橘線是條的頭尾、紅線是目前填到哪裡；位置不對時按「🔍 自動偵測」重新找。' },
   tools: { title:'計時工具', cols:[
     ['加成／藥水倒數', ['吃了經驗藥水或加成，按對應按鈕開始倒數', '要其他時間按 <b>＋ 自訂</b>', '剩 1 分鐘變紅；時間到會響提示音、瀏覽器分頁標題閃爍、左側選單亮紅點', '<b>+5 分</b> 延長、<b>✕</b> 刪除']],
@@ -1152,10 +1157,11 @@ let drag = null;
 if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) $('#noSupport').style.display = 'block';
 $('#optWin').value = state.opt.win; $('#winLbl').textContent = state.opt.win;
 $('#optIdle').checked = state.opt.idle; $('#optIdleMin').value = state.opt.idleMin; $('#optLost').checked = state.opt.lost;
-$('#optLostSec').value = state.opt.lostSec ?? 60; $('#optResume').checked = state.opt.resume !== false;
-['optWin','optIdle','optIdleMin','optLost','optLostSec','optResume'].forEach(id => $('#'+id).onchange = () => {
+$('#optLostSec').value = state.opt.lostSec ?? 60; $('#optResume').checked = state.opt.resume !== false; $('#optOcr').checked = state.opt.ocr !== false;
+['optWin','optIdle','optIdleMin','optLost','optLostSec','optResume','optOcr'].forEach(id => $('#'+id).onchange = () => {
   state.opt = { win:+$('#optWin').value||10, idle:$('#optIdle').checked, idleMin:+$('#optIdleMin').value||3, lost:$('#optLost').checked,
-    lostSec: Math.max(10, +$('#optLostSec').value||60), resume:$('#optResume').checked };
+    lostSec: Math.max(10, +$('#optLostSec').value||60), resume:$('#optResume').checked, ocr:$('#optOcr').checked };
+  if (state.opt.ocr && vid.videoWidth) ocrInit(); updateOcrUi();
   $('#winLbl').textContent = state.opt.win; save();
 });
 function renderBindSel(){
@@ -1172,6 +1178,7 @@ $('#btnShare').onclick = async () => {
     vid.srcObject = stream; await vid.play();
     stream.getVideoTracks()[0].addEventListener('ended', () => { toast('畫面分享已停止', 'err'); $('#ph').style.display=''; viewC.style.display='none'; scan.pct=null; $('#pct').textContent='--'; updateScanChip(); });
     $('#ph').style.display = 'none'; viewC.style.display = 'block'; $('#btnPick').disabled = false; $('#btnAuto').disabled = false;
+    if (state.opt.ocr !== false) ocrInit();
     const had = scan.region ? { ...scan.region } : null;
     scan.lastAuto = now();   // 交給下面處理，避免背景同時偵測
     await waitFrame();
@@ -1187,6 +1194,85 @@ $('#btnShare').onclick = async () => {
 $('#btnPick').onclick = () => { scan.region = null; state.region = null; save(); toast('請在畫面上拖曳框住共鳴度條'); };
 $('#btnAuto').onclick = () => { if (!autoDetect(true)) toast('找不到共鳴度條：請確認遊戲畫面左下角看得到共鳴度條，而且條上有藍色進度', 'err'); };
 function waitFrame(){ return new Promise(res => { let n = 0; const t = setInterval(() => { if (vid.videoWidth || ++n > 40){ clearInterval(t); setTimeout(res, 300); } }, 50); }); }
+
+// ---------- 數字辨識（Tesseract.js）：讀條旁邊的「34.8%」來校正 ----------
+const ocr = { worker:null, state:'off', busy:false, lastRun:0, Ls:[], err:'' };
+function loadScript(src){ return new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = () => rej(new Error('載入失敗')); document.head.appendChild(el); }); }
+async function ocrInit(){
+  if (ocr.state !== 'off' && ocr.state !== 'fail') return;
+  ocr.state = 'loading'; updateOcrUi();
+  try {
+    if (!window.Tesseract) await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    ocr.worker = await Tesseract.createWorker('eng', 1, { logger: () => {} });
+    await ocr.worker.setParameters({ tessedit_char_whitelist: '0123456789.%', tessedit_pageseg_mode: '7' });
+    ocr.state = 'ready';
+  } catch(e){ console.warn('ocr', e); ocr.state = 'fail'; ocr.err = e.message || String(e); }
+  updateOcrUi();
+}
+function updateOcrUi(){
+  const el = $('#ocrInfo'); if (!el) return;
+  if (state.opt.ocr === false){ el.textContent = '數字辨識：已關閉（只用條的長度計算）'; return; }
+  const o = scan.ocr;
+  el.innerHTML = ocr.state === 'loading' ? '數字辨識：載入中…（第一次需要下載，約 10～30 秒）'
+    : ocr.state === 'fail' ? `<span class="red">數字辨識無法使用（${esc(ocr.err)}），改用條的長度；可用下方手動校正</span>`
+    : ocr.state === 'ready' ? (o ? `數字辨識：讀到 <b class="mono" style="color:var(--text)">${o.v.toFixed(1)}%</b>（信心 ${Math.round(o.conf)}）${scan.calibrated ? '・<span class="ok">已自動校正條長度</span>' : ''}` : '數字辨識：已啟動，等待讀到數字…')
+    : '數字辨識：分享畫面後自動啟動';
+}
+const ocrC = document.createElement('canvas'), ocrX = ocrC.getContext('2d', { willReadFrequently: true });
+function ocrCrop(){
+  const r = scan.region, g = r && r.geo; if (!g) return null;
+  const x0 = r.x + g.x0, y0 = r.y + g.y0, y1 = r.y + g.y1, h = y1 - y0 + 1, L = g.x1 - g.x0 + 1;
+  const cx0 = Math.max(0, x0 - Math.round(L * 0.2)), cx1 = x0 - 3;
+  const cy0 = Math.max(0, y0 - Math.round(1.6*h) - 2), cy1 = Math.min(vid.videoHeight, y1 + Math.round(1.6*h) + 3);
+  const w = cx1 - cx0, hh = cy1 - cy0; if (w < 10 || hh < 5) return null;
+  ocrC.width = w; ocrC.height = hh; ocrX.drawImage(vid, cx0, cy0, w, hh, 0, 0, w, hh);
+  const d = ocrX.getImageData(0, 0, w, hh).data, on = (x, y) => { const i = (y*w + x)*4; return Math.max(d[i], d[i+1], d[i+2]) > 110; };
+  const cols = []; for (let x = 0; x < w; x++){ for (let y = 0; y < hh; y++) if (on(x, y)){ cols.push(x); break; } }
+  if (!cols.length) return null;
+  // 取最右邊那一群字（就是「34.8%」，左邊的「共鳴度」不要）
+  const gapMax = Math.max(4, Math.round(h * 1.2)); let gs = cols[0], ge = cols[0], grp = [];
+  for (let i = 1; i < cols.length; i++){ if (cols[i] - ge > gapMax){ grp.push([gs, ge]); gs = cols[i]; } ge = cols[i]; }
+  grp.push([gs, ge]); [gs, ge] = grp[grp.length - 1];
+  let ry0 = hh, ry1 = -1; for (let y = 0; y < hh; y++) for (let x = gs; x <= ge; x++) if (on(x, y)){ ry0 = Math.min(ry0, y); ry1 = Math.max(ry1, y); break; }
+  if (ry1 < 0 || ge - gs < 6) return null;
+  const tx0 = Math.max(0, gs - 3), tx1 = Math.min(w - 1, ge + 3), ty0 = Math.max(0, ry0 - 2), ty1 = Math.min(hh - 1, ry1 + 2);
+  const tw = tx1 - tx0 + 1, th = ty1 - ty0 + 1;
+  const bw = document.createElement('canvas'); bw.width = tw; bw.height = th; const bx = bw.getContext('2d'); const id = bx.createImageData(tw, th);
+  for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++){ const v = on(tx0 + x, ty0 + y) ? 0 : 255, i = (y*tw + x)*4; id.data[i] = id.data[i+1] = id.data[i+2] = v; id.data[i+3] = 255; }
+  bx.putImageData(id, 0, 0);
+  const S = 6, out = document.createElement('canvas'); out.width = tw*S + 40; out.height = th*S + 40; const ox = out.getContext('2d');
+  ox.fillStyle = '#fff'; ox.fillRect(0, 0, out.width, out.height); ox.imageSmoothingEnabled = true; ox.imageSmoothingQuality = 'high'; ox.drawImage(bw, 20, 20, tw*S, th*S);
+  return out;
+}
+function ocrTick(rr){
+  if (state.opt.ocr === false || ocr.state !== 'ready' || ocr.busy || now() - ocr.lastRun < 900 || rr.pct == null || !scan.region || !scan.region.geo) return;
+  const c = ocrCrop(); if (!c) return;
+  ocr.busy = true; ocr.lastRun = now();
+  const t = now(), end = rr.end, bar = rr.pct, g = scan.region.geo;
+  ocr.worker.recognize(c).then(res => {
+    const txt = (res.data.text || '').replace(/\s/g, ''), conf = res.data.confidence || 0;
+    const m = txt.match(/(\d{1,3}\.\d)%?/) || txt.match(/(\d{1,3})%/); if (!m) return;
+    const v = +m[1]; if (!(v >= 0 && v <= 100)) return;
+    scan.ocr = { v, conf, t };
+    // 自動校正條長度：用「數字」反推真正的條長
+    if (conf >= 70 && v >= 8 && v <= 99.5 && Math.abs(v - bar) < 8 && end > g.x0 && scan.region && scan.region.geo === g){
+      ocr.Ls.push((end - g.x0 + 1) * 100 / v); if (ocr.Ls.length > 7) ocr.Ls.shift();
+      if (ocr.Ls.length >= 3){
+        const L = ocr.Ls.slice().sort((a,b) => a-b)[ocr.Ls.length >> 1], nx1 = Math.round(g.x0 + L - 1);
+        if (Math.abs(nx1 - g.x1) >= 1 && Math.abs(nx1 - g.x1) < (g.x1 - g.x0) * 0.25){ g.x1 = nx1; scan.recal = true; save(); }
+        scan.calibrated = true;
+      }
+    }
+    updateOcrUi();
+  }).catch(e => console.warn('ocr', e)).finally(() => { ocr.busy = false; });
+}
+$('#calBtn').onclick = () => {
+  const v = +$('#calIn').value, g = scan.region && scan.region.geo, end = scan.lastEnd;
+  if (!g || end == null || end < g.x0) return toast('請先分享畫面並讓系統找到共鳴度條', 'err');
+  if (!(v >= 5 && v < 100)) return toast('請輸入遊戲裡顯示的共鳴度（5～99.9）', 'err');
+  g.x1 = Math.round(g.x0 + (end - g.x0 + 1) * 100 / v - 1); scan.recal = true; scan.calibrated = true; save();
+  toast(`已校正：條長 ${g.x1 - g.x0 + 1} px`, 'ok'); $('#calIn').value = '';
+};
 
 // ---------- 自動偵測：在畫面左下角找藍色共鳴度條 ----------
 const isFillPx = (d, i) => { const r=d[i], g=d[i+1], b=d[i+2]; return b>140 && g>110 && r<130 && b-r>80; };
@@ -1264,7 +1350,7 @@ function autoDetect(announce){
     const pad = 6, rx = X + g.x0 - pad, ry = Y + g.y0 - pad;
     const r = { x: Math.max(0, rx), y: Math.max(0, ry), w: g.x1 - g.x0 + pad*2 + 1, h: g.y1 - g.y0 + pad*2 + 1, vw: W, vh: H };
     r.geo = { x0: X + g.x0 - r.x, x1: X + g.x1 - r.x, y: Y + g.y - r.y, y0: Y + g.y0 - r.y, y1: Y + g.y1 - r.y };
-    scan.region = state.region = r; scan.raw = []; save(); resetScanSegment();
+    scan.region = state.region = r; scan.raw = []; ocr.Ls = []; scan.calibrated = false; save(); resetScanSegment();
     if (announce) toast(`✅ 已自動找到共鳴度條（目前約 ${((g.fe - g.x0 + 1) / (g.x1 - g.x0 + 1) * 100).toFixed(1)}%）`, 'ok');
     return true;
   }
@@ -1335,15 +1421,23 @@ function scanStep(){
   wctx.drawImage(vid, r0.x, r0.y, r0.w, r0.h, 0, 0, r0.w, r0.h);
   const img = wctx.getImageData(0, 0, r0.w, r0.h);
   const rr = r0.geo ? readFixed(img.data, r0.w, r0.h, r0.geo) : readBar(img.data, r0.w, r0.h);
-  // 取最近 3 次的中位數：技能特效一閃而過不會造成誤判
+  // 連續讀到幾次（條剛出現時要確認）；即時值不再取中位數，沒有延遲
   scan.raw = scan.raw || [];
   if (rr.pct == null) scan.raw = []; else { scan.raw.push(rr.pct); if (scan.raw.length > 3) scan.raw.shift(); }
-  const r = Object.assign({}, rr, rr.pct == null ? {} : { pct: scan.raw.slice().sort((a,b) => a-b)[scan.raw.length >> 1] });
+  if (rr.pct != null) scan.lastEnd = rr.end;
+  ocrTick(rr);
+  let src = '條長度';
+  const r = Object.assign({}, rr);
+  // 剛讀到的數字（同一秒內）最準，直接用；否則用校正過的條長度
+  if (r.pct != null && scan.ocr && now() - scan.ocr.t < 1500 && scan.ocr.conf >= 60 && Math.abs(scan.ocr.v - r.pct) < 3){ r.pct = scan.ocr.v; src = '數字'; }
+  // 共鳴度只會增加（滿條除外）：比上次低一點點多半是特效遮擋，維持上次的值
+  if (r.pct != null && scan.last != null && !scan.recal && r.pct < scan.last && scan.last - r.pct < 40) r.pct = scan.last;
+  if (r.pct != null) scan.recal = false;
   if (view === 'scan'){
     zoom.width = r0.w; zoom.height = r0.h; zctx.putImageData(img, 0, 0);
     if (r.pct != null){ zctx.fillStyle='rgba(255,182,72,.9)'; zctx.fillRect(r.x0,0,1,r0.h); zctx.fillRect(r.x1,0,1,r0.h);
       if (r.end>=0){ zctx.fillStyle='#ff6b81'; zctx.fillRect(r.end,0,1,r0.h); } }
-    $('#dbg').textContent = r.dbg;
+    $('#dbg').textContent = (r.dbg || '') + (r.pct != null ? `・來源：${src}` : '');
   }
   const o = bound();
   if (r.pct == null){
@@ -1371,8 +1465,12 @@ function scanStep(){
   }
   $('#pct').classList.remove('bad'); $('#pct').textContent = r.pct.toFixed(1) + '%';
   let rolled = false;
-  if (scan.last != null && scan.last > 75 && scan.last - r.pct > 40 && r.pct < 30 && scan.raw.length >= 2){
-    rolled = true; beep(3);
+  if (scan.last != null && scan.last > 75 && scan.last - r.pct > 40 && r.pct < 30){
+    scan.lowN = (scan.lowN || 0) + 1;
+    if (scan.lowN < 2){ updateScanChip(); return; }   // 再確認一次
+  } else scan.lowN = 0;
+  if (scan.lowN >= 2){
+    scan.lowN = 0; rolled = true; beep(3);
     if (o && o.runningSince && o.autoLv){ levelUp(o, 1, true); save(); render(); } else toast('🎉 共鳴度滿條！', 'ok');
   }
   if (scan.last == null || r.pct > scan.last + 0.05 || rolled){ scan.idleSince = now(); scan.idleWarned = false; }
