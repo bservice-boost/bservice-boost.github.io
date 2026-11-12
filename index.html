@@ -473,7 +473,8 @@ body.is-admin a.admin-only{display:flex !important}
             <div style="display:grid;gap:9px;margin-top:14px;font-size:13px">
               <label class="inline">速度取樣 <input type="number" id="optWin" min="1" max="120" value="10" style="width:64px"> 分鐘</label>
               <label class="inline"><input type="checkbox" id="optIdle" checked> 共鳴度 <input type="number" id="optIdleMin" min="1" max="60" value="3" style="width:56px"> 分鐘沒增加就提醒</label>
-              <label class="inline"><input type="checkbox" id="optLost" checked> 讀不到條超過 1 分鐘自動暫停計時</label>
+              <label class="inline"><input type="checkbox" id="optLost" checked> 讀不到條（過圖／離開）超過 <input type="number" id="optLostSec" min="10" max="600" value="60" style="width:64px"> 秒自動暫停計時</label>
+              <label class="inline"><input type="checkbox" id="optResume" checked> 共鳴度條重新出現時，自動繼續計時</label>
             </div>
             <div class="hint mono" id="dbg" style="margin-top:8px;font-size:11px"></div>
           </div>
@@ -625,7 +626,7 @@ const initial = s => (String(s||'?').trim()[0] || '?').toUpperCase();
 // =====================================================================
 const KEY = 'bstudio-local-v1';
 let state = { orders: [], buffs: [], laps: [], lapStart: null, boundId: null, region: null, filter:'active', sort:'new', rankBy:'money',
-              opt: { win: 10, idle: true, idleMin: 3, lost: true } };
+              opt: { win: 10, idle: true, idleMin: 3, lost: true, lostSec: 60, resume: true } };
 try {
   const s = JSON.parse(localStorage.getItem(KEY)) || JSON.parse(localStorage.getItem('elsword-leveling-timer-team-v1'));
   if (s) { delete s.orders; delete s.prices; state = Object.assign(state, s, { opt: Object.assign(state.opt, s.opt || {}) }); }
@@ -822,7 +823,7 @@ const HELP = {
   scan: { title:'共鳴度辨識怎麼用', cols:[
     ['第一次設定', ['用電腦版 <b>Chrome 或 Edge</b> 開網站，遊戲設成<b>視窗或無邊框</b>模式', '按 <b>① 分享遊戲視窗</b> → 選「視窗」分頁 → 選艾爾之光', '系統會<b>自動在左下角找到共鳴度條</b>，右邊顯示讀到的 %，和遊戲裡差不多就成功了', '找不到時：確認條上有一點藍色進度，再按 <b>🔍 自動偵測</b>；還是不行就按「手動框選」拖曳框住整條']],
     ['開始自動升等', ['到「代練單」在要練的單按 <b>📡 連動</b>（或在右邊選單選）', '按那張單的 <b>▶ 開始</b>', '共鳴度從滿條掉回低點時，那張單會<b>自動 +1 等</b>並響提示音', '右邊會顯示每小時速度與預估滿條時間']],
-    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），位置會自動記住', '改了遊戲視窗大小會自動重新偵測', '技能特效、選單短暫擋住條不會誤判；擋住超過 1 分鐘會自動暫停計時', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '網頁可以縮成小視窗放旁邊，但<b>不要最小化</b>']],
+    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），位置會自動記住', '改了遊戲視窗大小會自動重新偵測', '<b>過圖</b>時條會暫時消失，畫面會顯示「過圖中… N 秒」，不會誤判升等；消失超過設定秒數（預設 60 秒）會自動暫停，條回來後自動繼續', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '網頁可以縮成小視窗放旁邊，但<b>不要最小化</b>']],
   ], tip:'放大條下方的橘線是條的頭尾、紅線是目前填到哪裡；位置不對時按「🔍 自動偵測」重新找。' },
   tools: { title:'計時工具', cols:[
     ['加成／藥水倒數', ['吃了經驗藥水或加成，按對應按鈕開始倒數', '要其他時間按 <b>＋ 自訂</b>', '剩 1 分鐘變紅；時間到會響提示音、瀏覽器分頁標題閃爍、左側選單亮紅點', '<b>+5 分</b> 延長、<b>✕</b> 刪除']],
@@ -1033,7 +1034,7 @@ $('#orders').addEventListener('click', e => {
   if (act === 'purge') return confirmBox(`永久刪除「${o.client}」？`, '這個動作無法復原，所有升等與時數紀錄都會消失。', () => { state.orders = state.orders.filter(x => x !== o); log('purge', `永久刪除 ${o.client}`); save(); render(); });
   if (act === 'take'){ o.assignee = meRef(); log('take', `接下 ${o.client}`, o.id); toast('已接下 ' + o.client, 'ok'); }
   if (act === 'start') startOrder(o);
-  if (act === 'pause') pauseOrder(o);
+  if (act === 'pause'){ pauseOrder(o); if (scan.autoPaused === o.id) scan.autoPaused = null; }
   if (act === 'lv1') levelUp(o, 1);
   if (act === 'undo') undoLevel(o);
   if (act === 'bind') return setBound(state.boundId === o.id ? null : o.id);
@@ -1147,8 +1148,10 @@ let drag = null;
 if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) $('#noSupport').style.display = 'block';
 $('#optWin').value = state.opt.win; $('#winLbl').textContent = state.opt.win;
 $('#optIdle').checked = state.opt.idle; $('#optIdleMin').value = state.opt.idleMin; $('#optLost').checked = state.opt.lost;
-['optWin','optIdle','optIdleMin','optLost'].forEach(id => $('#'+id).onchange = () => {
-  state.opt = { win:+$('#optWin').value||10, idle:$('#optIdle').checked, idleMin:+$('#optIdleMin').value||3, lost:$('#optLost').checked };
+$('#optLostSec').value = state.opt.lostSec ?? 60; $('#optResume').checked = state.opt.resume !== false;
+['optWin','optIdle','optIdleMin','optLost','optLostSec','optResume'].forEach(id => $('#'+id).onchange = () => {
+  state.opt = { win:+$('#optWin').value||10, idle:$('#optIdle').checked, idleMin:+$('#optIdleMin').value||3, lost:$('#optLost').checked,
+    lostSec: Math.max(10, +$('#optLostSec').value||60), resume:$('#optResume').checked };
   $('#winLbl').textContent = state.opt.win; save();
 });
 function renderBindSel(){
@@ -1230,7 +1233,19 @@ function readFixed(d, w, h, g){
   const diff = (y1, y2, x) => { const i=(y1*w+x)*4, j=(y2*w+x)*4; return Math.abs(d[i]-d[j]) + Math.abs(d[i+1]-d[j+1]) + Math.abs(d[i+2]-d[j+2]); };
   let ok = 0, n = 0;
   for (let x = g.x0; x <= g.x1; x += 4){ n++; if ((best >= 0 && x <= best) || (diff(g.y, ya, x) > 30 && diff(g.y, yb, x) > 30)) ok++; }
-  if (ok / n < 0.7) return { pct:null, dbg:'共鳴度條被擋住或不在原位' };
+  if (ok / n < 0.7) return { pct:null, gone:true, dbg:'共鳴度條不見了（過圖、讀取畫面或被擋住）' };
+  // 藍色填滿的顏色應該和偵測當時差不多；過圖淡出、畫面變暗時會差很多
+  if (best >= g.x0 + 2){
+    const i = (g.y*w + g.x0 + 2)*4, c = [d[i], d[i+1], d[i+2]];
+    if (!g.fc) g.fc = c;
+    else if (Math.abs(c[0]-g.fc[0]) + Math.abs(c[1]-g.fc[1]) + Math.abs(c[2]-g.fc[2]) > 60){
+      if (!g.fcBad) g.fcBad = now();
+      if (now() - g.fcBad > 20000){ g.fc = c; g.fcBad = null; }   // 顏色一直不一樣：當成新的基準（例如換了畫質設定）
+      else return { pct:null, gone:true, dbg:'畫面變暗（過圖淡出中）' };
+    } else g.fcBad = null;
+  }
+  // 完全沒有藍色：可能是真的 0%，也可能是條變暗；前一次有進度就先當成讀不到
+  if (best < 0 && scan.last != null && scan.last > 1) return { pct:null, gone:true, dbg:'看不到藍色進度（過圖中？）' };
   const pct = best < 0 ? 0 : Math.min(100, (best - g.x0 + 1) / (g.x1 - g.x0 + 1) * 100);
   return { pct: Math.round(pct*10)/10, dbg:`自動定位 條=${g.x0}-${g.x1} 填滿=${best}`, x0:g.x0, x1:g.x1, end:best };
 }
@@ -1327,17 +1342,31 @@ function scanStep(){
   }
   const o = bound();
   if (r.pct == null){
-    scan.pct = null; $('#pct').textContent = '讀不到'; $('#pct').classList.add('bad');
+    scan.pct = null;
     if (!scan.lostSince) scan.lostSince = now();
-    if (state.opt.lost && o && o.runningSince && now() - scan.lostSince > 60000){
-      pauseOrder(o, '讀不到共鳴度條'); save(); render(); beep(2); toast(`讀不到共鳴度條超過 1 分鐘，已暫停「${o.client}」`, 'err');
+    const lostS = Math.round((now() - scan.lostSince) / 1000), lim = state.opt.lostSec || 60;
+    $('#pct').textContent = (scan.autoPaused ? '⏸ 已暫停・' : '過圖中… ') + lostS + ' 秒'; $('#pct').classList.add('bad');
+    if (state.opt.lost && o && o.runningSince && now() - scan.lostSince > lim*1000){
+      pauseOrder(o, `共鳴度條消失超過 ${lim} 秒`); scan.autoPaused = o.id; save(); render(); beep(2);
+      toast(`共鳴度條消失超過 ${lim} 秒，已暫停「${o.client}」${state.opt.resume !== false ? '（條出現後會自動繼續）' : ''}`, 'err');
     }
     updateScanChip(); return;
   }
-  scan.lostSince = null;
+  // 條剛出現：等連續 2 次讀到才算數（避免過圖時一閃而過的畫面，也讓「過圖期間滿條」能被正確判斷）
+  if (scan.raw.length < 2){ updateScanChip(); return; }
+  if (scan.lostSince){
+    const gone = now() - scan.lostSince;
+    scan.lostSince = null; scan.idleSince = now(); scan.idleWarned = false;   // 過圖時間不算進「沒增加」
+    if (scan.autoPaused){
+      const po = state.orders.find(x => x.id === scan.autoPaused); scan.autoPaused = null;
+      if (po && po === o && !po.runningSince && !po.done && state.opt.resume !== false){
+        startOrder(po); save(); render(); toast(`共鳴度條回來了，已自動繼續「${po.client}」`, 'ok');
+      }
+    } else if (gone > 3000 && view === 'scan') toast(`過圖完成（${Math.round(gone/1000)} 秒）`, 'ok');
+  }
   $('#pct').classList.remove('bad'); $('#pct').textContent = r.pct.toFixed(1) + '%';
   let rolled = false;
-  if (scan.last != null && scan.last - r.pct > 40 && r.pct < 30 && scan.raw.length >= 2){
+  if (scan.last != null && scan.last > 75 && scan.last - r.pct > 40 && r.pct < 30 && scan.raw.length >= 2){
     rolled = true; beep(3);
     if (o && o.runningSince && o.autoLv){ levelUp(o, 1, true); save(); render(); } else toast('🎉 共鳴度滿條！', 'ok');
   }
