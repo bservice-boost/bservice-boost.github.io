@@ -188,6 +188,7 @@ window.Pay = {
     a.watchPay(v => { PAY = v; render(); });
     a.watchPayment(token, d => {
       if (!d) return view(`<div class="card center"><div class="big-ic">🔍</div><h2 style="margin:10px 0 4px">找不到這筆付款</h2><p class="hint">連結可能已失效或輸入錯誤，請在 Discord 向我們確認。</p></div>`);
+      if (!P && (d.prefer === 'bank' || d.prefer === 'paypal')) tab = d.prefer;
       P = d; render();
     }, e => view(`<div class="card center"><div class="big-ic">⚠️</div><h2 style="margin:10px 0 4px">讀取失敗</h2><p class="hint">${esc(e.code || e.message)}，請稍後重新整理。</p></div>`));
   }

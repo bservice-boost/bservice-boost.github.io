@@ -362,6 +362,7 @@ html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
           <label>角色名稱<input name="charName" maxlength="30" placeholder="遊戲內角色名稱"></label>
           <label>職業<input name="job" maxlength="40" placeholder="例：艾索德・騎士皇帝"></label>
           <label class="full">Discord 帳號 *<input name="discord" maxlength="50" placeholder="例：yourname 或 yourname#1234"><div class="err" data-err="discord"></div></label>
+          <div class="full" id="payBox" style="display:none"><label style="margin-bottom:0">偏好付款方式</label><div class="bpick" id="ppick" style="grid-template-columns:1fr 1fr"></div></div>
           <div class="full" id="boosterBox" style="display:none"><label style="margin-bottom:0">指定代練師</label><div class="bpick" id="bpick"></div></div>
           <label class="full">備註<textarea name="note" rows="3" maxlength="500" placeholder="希望完成時間、可上線時段、其他需求…"></textarea></label>
           <div class="full warnnote">🔒 <b>請勿在表單填寫遊戲帳號密碼。</b>確認委託後，工作人員會在 Discord 私訊與你聯繫。</div>
@@ -458,7 +459,18 @@ const DEFAULT_SITE = {
     { q:'怎麼付款？', a:'確認報價與細節後，工作人員會在 Discord 私訊傳專屬付款連結給你，可以用銀行轉帳或 PayPal 付款。送出網站表單不會扣款。' } ],
 };
 const S = { prices: DEFAULT_PRICES, site: DEFAULT_SITE, boosters: [] };
-let pickUid = '';
+let pickUid = '', pickPay = '';
+function renderPayPick(){
+  const c = S.pay || {}, opts = [];
+  if (c.bank && c.bank.account) opts.push(['bank', '🏦', '銀行轉帳', c.bank.name || 'ATM／網銀']);
+  if (c.paypalMe) opts.push(['paypal', '🅿️', 'PayPal', '信用卡／PayPal 餘額']);
+  $('#payBox').style.display = opts.length ? '' : 'none';
+  if (pickPay && !opts.find(o => o[0] === pickPay)) pickPay = '';
+  if (!pickPay && opts.length) pickPay = opts[0][0];
+  $('#ppick').innerHTML = opts.map(([k, ic, t, d]) => `<label class="bopt ${pickPay === k ? 'sel' : ''}"><input type="radio" name="paym" value="${k}" ${pickPay === k ? 'checked' : ''}>
+    <div class="av rnd">${ic}</div><div class="nm">${t}<small>${esc(d)}</small></div></label>`).join('');
+}
+document.addEventListener('change', e => { if (e.target.name === 'paym'){ pickPay = e.target.value; renderPayPick(); } });
 function bStatus(b){ return b.running ? ['run', '練功中・' + (b.active || 1) + ' 張單'] : b.active ? ['busy', '進行中 ' + b.active + ' 張單'] : ['free', '目前空閒']; }
 function renderBoosters(){
   const list = (S.boosters || []).filter(b => b && b.uid && b.name);
@@ -581,7 +593,7 @@ $('#fOrder').addEventListener('submit', async e => {
   try { const last = +localStorage.getItem('req-last') || 0; if (Date.now() - last < 60000){ $('#submitErr').textContent = '剛剛已經送出過了，請稍等一分鐘再送'; return; } } catch(_){}
   const c = calcPrice(from, to, tag);
   const booster = pickBooster();
-  const data = { discord, charName, job, fromLv: from, toLv: to, hasTag: tag, quote: c.total, unknown: c.unknown, note, booster, status: 'new', created: Date.now() };
+  const data = { discord, charName, job, fromLv: from, toLv: to, hasTag: tag, quote: c.total, unknown: c.unknown, note, booster, payMethod: pickPay || '', status: 'new', created: Date.now() };
   const btn = $('#submitBtn'); btn.disabled = true; btn.textContent = '送出中…';
   try {
     const id = await api.addRequest(data);
@@ -611,6 +623,7 @@ window.Front = {
     a.watchPrices(list => { if (list && list.length) S.prices = list; renderPrices(); });
     a.watchSite(site => { if (site) S.site = site; renderSite(); });
     if (a.watchBoosters) a.watchBoosters(list => { S.boosters = list || []; renderBoosters(); });
+    if (a.watchPay) a.watchPay(v => { S.pay = v; renderPayPick(); });
   }
 };
 renderSite(); renderPrices();
@@ -747,6 +760,7 @@ else {
       watchPrices: cb => F.onSnapshot(F.doc(db, 'settings', 'prices'), s => cb(s.exists() ? s.data().list : null), e => console.warn(e)),
       watchSite: cb => F.onSnapshot(F.doc(db, 'settings', 'site'), s => cb(s.exists() ? s.data() : null), e => console.warn(e)),
       watchBoosters: cb => F.onSnapshot(F.doc(db, 'public', 'boosters'), s => cb(s.exists() ? s.data().list : []), e => console.warn(e)),
+      watchPay: cb => F.onSnapshot(F.doc(db, 'settings', 'pay'), s => cb(s.exists() ? s.data() : null), e => console.warn(e)),
       addRequest: async data => (await F.addDoc(F.collection(db, 'requests'), data)).id,
     });
   } catch(e){ console.error(e); }

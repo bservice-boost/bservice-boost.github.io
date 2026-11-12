@@ -1149,7 +1149,7 @@ let trSeen = null, pubBoosters = undefined, pubTimer = null;
 function boostersNow(){
   return Object.entries(members).filter(([,m]) => (m.role === 'member' || m.role === 'admin') && m.listed !== false)
     .map(([uid, m]) => { const mine = live().filter(o => !o.done && o.assignee && o.assignee.uid === uid);
-      return { uid, name: m.name || '', intro: m.intro || '', active: mine.length, running: mine.some(o => o.runningSince) }; })
+      return { uid, name: (m.publicName || m.name || '').trim(), intro: m.intro || '', active: mine.length, running: mine.some(o => o.runningSince) }; })
     .sort((a,b) => a.name.localeCompare(b.name));
 }
 function syncBoosters(){
@@ -1347,6 +1347,7 @@ $('#saveOrder').onclick = () => {
     const c = cur ?? v.startLv0;
     const o = { id:uid(), ...v, priceTable: JSON.parse(JSON.stringify(state.prices)), createdBy: me.name, created: now(),
       startLv:c, curLv:c, acc:0, runningSince:null, sessions:[], levels:[], lvMarkAt:null, done:false };
+    if (orderPreset && orderPreset.payPref) o.payPref = orderPreset.payPref;
     if (orderPreset && orderPreset.reqId){ o.reqId = orderPreset.reqId; backend.updateRequest(orderPreset.reqId, { status:'accepted', orderId:o.id, by:me.name, at:now() }).catch(syncErr); }
     state.orders.unshift(o);
     log('create', `新增 ${o.client}（Lv.${o.startLv0} → ${o.targetLv}・${money(o.price)}）${o.assignee ? '，接單：' + o.assignee.name : ''}`, o.id);
@@ -1858,14 +1859,18 @@ function renderTeam(){
       <td>${adm && u !== me.uid ? `<select data-role>${Object.entries(ROLE).map(([k,v]) => `<option value="${k}" ${m.role===k?'selected':''}>${v}</option>`).join('')}</select>`
         : `<span class="tag ${m.role==='admin'?'gold':m.role==='pending'?'red':''}">${ROLE[m.role]||m.role}</span>`}</td>
       <td>${m.role === 'member' || m.role === 'admin' ? (adm ? `<label class="inline"><input type="checkbox" data-listed ${m.listed !== false ? 'checked' : ''}> 顯示</label>
-          <input data-intro value="${esc(m.intro || '')}" placeholder="前台介紹（選填）" maxlength="30" style="width:150px;margin-top:4px;padding:4px 8px;font-size:12.5px">`
+          <input data-pubname value="${esc(m.publicName || '')}" placeholder="前台顯示名稱" maxlength="16" style="width:150px;margin-top:4px;padding:4px 8px;font-size:12.5px;${m.listed !== false && !m.publicName ? 'border-color:var(--warn)' : ''}">
+          <input data-intro value="${esc(m.intro || '')}" placeholder="前台介紹（選填）" maxlength="30" style="width:150px;margin-top:4px;padding:4px 8px;font-size:12.5px">
+          ${m.listed !== false && !m.publicName ? '<div class="hint" style="color:var(--warn);font-size:11.5px">未設定：前台會顯示「' + esc(m.name) + '」</div>' : ''}`
           : (m.listed !== false ? '<span class="tag done">顯示</span>' : '<span class="tag">不顯示</span>')) : '<span class="hint">-</span>'}</td>
       <td class="r mono">${per[u] ? fmtH(per[u].ms) : '-'}</td><td class="r mono">${per[u] ? money(per[u].money) : '-'}</td>
       <td class="muted">${m.created ? new Date(m.created).toLocaleDateString('zh-TW') : ''}</td>
       ${adm ? `<td class="r">${u !== me.uid ? '<button class="xs ghost danger" data-rm>移除</button>' : ''}</td>` : ''}</tr>`).join('');
 }
 $('#memberTbl').addEventListener('change', e => {
-  const lc = e.target.closest('[data-listed]'), it = e.target.closest('[data-intro]');
+  const lc = e.target.closest('[data-listed]'), it = e.target.closest('[data-intro]'), pn = e.target.closest('[data-pubname]');
+  if (pn){ const u = pn.closest('tr').dataset.uid, m = members[u], v = pn.value.trim();
+    return backend.updateMember(u, { publicName: v }).then(() => { toast(v ? `${m.name} 在前台顯示為「${v}」` : `已清除 ${m.name} 的前台名稱`, 'ok'); log('member', `設定 ${m.name} 的前台名稱：${v || '（清除）'}`); }).catch(syncErr); }
   if (lc || it){ const u = e.target.closest('tr').dataset.uid, m = members[u];
     const patch = lc ? { listed: lc.checked } : { intro: it.value.trim() };
     return backend.updateMember(u, patch).then(() => { toast(lc ? `${m.name}：前台${lc.checked ? '顯示' : '不顯示'}` : `已更新 ${m.name} 的介紹`, 'ok'); log('member', lc ? `${m.name} 前台${lc.checked ? '顯示' : '隱藏'}` : `更新 ${m.name} 的前台介紹`); }).catch(syncErr); }
@@ -1892,7 +1897,7 @@ function renderRequests(){
     const ord = r.orderId && state.orders.find(o => o.id === r.orderId);
     return `<div class="oc" data-rid="${esc(r.id)}">
       <div class="oc-top"><div style="min-width:0"><div class="oc-name">${esc(r.charName || '（未填角色）')}<span class="job">${esc(r.job)}</span></div>
-        <div class="oc-tags"><span class="tag ${st[1]}">${st[0]}</span><span class="tag">#${no}</span>${r.booster ? `<span class="tag ${r.booster.uid === me.uid ? 'link' : ''}">${r.booster.auto ? '🎲 系統分配' : '🎯 客人指定'}：${esc(r.booster.uid === me.uid ? '我' : (members[r.booster.uid] || r.booster).name)}</span>` : ''}<span class="tag">${r.hasTag ? '有吊牌' : '無吊牌'}</span><span class="tag">${ago(r.created||0)}</span>${r.by ? `<span class="tag">處理：${esc(r.by)}</span>` : ''}</div></div>
+        <div class="oc-tags"><span class="tag ${st[1]}">${st[0]}</span><span class="tag">#${no}</span>${r.booster ? `<span class="tag ${r.booster.uid === me.uid ? 'link' : ''}">${r.booster.auto ? '🎲 系統分配' : '🎯 客人指定'}：${esc(r.booster.uid === me.uid ? '我' : (members[r.booster.uid] || r.booster).name)}</span>` : ''}<span class="tag">${r.hasTag ? '有吊牌' : '無吊牌'}</span>${r.payMethod ? `<span class="tag">${r.payMethod === 'paypal' ? '🅿️ 想用 PayPal' : '🏦 想用轉帳'}</span>` : ''}<span class="tag">${ago(r.created||0)}</span>${r.by ? `<span class="tag">處理：${esc(r.by)}</span>` : ''}</div></div>
         <div style="text-align:right"><div class="mono" style="font-size:22px;font-weight:700">${money(c.total)}${c.unknown ? '<span class="hint">＋私訊</span>' : ''}</div><div class="hint">客人看到 ${money(r.quote)}</div></div></div>
       <div class="oc-clock" style="margin:12px 0 6px"><div><div class="hint">共鳴等級</div><b class="mono" style="font-size:20px">Lv.${r.fromLv} → ${r.toLv}</b> <span class="hint">（${r.toLv - r.fromLv} 等）</span></div>
         <div style="text-align:right"><div class="hint">Discord</div><b>${esc(r.discord)}</b></div></div>
@@ -1917,7 +1922,7 @@ $('#reqList').addEventListener('click', e => {
   if (act === 'open'){ state.filter = 'active'; $('#q').value = r.charName || r.discord; location.hash = 'orders'; return; }
   if (act === 'accept') return openOrder(null, { from:r.fromLv, to:r.toLv, tag:r.hasTag, client: r.charName || r.discord, job:r.job, contact:r.discord,
     note: [`前台委託 #${no}`, r.booster ? (r.booster.auto ? '系統分配：' : '客人指定：') + r.booster.name : '', r.note].filter(Boolean).join('\n'), reqId:r.id,
-    assignee: r.booster && members[r.booster.uid] ? r.booster.uid : null });
+    assignee: r.booster && members[r.booster.uid] ? r.booster.uid : null, payPref: r.payMethod || '' });
   if (act === 'del') return confirmBox(`刪除委託 #${no}？`, '刪除後無法復原。', () => backend.deleteRequest(r.id).then(() => log('request', `刪除前台委託 #${no}`)).catch(syncErr));
   const st = { contacted:'contacted', reject:'rejected', new:'new' }[act]; if (!st) return;
   backend.updateRequest(r.id, { status: st, by: me.name, at: now() }).then(() => {
@@ -1984,7 +1989,7 @@ $('#mPay').addEventListener('click', e => {
   if (!(amt > 0)) return toast('請輸入金額', 'err');
   const id = newToken();
   const data = { amount: amt, client: $('#pmClient').value.trim() || o.client, desc: $('#pmDesc').value.trim(), note: $('#pmNote').value.trim(),
-    orderId: o.id, contact: o.contact || '', status: 'pending', created: now(), createdBy: me.name, createdByUid: me.uid };
+    orderId: o.id, contact: o.contact || '', prefer: o.payPref || '', status: 'pending', created: now(), createdBy: me.name, createdByUid: me.uid };
   e.target.disabled = true;
   backend.createPayment(id, data).then(() => {
     const x = { ...data, id };

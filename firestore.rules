@@ -32,7 +32,8 @@ service cloud.firestore {
     // 前台委託：任何人都能「新增」（欄位與長度都會檢查），只有成員能看、能改
     match /requests/{reqId} {
       allow create: if request.resource.data.keys().hasOnly(
-                         ['discord','charName','job','fromLv','toLv','hasTag','quote','unknown','note','booster','status','created'])
+                         ['discord','charName','job','fromLv','toLv','hasTag','quote','unknown','note','booster','payMethod','status','created'])
+                    && (!('payMethod' in request.resource.data) || request.resource.data.payMethod in ['', 'bank', 'paypal'])
                     && (!('booster' in request.resource.data) || request.resource.data.booster == null
                         || (request.resource.data.booster is map
                             && request.resource.data.booster.keys().hasOnly(['uid','name','auto'])
