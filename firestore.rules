@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function myRole() {
+      return get(/databases/$(database)/documents/members/$(request.auth.uid)).data.role;
+    }
+    function isMember() { return signedIn() && myRole() in ['member', 'admin']; }
+    function isAdmin()  { return signedIn() && myRole() == 'admin'; }
+
+    // 成員：自己看得到自己；核准的成員看得到全部
+    // 新註冊只能把自己建成「待核准」；改身分、移除只有管理員能做
+    match /members/{uid} {
+      allow read:   if signedIn() && (request.auth.uid == uid || isMember());
+      allow create: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.role == 'pending';
+      allow update, delete: if isAdmin();
+    }
+
+    // 代練單：核准的成員都能看、能改
+    match /orders/{orderId} {
+      allow read, write: if isMember();
+    }
+
+    // 價目表：成員能看，只有管理員能改
+    match /settings/{docId} {
+      allow read:  if isMember();
+      allow write: if isAdmin();
+    }
+
+    // 操作紀錄：成員能看、能新增（只能用自己的名義），任何人都不能修改或刪除
+    match /logs/{logId} {
+      allow read:   if isMember();
+      allow create: if isMember() && request.resource.data.uid == request.auth.uid;
+    }
+  }
+}
