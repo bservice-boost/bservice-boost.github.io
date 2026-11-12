@@ -397,6 +397,7 @@ table.t tr:hover td{background:rgba(94,224,199,.04)}
     <symbol id="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"/></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></symbol>
     <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7.5 8 6 8-6"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
   </defs>
 </svg>
@@ -458,6 +459,7 @@ table.t tr:hover td{background:rgba(94,224,199,.04)}
       <div class="grp">營運</div>
       <a href="#dashboard" data-v="dashboard"><svg><use href="#i-dash"/></svg>總覽</a>
       <a href="#requests" data-v="requests"><svg><use href="#i-inbox"/></svg>新委託<span class="badge hot" id="bReq" style="display:none"></span></a>
+      <a href="#inbox" data-v="inbox"><svg><use href="#i-mail"/></svg>客服訊息<span class="badge hot" id="bMsg" style="display:none"></span></a>
       <a href="#orders" data-v="orders"><svg><use href="#i-list"/></svg>代練單<span class="badge" id="bOrders">0</span></a>
       <a href="#pay" data-v="pay"><svg><use href="#i-card"/></svg>收款<span class="badge hot" id="bPay" style="display:none"></span></a>
       <div class="grp">練功</div>
@@ -656,6 +658,16 @@ table.t tr:hover td{background:rgba(94,224,199,.04)}
           <div class="tbl-wrap"><table class="t" id="memberTbl"></table></div>
         </div>
         <div class="infobox" style="margin-top:14px">新成員請到網站登入頁自行「註冊新帳號」，註冊後會出現在上方列表，管理員把身分改成「成員」即可使用。<br>網址：<b id="siteUrl"></b> <button class="xs" id="copyUrl">複製</button></div>
+      </section>
+
+      <!-- ===== 客服訊息 ===== -->
+      <section class="view" id="v-inbox">
+        <div class="help" data-help="inbox"></div>
+        <div class="toolbar">
+          <div class="seg" id="mSeg"><button data-f="new" class="act">未處理<span class="n" id="mnNew"></span></button><button data-f="done">已處理<span class="n" id="mnDone"></span></button></div>
+          <span class="hint">客人在前台按「💬 客服」送出的留言，會即時出現在這裡</span>
+        </div>
+        <div class="orders" id="msgList"></div>
       </section>
 
       <!-- ===== 新委託 ===== -->
@@ -990,7 +1002,7 @@ function stats(o){
 const VIEWS = {
   dashboard:{ t:'總覽', s:'工作室即時營運狀況' }, orders:{ t:'代練單', s:'所有委託與進度' },
   scan:{ t:'共鳴度辨識', s:'分享遊戲畫面，自動讀取共鳴度' }, tools:{ t:'計時工具', s:'加成倒數・副本單趟' },
-  requests:{ t:'新委託', s:'客人從前台送出的委託' }, pay:{ t:'收款', s:'付款連結與對帳' }, site:{ t:'前台設定', s:'修改前台網站的文字與狀態', admin:true },
+  requests:{ t:'新委託', s:'客人從前台送出的委託' }, inbox:{ t:'客服訊息', s:'客人從前台送來的留言' }, pay:{ t:'收款', s:'付款連結與對帳' }, site:{ t:'前台設定', s:'修改前台網站的文字與狀態', admin:true },
   prices:{ t:'價目表與報價', s:'共鳴代練每等價格' }, team:{ t:'成員管理', s:'團隊帳號與權限', admin:true }, logs:{ t:'操作紀錄', s:'誰在什麼時候做了什麼', admin:true },
 };
 let view = 'dashboard';
@@ -1020,6 +1032,7 @@ function render(){
   if (view === 'team' && isAdmin()) renderTeam();
   if (view === 'logs' && isAdmin()) renderLogs();
   if (view === 'requests') renderRequests();
+  if (view === 'inbox') renderMsgs();
   if (view === 'pay') renderPayments();
   if (view === 'site' && isAdmin() && !siteDirty){ renderSiteForm(); fillPayForm(); }
   tick();
@@ -1031,6 +1044,8 @@ function renderBadges(){
   $('#bTeam').style.display = isAdmin() && pend ? '' : 'none'; $('#bTeam').textContent = pend;
   const pn = payments.filter(x => x.status === 'reported').length;
   $('#bPay').style.display = pn ? '' : 'none'; $('#bPay').textContent = pn;
+  const mn = msgs.filter(x => x.status !== 'done').length;
+  $('#bMsg').style.display = mn ? '' : 'none'; $('#bMsg').textContent = mn;
   const rn = requests.filter(r => r.status === 'new').length;
   $('#bReq').style.display = rn ? '' : 'none'; $('#bReq').textContent = rn;
 }
@@ -1066,6 +1081,10 @@ const HELP = {
     ['身分說明', ['<b>成員（代練師）</b>：接單、計時、升等、回報、看價目表與總覽', '<b>管理員</b>：以上全部，加上修改價目表、核准成員、看操作紀錄、永久刪除單', '<b>訪客</b>：登入後只看得到示範資料，只能使用共鳴度辨識（看不到真實的單子與客人資料）', '<b>移除</b>：對方立刻失去存取權，要重新註冊並等核准']],
     ['前台可被指定', ['勾選「顯示」的成員會出現在前台下單表單，客人可以指定他', '前台只看得到名字、介紹和「空閒／進行中幾張／練功中」，看不到任何客人資料', '不接單的管理員可以取消勾選']],
   ], tip:'表格裡的「本月時數／練出」可以當作薪資或分潤的參考。' },
+  inbox: { title:'客服訊息怎麼處理', cols:[
+    ['收到留言', ['客人在前台右下角按「💬 客服」留言後，這裡會<b>即時出現</b>並響提示音，左側選單亮紅點', '每則留言有客人的稱呼、聯絡方式（Discord 或 Email）和內容']],
+    ['回覆', ['按 <b>📋 複製聯絡方式</b>，到 Discord 加好友私訊；留的是 Email 的話可以按「✉️ 用 Email 回覆」', '回覆後按 <b>✅ 標記已處理</b>，可以寫一句備註，其他成員就知道處理過了', '系統不會自動寄信給客人，回覆要自己在 Discord 或 Email 進行']],
+  ] },
   requests: { title:'處理前台委託', cols:[
     ['收到委託', ['客人在前台填單送出後，會<b>即時出現</b>在「新委託」並響提示音，左側選單會亮紅點', '客人可以<b>指定代練師</b>，或不指定由系統分配給目前單最少的人；卡片會顯示「🎯 客人指定」或「🎲 系統分配」，被指定的人會收到通知', '卡片上有客人的 Discord、角色、職業、等級區間、方案與<b>系統報價</b>', '按 <b>📋 複製 Discord</b> 到 Discord 加好友或私訊']],
     ['處理流程', ['聯絡後按 <b>💬 標記已聯絡</b>，其他人就知道有人在處理', '客人確認後按 <b>✅ 轉成代練單</b>：會自動帶入資料開新單，委託移到「已成交」', '不接的委託按 <b>婉拒</b>（可以再改回新委託）', '「已成交」的卡片可以點「查看代練單」']],
@@ -2083,6 +2102,48 @@ $('#reqList').addEventListener('click', e => {
     log('request', `把前台委託 #${no}（${r.charName || r.discord}）標記為${RST[st][0]}`); toast(`#${no} → ${RST[st][0]}`, 'ok');
   }).catch(syncErr);
 });
+// ---------- 客服訊息 ----------
+let msgs = [], msgSeen = null, msgFilter = 'new';
+function renderMsgs(){
+  const N = msgs.filter(x => x.status !== 'done'), D = msgs.filter(x => x.status === 'done');
+  $('#mnNew').textContent = N.length || ''; $('#mnDone').textContent = D.length || '';
+  $$('#mSeg button').forEach(b => b.classList.toggle('act', b.dataset.f === msgFilter));
+  const list = (msgFilter === 'new' ? N : D).sort((a,b) => (b.created||0) - (a.created||0));
+  $('#msgList').innerHTML = list.length ? list.map(x => `<div class="oc" data-mid="${esc(x.id)}">
+      <div class="oc-top"><div style="min-width:0"><div class="oc-name">${esc(x.name || '（未留名字）')}</div>
+        <div class="oc-tags"><span class="tag ${x.status === 'done' ? 'done' : 'gold'}">${x.status === 'done' ? '已處理' : '未處理'}</span><span class="tag">${ago(x.created||0)}</span>${x.by ? `<span class="tag">處理：${esc(x.by)}</span>` : ''}</div></div>
+        <div style="text-align:right"><div class="hint">聯絡方式</div><b style="word-break:break-all">${esc(x.contact)}</b></div></div>
+      <div class="note" style="font-size:14px;color:var(--text);margin-top:12px">${esc(x.text)}</div>
+      ${x.memo ? `<div class="note">🗒️ 處理備註：${esc(x.memo)}</div>` : ''}
+      <div class="oc-act" style="margin-top:12px">
+        <button class="sm" data-m="copy">📋 複製聯絡方式</button>
+        ${/^\S+@\S+\.\S+$/.test(x.contact) ? `<a class="btn sm" style="text-decoration:none;padding:5px 10px;font-size:13px" href="mailto:${esc(x.contact)}?subject=${encodeURIComponent('B服代練工作室 回覆')}">✉️ 用 Email 回覆</a>` : ''}
+        ${x.status === 'done' ? '<button class="sm ghost" data-m="reopen">改回未處理</button>' : '<button class="sm primary" data-m="done">✅ 標記已處理</button>'}
+        <span class="sp"></span>
+        ${isAdmin() ? '<button class="xs ghost danger" data-m="del">🗑️</button>' : ''}
+      </div></div>`).join('')
+    : `<div class="empty" style="grid-column:1/-1"><div class="ico">📭</div>${msgFilter === 'new' ? '目前沒有未處理的留言' : '還沒有已處理的留言'}</div>`;
+}
+$('#mSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; msgFilter = b.dataset.f; renderMsgs(); };
+$('#msgList').addEventListener('click', e => {
+  const btn = e.target.closest('[data-m]'); if (!btn) return;
+  const x = msgs.find(m => m.id === btn.closest('[data-mid]').dataset.mid); if (!x) return; const act = btn.dataset.m;
+  if (act === 'copy') return copyText(x.contact, '已複製：' + x.contact);
+  if (act === 'del') return confirmBox('刪除這則留言？', '刪除後無法復原。', () => backend.deleteMessage(x.id).catch(syncErr));
+  if (act === 'reopen') return backend.updateMessage(x.id, { status:'new' }).catch(syncErr);
+  if (act === 'done'){
+    $('#iTitle').textContent = '標記已處理'; $('#iSub').textContent = `${x.name || x.contact} 的留言`;
+    $('#iBody').innerHTML = '<div class="field full"><label>處理備註（選填，給其他成員看）<input id="mMemo" maxlength="120" placeholder="例：已在 Discord 回覆報價"></label></div>';
+    inputFn = () => backend.updateMessage(x.id, { status:'done', by: me.name, at: now(), memo: $('#mMemo').value.trim() }).then(() => { toast('已標記處理', 'ok'); log('request', `處理客服留言（${x.name || x.contact}）`); }).catch(syncErr);
+    show('#mInput'); setTimeout(() => $('#mMemo').focus(), 60);
+  }
+});
+function onMsgs(list){
+  const fresh = msgSeen ? list.filter(x => x.status !== 'done' && !msgSeen.has(x.id)) : [];
+  msgSeen = new Set(list.map(x => x.id)); msgs = list;
+  if (fresh.length){ beep(2); fresh.forEach(x => toast(`💬 新客服留言：${x.name || x.contact}`, 'ok', { label:'查看', fn: () => { msgFilter = 'new'; location.hash = 'inbox'; } })); }
+  renderBadges(); if (view === 'inbox') renderMsgs();
+}
 function onRequests(list){
   const fresh = reqSeen ? list.filter(r => (r.status || 'new') === 'new' && !reqSeen.has(r.id)) : [];
   reqSeen = new Set(list.map(r => r.id)); requests = list;
@@ -2464,7 +2525,7 @@ function applyRole(){
   if (!adm && unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; logs = []; }
   if (!adm && VIEWS[view] && VIEWS[view].admin) location.hash = 'dashboard';
 }
-function stopData(){ trSeen = null; pubBoosters = undefined; clearTimeout(pubTimer); requests = []; reqSeen = null; site = null; payments = []; paySeen = null; payCfg = null; if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
+function stopData(){ msgs = []; msgSeen = null; trSeen = null; pubBoosters = undefined; clearTimeout(pubTimer); requests = []; reqSeen = null; site = null; payments = []; paySeen = null; payCfg = null; if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
 function startData(){
   if (unsubs.length) return;
   unsubs.push(backend.watchOrders(list => {
@@ -2479,6 +2540,7 @@ function startData(){
   unsubs.push(backend.watchMembers(m => { members = m; render(); syncBoosters(); }, () => {}));
   unsubs.push(backend.watchBoosters(l => { pubBoosters = l || []; syncBoosters(); }, () => { pubBoosters = []; }));
   unsubs.push(backend.watchRequests(onRequests, e => console.warn('requests', e)));
+  unsubs.push(backend.watchMessages(onMsgs, e => console.warn('messages', e)));
   unsubs.push(backend.watchSite(v => { site = v; if (view === 'site' && !siteDirty) renderSiteForm(); }, () => {}));
   unsubs.push(backend.watchPayments(onPayments, e => console.warn('payments', e)));
   unsubs.push(backend.watchPayCfg(v => { payCfg = v; if (view === 'site') fillPayForm(); }, () => {}));
@@ -2520,6 +2582,7 @@ function guestBackend(){
   const demo = makeDemo(), no = () => Promise.resolve();
   const once = (v, cb) => { setTimeout(() => cb(JSON.parse(JSON.stringify(v))), 30); return () => {}; };
   return {
+    watchMessages: cb => once([{ id:'demoM1', name:'範例訪客', contact:'demo_user', text:'示範留言：想從 220 練到 300，請問價格和大概要多久？', status:'new', created: now() - 15*60000 }], cb), updateMessage: no, deleteMessage: no,
     watchOrders: cb => once(demo.orders, cb), watchMembers: cb => once(demo.M, cb), watchRequests: cb => once(demo.requests, cb), watchPayments: cb => once(demo.payments, cb),
     watchPrices: cb => once(DEFAULT_PRICES, cb), watchSite: cb => once(null, cb), watchPayCfg: cb => once(null, cb), watchBoosters: cb => once([], cb), watchLogs: cb => once([], cb),
     putOrder: no, delOrder: no, addLog: no, updateRequest: no, deleteRequest: no, createPayment: no, updatePayment: no, putPrices: no, putSite: no, putPayCfg: no, putBoosters: no,
@@ -2552,7 +2615,7 @@ function exitGuest(){
 $('#btnGuest').onclick = () => enterGuest();
 $('#guestExit').onclick = exitGuest;
 // 訪客只能用：切換分頁、篩選／排序／搜尋、說明、查看回報，以及「共鳴度辨識」頁的所有功能
-const GUEST_OK = ['#nav a', '#hamb', '#scrim', '#btnHelp', '[data-help-close]', '#btnLogout', '#guestExit', '#guestBar a', '.seg button', '#sortSel', '#q',
+const GUEST_OK = ['#nav a', '#hamb', '#scrim', '#btnHelp', '[data-help-close]', '#btnLogout', '#guestExit', '#guestBar a', '.seg button', '#sortSel', '#q', '[data-m=copy]',
   '[data-act=menu]', '[data-act=report]', '#copyReport', '[data-close]', '.modal-bg', 'details summary', '#v-scan', '.toast button', '#scanChip', '#logWho', '#logType'];
 function guestBlocked(el){
   if (!isGuest()) return false;
@@ -2665,6 +2728,9 @@ else {
       watchPrices: (cb, err) => F.onSnapshot(F.doc(db,'settings','prices'), s => cb(s.exists() ? s.data().list : null), err),
       putPrices: list => F.setDoc(F.doc(db,'settings','prices'), { list }),
       addLog: entry => F.addDoc(F.collection(db,'logs'), entry),
+      watchMessages: (cb, err) => F.onSnapshot(F.collection(db,'messages'), qs => cb(qs.docs.map(d => ({ ...d.data(), id: d.id }))), err),
+      updateMessage: (id, patch) => F.updateDoc(F.doc(db,'messages',id), patch),
+      deleteMessage: id => F.deleteDoc(F.doc(db,'messages',id)),
       watchRequests: (cb, err) => F.onSnapshot(F.collection(db,'requests'), qs => cb(qs.docs.map(d => ({ ...d.data(), id: d.id }))), err),
       updateRequest: (id, patch) => F.updateDoc(F.doc(db,'requests',id), patch),
       deleteRequest: id => F.deleteDoc(F.doc(db,'requests',id)),

@@ -241,7 +241,13 @@ section.s.alt{background:rgba(36,23,32,.72)}
 table.pt tr{transition:background .2s}
 table.pt tr:hover td{background:rgba(240,112,143,.05)}
 /* 回到頂端 */
-#toTop{position:fixed;right:20px;bottom:22px;width:46px;height:46px;border-radius:50%;padding:0;background:var(--panel2);border:1px solid var(--line2);font-size:18px;z-index:40;opacity:0;transform:translateY(20px);transition:.3s;pointer-events:none}
+#csBtn{position:fixed;right:20px;bottom:22px;z-index:41;padding:11px 18px;border-radius:99px;background:linear-gradient(135deg,#f0607f,#ff8f6b);border:0;color:#fff;box-shadow:0 10px 26px -10px rgba(240,96,127,.9)}
+#csBtn:hover{color:#fff;filter:brightness(1.08)}
+.cs-bg{position:fixed;inset:0;z-index:80;background:rgba(10,5,8,.7);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:flex-end;padding:20px}
+.cs-bg.show{display:flex}
+.cs-box{background:var(--panel);border:1px solid var(--line2);border-radius:20px;padding:22px;width:100%;max-width:400px;max-height:calc(100vh - 40px);overflow:auto;box-shadow:var(--shadow);animation:up .3s both}
+@media(max-width:520px){.cs-bg{padding:10px;align-items:flex-end}}
+#toTop{position:fixed;right:20px;bottom:78px;width:46px;height:46px;border-radius:50%;padding:0;background:var(--panel2);border:1px solid var(--line2);font-size:18px;z-index:40;opacity:0;transform:translateY(20px);transition:.3s;pointer-events:none}
 #toTop.show{opacity:1;transform:none;pointer-events:auto}
 /* 彩帶 */
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
@@ -450,6 +456,20 @@ footer{background:rgba(20,12,16,.6)}
   <a href="admin.html">工作室登入</a>
 </div></footer>
 <div class="toast" id="toast"></div>
+<button id="csBtn" aria-label="聯絡客服">💬 客服</button>
+<div class="cs-bg" id="csBg"><div class="cs-box">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><h3 style="margin:0">💬 聯絡客服</h3><button id="csClose" style="padding:4px 10px">✕</button></div>
+  <p style="margin:0 0 14px;color:var(--muted);font-size:13.5px">留言會直接送到工作室後台，我們會用你留的聯絡方式回覆。</p>
+  <form id="fCs" novalidate>
+    <label>怎麼稱呼你<input name="name" maxlength="30" placeholder="暱稱"></label>
+    <label style="margin-top:10px">聯絡方式 *<input name="contact" maxlength="60" placeholder="Discord 使用者名稱 或 Email"></label>
+    <label style="margin-top:10px">想問什麼 *<textarea name="text" rows="5" maxlength="800" placeholder="例：想從 220 練到 300，請問價格和大概要多久？"></textarea></label>
+    <div class="err" id="csErr" style="min-height:18px;margin-top:6px"></div>
+    <div class="warnnote" style="margin-bottom:12px">🔒 請勿在留言中提供遊戲帳號密碼。</div>
+    <button class="primary" style="width:100%" id="csSend">送出留言</button>
+  </form>
+  <div id="csDone" style="display:none;text-align:center;padding:20px 0"><div style="font-size:46px">📨</div><h3 style="margin:8px 0 4px">已送出！</h3><p style="color:var(--muted);margin:0 0 14px">我們會盡快用你留的聯絡方式回覆。</p><button id="csAgain">再寫一則</button></div>
+</div></div>
 
 <script>
 "use strict";
@@ -569,7 +589,9 @@ function heroCalc(){
   const a = +$('#hFrom').value, b = +$('#hTo').value;
   if (!(b > a)){ $('#hPrice').textContent = '--'; $('#hPrice').dataset.v = ''; return; }
   const c = calcPrice(a, b, $('#hTag').checked);
-  roll($('#hPrice'), c.total, c.unknown ? '+' : '');
+  const hp = $('#hPrice');
+  if (c.unknown){ cancelAnimationFrame(hp._raf); hp.dataset.v = 0; hp.style.fontSize = '25px'; hp.textContent = '💬 歡迎私訊詳談'; return; }
+  hp.style.fontSize = ''; roll(hp, c.total);
 }
 // 金額滾動動畫
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -593,8 +615,9 @@ function renderQuote(){
   q.innerHTML = `<div style="font-weight:700;margin-bottom:8px">🧾 報價明細</div>
     ${c.parts.map(p => `<div class="row"><span>${p.key}　${p.n} 等 × ${money(p.v)}</span><span class="mono">${money(p.n*p.v)}</span></div>`).join('')}
     ${c.unknown ? `<div class="row" style="color:var(--gold)"><span>私訊報價區間　${c.unknown} 等</span><span>另議</span></div>` : ''}
-    <div class="total"><span style="color:var(--muted)">共鳴 ${a} → ${b}・${tag ? '有吊牌' : '無吊牌'}・${b-a} 等</span><b class="mono"><span id="qTotal" data-v="${lastQ}">${money(lastQ)}</span>${c.unknown ? '<span style="font-size:15px;color:var(--gold)"> + 私訊</span>' : ''}</b></div>`;
-  roll($('#qTotal'), c.total); lastQ = c.total;
+    <div class="total"><span style="color:var(--muted)">共鳴 ${a} → ${b}・${tag ? '有吊牌' : '無吊牌'}・${b-a} 等</span>${c.unknown ? '<b style="font-size:22px;color:var(--gold)">💬 歡迎私訊詳談</b>' : `<b class="mono"><span id="qTotal" data-v="${lastQ}">${money(lastQ)}</span></b>`}</div>
+    ${c.unknown ? `<div style="font-size:13px;color:var(--muted);margin-top:8px">目標等級超過線上報價範圍，實際價格由工作人員在 Discord 私訊報價。可以直接送出委託，或用右下角「客服」留言詢問。</div>` : ''}`;
+  if (!c.unknown){ roll($('#qTotal'), c.total); lastQ = c.total; } else lastQ = 0;
 }
 let lastQ = 0;
 ['from','to','tag'].forEach(n => $('#fOrder')[n].addEventListener('input', renderQuote));
@@ -640,6 +663,25 @@ $('#againBtn').onclick = () => { const f = $('#fOrder'); f.reset(); pickUid = ''
 
 // ---------------- 資料 ----------------
 let api = { addRequest: async () => { throw new Error('尚未連線'); } };
+// ---------------- 客服留言 ----------------
+$('#csBtn').onclick = () => { $('#csBg').classList.add('show'); setTimeout(() => $('#fCs').contact.focus(), 80); };
+$('#csClose').onclick = () => $('#csBg').classList.remove('show');
+$('#csBg').addEventListener('mousedown', e => { if (e.target.id === 'csBg') $('#csBg').classList.remove('show'); });
+$('#csAgain').onclick = () => { $('#fCs').reset(); $('#fCs').style.display = ''; $('#csDone').style.display = 'none'; };
+$('#fCs').addEventListener('submit', async e => {
+  e.preventDefault(); const f = e.target, err = $('#csErr'); err.textContent = '';
+  const name = f.name.value.trim(), contact = f.contact.value.trim(), text = f.text.value.trim();
+  if (contact.length < 2) return err.textContent = '請留 Discord 或 Email，我們才能回覆你';
+  if (text.length < 5) return err.textContent = '請寫一下想問的內容（至少 5 個字）';
+  if (/密碼|password|pw[:：]/i.test(text)) return err.textContent = '留言裡好像有密碼，請刪掉再送出';
+  try { if (Date.now() - (+localStorage.getItem('cs-last') || 0) < 60000) return err.textContent = '剛剛已經送出過了，請稍等一分鐘再送'; } catch(_){}
+  const btn = $('#csSend'); btn.disabled = true; btn.textContent = '送出中…';
+  try { await api.addMessage({ name, contact, text, status: 'new', created: Date.now() });
+    try { localStorage.setItem('cs-last', String(Date.now())); } catch(_){}
+    f.style.display = 'none'; $('#csDone').style.display = '';
+  } catch(ex){ console.error(ex); err.textContent = '送出失敗，請稍後再試（' + (ex.code || ex.message || '') + '）'; }
+  btn.disabled = false; btn.textContent = '送出留言';
+});
 window.Front = {
   attach(a){
     api = a;
@@ -788,6 +830,7 @@ else {
       watchBoosters: cb => F.onSnapshot(F.doc(db, 'public', 'boosters'), s => cb(s.exists() ? s.data().list : []), e => console.warn(e)),
       watchPay: cb => F.onSnapshot(F.doc(db, 'settings', 'pay'), s => cb(s.exists() ? s.data() : null), e => console.warn(e)),
       addRequest: async data => (await F.addDoc(F.collection(db, 'requests'), data)).id,
+      addMessage: async data => (await F.addDoc(F.collection(db, 'messages'), data)).id,
     });
   } catch(e){ console.error(e); }
 }

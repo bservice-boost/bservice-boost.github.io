@@ -56,6 +56,20 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // 客服留言：任何人都能新增（檢查欄位與長度），只有成員能看、能標記處理
+    match /messages/{msgId} {
+      allow create: if request.resource.data.keys().hasOnly(['name','contact','text','status','created'])
+                    && request.resource.data.status == 'new'
+                    && request.resource.data.name is string && request.resource.data.name.size() <= 30
+                    && request.resource.data.contact is string
+                    && request.resource.data.contact.size() >= 2 && request.resource.data.contact.size() <= 60
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() >= 5 && request.resource.data.text.size() <= 800
+                    && request.resource.data.created is int;
+      allow read, update: if isMember();
+      allow delete: if isAdmin();
+    }
+
     // 付款連結：知道專屬連結（隨機 ID）的人才讀得到單筆；不能列出全部
     // 客人只能把狀態改成「已回報」並填回報內容，不能改金額；其他修改只有成員能做
     match /payments/{payId} {
