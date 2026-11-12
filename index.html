@@ -452,11 +452,11 @@ body.is-admin a.admin-only{display:flex !important}
         <div class="grid g-main">
           <div class="card">
             <div class="card-h"><h3>🎮 遊戲畫面</h3>
-              <div class="row"><button class="primary sm" id="btnShare">① 分享遊戲視窗</button><button class="sm" id="btnPick" disabled>② 重新框選</button></div></div>
-            <div class="stage"><div class="ph" id="ph">按「① 分享遊戲視窗」，選擇<b style="color:var(--text)">艾爾之光的視窗</b><br>然後在這裡<b style="color:var(--text)">拖曳框住整條共鳴度條</b></div><canvas id="view" style="display:none"></canvas></div>
+              <div class="row"><button class="primary sm" id="btnShare">① 分享遊戲視窗</button><button class="sm" id="btnAuto" disabled>🔍 自動偵測</button><button class="sm ghost" id="btnPick" disabled>手動框選</button></div></div>
+            <div class="stage"><div class="ph" id="ph">按「① 分享遊戲視窗」，選擇<b style="color:var(--text)">艾爾之光的視窗</b><br>系統會自動找到左下角的<b style="color:var(--text)">共鳴度條</b></div><canvas id="view" style="display:none"></canvas></div>
             <ol class="steps" style="margin-top:16px">
               <li><span>分享時選「<b>視窗</b>」分頁比整個螢幕清楚；遊戲請用視窗或無邊框模式。</span></li>
-              <li><span>框選從條的<b>最左到最右</b>，框到旁邊文字沒關係；位置會記在這台電腦。</span></li>
+              <li><span>分享後會<b>自動找到左下角的共鳴度條</b>；找不到再按「🔍 自動偵測」或手動框選。</span></li>
               <li><span>到「代練單」按 <b>📡 連動</b>，再按 <b>▶ 開始</b>，滿條會自動升等。</span></li>
             </ol>
           </div>
@@ -820,10 +820,10 @@ const HELP = {
     ['找單', ['上方可切換：進行中／我接的／未接／已完成／回收桶', '搜尋框可以找委託人、職業、備註', '右邊可以排序：最新、截止日、進度、練功中優先']],
   ], tip:'📡 連動：要讓共鳴度辨識自動升等，先在單上按「📡 連動」，再按「▶ 開始」。同一時間只能連動一張單（每台電腦各自設定）。' },
   scan: { title:'共鳴度辨識怎麼用', cols:[
-    ['第一次設定', ['用電腦版 <b>Chrome 或 Edge</b> 開網站，遊戲設成<b>視窗或無邊框</b>模式', '按 <b>① 分享遊戲視窗</b> → 選「視窗」分頁 → 選艾爾之光', '在左邊畫面上，<b>用滑鼠拖曳框住整條共鳴度條</b>（從最左到最右）', '右邊會顯示讀到的 %，和遊戲裡差不多就成功了']],
+    ['第一次設定', ['用電腦版 <b>Chrome 或 Edge</b> 開網站，遊戲設成<b>視窗或無邊框</b>模式', '按 <b>① 分享遊戲視窗</b> → 選「視窗」分頁 → 選艾爾之光', '系統會<b>自動在左下角找到共鳴度條</b>，右邊顯示讀到的 %，和遊戲裡差不多就成功了', '找不到時：確認條上有一點藍色進度，再按 <b>🔍 自動偵測</b>；還是不行就按「手動框選」拖曳框住整條']],
     ['開始自動升等', ['到「代練單」在要練的單按 <b>📡 連動</b>（或在右邊選單選）', '按那張單的 <b>▶ 開始</b>', '共鳴度從滿條掉回低點時，那張單會<b>自動 +1 等</b>並響提示音', '右邊會顯示每小時速度與預估滿條時間']],
-    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），框選位置會記住', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '讀不到條超過 1 分鐘會自動暫停計時，避免多算時數', '網頁可以縮小成小視窗放旁邊，但<b>不要最小化</b>']],
-  ], tip:'放大條下方的橘線是條的頭尾、紅線是目前填到哪裡；如果位置不對，按「② 重新框選」。' },
+    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），位置會自動記住', '改了遊戲視窗大小會自動重新偵測', '技能特效、選單短暫擋住條不會誤判；擋住超過 1 分鐘會自動暫停計時', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '網頁可以縮成小視窗放旁邊，但<b>不要最小化</b>']],
+  ], tip:'放大條下方的橘線是條的頭尾、紅線是目前填到哪裡；位置不對時按「🔍 自動偵測」重新找。' },
   tools: { title:'計時工具', cols:[
     ['加成／藥水倒數', ['吃了經驗藥水或加成，按對應按鈕開始倒數', '要其他時間按 <b>＋ 自訂</b>', '剩 1 分鐘變紅；時間到會響提示音、瀏覽器分頁標題閃爍、左側選單亮紅點', '<b>+5 分</b> 延長、<b>✕</b> 刪除']],
     ['副本單趟計時', ['進副本時按 <b>開始</b>', '每打完一趟按 <b>完成一趟</b>（或按<b>空白鍵</b>），會自動接著計下一趟', '下方顯示趟數、平均、最快一趟，方便比較哪張圖效率高', '換地圖前可以按 <b>清空</b>']],
@@ -1157,20 +1157,100 @@ function renderBindSel(){
     `<option value="${o.id}" ${o.id===state.boundId?'selected':''}>${esc(o.client)}・Lv.${o.curLv}</option>`).join('');
 }
 $('#bindSel').onchange = e => setBound(e.target.value);
+let sharing = false;
 $('#btnShare').onclick = async () => {
-  unlockAudio();
+  unlockAudio(); sharing = true;
   try {
     const stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 5 }, audio: false });
     vid.srcObject = stream; await vid.play();
     stream.getVideoTracks()[0].addEventListener('ended', () => { toast('畫面分享已停止', 'err'); $('#ph').style.display=''; viewC.style.display='none'; scan.pct=null; $('#pct').textContent='--'; updateScanChip(); });
-    $('#ph').style.display = 'none'; viewC.style.display = 'block'; $('#btnPick').disabled = false;
-    if (scan.region && (scan.region.x + scan.region.w > vid.videoWidth || scan.region.y + scan.region.h > vid.videoHeight)) scan.region = null;
-    toast(scan.region ? '已套用上次的框選位置' : '請在畫面上拖曳框住共鳴度條', 'ok');
+    $('#ph').style.display = 'none'; viewC.style.display = 'block'; $('#btnPick').disabled = false; $('#btnAuto').disabled = false;
+    const had = scan.region ? { ...scan.region } : null;
+    scan.lastAuto = now();   // 交給下面處理，避免背景同時偵測
+    await waitFrame();
+    const sameSize = had && had.vw === vid.videoWidth && had.vh === vid.videoHeight && had.geo;
+    if (sameSize){ scan.region = had; toast('已套用上次的共鳴度條位置', 'ok'); }
+    else if (!autoDetect(true)) { scan.region = null; toast('沒有自動找到共鳴度條：請確認條上有一點藍色進度，再按「🔍 自動偵測」，或手動框選', 'err'); }
+    sharing = false;
   } catch (e) {
+    sharing = false;
     if (e.name !== 'NotAllowedError') { $('#noSupport').style.display = 'block'; $('#noSupport').textContent = '無法分享畫面（' + e.name + '）。請用電腦版 Chrome / Edge。'; }
   }
 };
-$('#btnPick').onclick = () => { scan.region = null; state.region = null; save(); toast('請重新拖曳框選'); };
+$('#btnPick').onclick = () => { scan.region = null; state.region = null; save(); toast('請在畫面上拖曳框住共鳴度條'); };
+$('#btnAuto').onclick = () => { if (!autoDetect(true)) toast('找不到共鳴度條：請確認遊戲畫面左下角看得到共鳴度條，而且條上有藍色進度', 'err'); };
+function waitFrame(){ return new Promise(res => { let n = 0; const t = setInterval(() => { if (vid.videoWidth || ++n > 40){ clearInterval(t); setTimeout(res, 300); } }, 50); }); }
+
+// ---------- 自動偵測：在畫面左下角找藍色共鳴度條 ----------
+const isFillPx = (d, i) => { const r=d[i], g=d[i+1], b=d[i+2]; return b>140 && g>110 && r<130 && b-r>80; };
+function detectBar(d, w, h){
+  const rows = [];
+  for (let y = 0; y < h; y++){
+    let best = null, s = -1, gap = 0, last = -1;
+    for (let x = 0; x <= w; x++){
+      const on = x < w && isFillPx(d, (y*w+x)*4);
+      if (on){ if (s < 0) s = x; last = x; gap = 0; }
+      else if (s >= 0 && (x === w || ++gap > 2)){ const len = last - s + 1; if (!best || len > best.len) best = { s, e:last, len }; s = -1; gap = 0; }
+    }
+    rows.push(best && best.len >= 4 ? best : null);
+  }
+  let bands = [], cur = null;
+  rows.forEach((r, y) => {
+    if (r && cur && Math.abs(r.s - cur.s0) <= 3){ cur.y1 = y; cur.ends.push(r.e); cur.starts.push(r.s); }
+    else { if (cur) bands.push(cur); cur = r ? { y0:y, y1:y, s0:r.s, ends:[r.e], starts:[r.s] } : null; }
+  });
+  if (cur) bands.push(cur);
+  const med = a => a.slice().sort((p,q) => p-q)[a.length >> 1];
+  bands = bands.filter(b => b.y1 - b.y0 + 1 >= 4 && b.y1 - b.y0 + 1 <= 30).map(b => ({ ...b, x0: med(b.starts), fe: med(b.ends), th: b.y1 - b.y0 + 1 }));
+  if (!bands.length) return null;
+  bands.sort((a,b) => (b.fe - b.x0) * b.th - (a.fe - a.x0) * a.th);
+  const B = bands[0], yc = (B.y0 + B.y1) >> 1;
+  const ya = Math.max(0, B.y0 - 3), yb = Math.min(h-1, B.y1 + 3);
+  const diff = (y1, y2, x) => { const i=(y1*w+x)*4, j=(y2*w+x)*4; return Math.abs(d[i]-d[j]) + Math.abs(d[i+1]-d[j+1]) + Math.abs(d[i+2]-d[j+2]); };
+  let x1 = B.fe, miss = 0;
+  for (let x = B.fe + 1; x < w; x++){
+    if (diff(yc, ya, x) > 30 && diff(yc, yb, x) > 30){ x1 = x; miss = 0; } else if (++miss > 6) break;
+  }
+  if (x1 - B.x0 < 60) return null;     // 太短，不是共鳴度條
+  return { y: yc, y0: B.y0, y1: B.y1, x0: B.x0, x1, fe: B.fe };
+}
+// 依固定位置讀：從左端往右找連續的藍色（允許小缺口，特效粒子不會干擾）；條被擋住時回傳 null
+function readFixed(d, w, h, g){
+  let best = -1;
+  for (const y of [g.y - 1, g.y, g.y + 1]){
+    if (y < 0 || y >= h) continue;
+    let end = -1, gap = 0;
+    for (let x = g.x0; x <= g.x1; x++){
+      if (isFillPx(d, (y*w+x)*4)){ end = x; gap = 0; } else if (end >= 0 ? ++gap > 3 : x > g.x0 + 3) break;
+    }
+    best = Math.max(best, end);
+  }
+  // 驗證底條還在（沒有被選單、讀取畫面擋住）
+  const ya = Math.max(0, g.y0 - 3), yb = Math.min(h - 1, g.y1 + 3);
+  const diff = (y1, y2, x) => { const i=(y1*w+x)*4, j=(y2*w+x)*4; return Math.abs(d[i]-d[j]) + Math.abs(d[i+1]-d[j+1]) + Math.abs(d[i+2]-d[j+2]); };
+  let ok = 0, n = 0;
+  for (let x = g.x0; x <= g.x1; x += 4){ n++; if ((best >= 0 && x <= best) || (diff(g.y, ya, x) > 30 && diff(g.y, yb, x) > 30)) ok++; }
+  if (ok / n < 0.7) return { pct:null, dbg:'共鳴度條被擋住或不在原位' };
+  const pct = best < 0 ? 0 : Math.min(100, (best - g.x0 + 1) / (g.x1 - g.x0 + 1) * 100);
+  return { pct: Math.round(pct*10)/10, dbg:`自動定位 條=${g.x0}-${g.x1} 填滿=${best}`, x0:g.x0, x1:g.x1, end:best };
+}
+function autoDetect(announce){
+  const W = vid.videoWidth, H = vid.videoHeight; if (!W) return false;
+  // 先找左下角（下方 18%、左邊 60%），找不到再找整個畫面下半部
+  const areas = [[0, Math.floor(H*0.82), Math.floor(W*0.6), H - Math.floor(H*0.82)], [0, Math.floor(H*0.5), W, H - Math.floor(H*0.5)]];
+  for (const [X, Y, w, h] of areas){
+    work.width = w; work.height = h; wctx.drawImage(vid, X, Y, w, h, 0, 0, w, h);
+    const g = detectBar(wctx.getImageData(0, 0, w, h).data, w, h);
+    if (!g) continue;
+    const pad = 6, rx = X + g.x0 - pad, ry = Y + g.y0 - pad;
+    const r = { x: Math.max(0, rx), y: Math.max(0, ry), w: g.x1 - g.x0 + pad*2 + 1, h: g.y1 - g.y0 + pad*2 + 1, vw: W, vh: H };
+    r.geo = { x0: X + g.x0 - r.x, x1: X + g.x1 - r.x, y: Y + g.y - r.y, y0: Y + g.y0 - r.y, y1: Y + g.y1 - r.y };
+    scan.region = state.region = r; scan.raw = []; save(); resetScanSegment();
+    if (announce) toast(`✅ 已自動找到共鳴度條（目前約 ${((g.fe - g.x0 + 1) / (g.x1 - g.x0 + 1) * 100).toFixed(1)}%）`, 'ok');
+    return true;
+  }
+  return false;
+}
 const vscale = () => vid.videoWidth / viewC.width;
 function evPos(e){ const r = viewC.getBoundingClientRect(); return { x:(e.clientX-r.left)*viewC.width/r.width, y:(e.clientY-r.top)*viewC.height/r.height }; }
 viewC.addEventListener('mousedown', e => { const p = evPos(e); drag = { x0:p.x, y0:p.y, x1:p.x, y1:p.y }; });
@@ -1182,7 +1262,11 @@ window.addEventListener('mouseup', () => {
   if (w > 20 && h > 2){
     const r = { x:Math.max(0,Math.round(x)), y:Math.max(0,Math.round(y-4)), w:Math.round(w), h:Math.round(h+8) };
     r.w = Math.min(r.w, vid.videoWidth-r.x); r.h = Math.min(r.h, vid.videoHeight-r.y);
-    scan.region = state.region = r; save(); resetScanSegment(); toast('框選完成，請確認右邊讀到的數字', 'ok');
+    r.vw = vid.videoWidth; r.vh = vid.videoHeight;
+    work.width = r.w; work.height = r.h; wctx.drawImage(vid, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
+    const g = detectBar(wctx.getImageData(0, 0, r.w, r.h).data, r.w, r.h);
+    if (g) r.geo = { x0:g.x0, x1:g.x1, y:g.y, y0:g.y0, y1:g.y1 };
+    scan.region = state.region = r; scan.raw = []; save(); resetScanSegment(); toast('框選完成，請確認右邊讀到的數字', 'ok');
   }
 });
 function drawView(){
@@ -1220,12 +1304,21 @@ function updateScanChip(){
 }
 $('#scanChip').onclick = () => location.hash = 'scan';
 function scanStep(){
+  if (sharing) return;
+  if (vid.videoWidth && scan.region && scan.region.vw && (scan.region.vw !== vid.videoWidth || scan.region.vh !== vid.videoHeight)){
+    if (autoDetect(false)) toast('遊戲視窗大小改變，已重新找到共鳴度條', 'ok'); else { scan.region = null; toast('遊戲視窗大小改變，請按「🔍 自動偵測」', 'err'); }
+  }
+  if (vid.videoWidth && !scan.region && (!scan.lastAuto || now() - scan.lastAuto > 5000)){ scan.lastAuto = now(); autoDetect(true); }
   const r0 = scan.region;
-  if (!vid.videoWidth || !r0){ $('#dbg').textContent = vid.videoWidth ? '請在畫面上框選共鳴度條' : '尚未分享畫面'; updateScanChip(); return; }
+  if (!vid.videoWidth || !r0){ $('#dbg').textContent = vid.videoWidth ? '找不到共鳴度條，每 5 秒自動再找一次（條上要有藍色進度）' : '尚未分享畫面'; updateScanChip(); return; }
   work.width = r0.w; work.height = r0.h;
   wctx.drawImage(vid, r0.x, r0.y, r0.w, r0.h, 0, 0, r0.w, r0.h);
   const img = wctx.getImageData(0, 0, r0.w, r0.h);
-  const r = readBar(img.data, r0.w, r0.h);
+  const rr = r0.geo ? readFixed(img.data, r0.w, r0.h, r0.geo) : readBar(img.data, r0.w, r0.h);
+  // 取最近 3 次的中位數：技能特效一閃而過不會造成誤判
+  scan.raw = scan.raw || [];
+  if (rr.pct == null) scan.raw = []; else { scan.raw.push(rr.pct); if (scan.raw.length > 3) scan.raw.shift(); }
+  const r = Object.assign({}, rr, rr.pct == null ? {} : { pct: scan.raw.slice().sort((a,b) => a-b)[scan.raw.length >> 1] });
   if (view === 'scan'){
     zoom.width = r0.w; zoom.height = r0.h; zctx.putImageData(img, 0, 0);
     if (r.pct != null){ zctx.fillStyle='rgba(255,182,72,.9)'; zctx.fillRect(r.x0,0,1,r0.h); zctx.fillRect(r.x1,0,1,r0.h);
@@ -1244,7 +1337,7 @@ function scanStep(){
   scan.lostSince = null;
   $('#pct').classList.remove('bad'); $('#pct').textContent = r.pct.toFixed(1) + '%';
   let rolled = false;
-  if (scan.last != null && scan.last - r.pct > 40){
+  if (scan.last != null && scan.last - r.pct > 40 && r.pct < 30 && scan.raw.length >= 2){
     rolled = true; beep(3);
     if (o && o.runningSince && o.autoLv){ levelUp(o, 1, true); save(); render(); } else toast('🎉 共鳴度滿條！', 'ok');
   }
