@@ -165,9 +165,96 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
 .toast.show{display:block}
 .toast.err{border-color:var(--danger)}
 .skel{display:inline-block;width:60px;height:1em;border-radius:6px;background:var(--panel2);vertical-align:middle}
+
+/* ============ 動畫特效 ============ */
+#fx{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+section.s.alt{background:rgba(14,19,36,.72)}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--grad);z-index:60;box-shadow:0 0 12px rgba(94,224,199,.7);transition:width .1s}
+.nav{transition:background .3s,box-shadow .3s}
+.nav.scrolled{background:rgba(8,11,22,.92);box-shadow:0 10px 30px -18px rgba(0,0,0,.9)}
+.nav nav a.on{color:var(--text);background:var(--panel)}
+.nav nav a{position:relative}
+.nav nav a::after{content:"";position:absolute;left:12px;right:12px;bottom:3px;height:2px;border-radius:2px;background:var(--grad);transform:scaleX(0);transition:transform .25s}
+.nav nav a:hover::after,.nav nav a.on::after{transform:scaleX(1)}
+/* 光暈 */
+.hero{isolation:isolate}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;z-index:-1;pointer-events:none;animation:orb 18s ease-in-out infinite alternate}
+.orb.o1{width:420px;height:420px;background:#2bd3b4;left:-120px;top:-80px}
+.orb.o2{width:380px;height:380px;background:#5a7cff;right:-100px;top:40px;animation-duration:22s;animation-delay:-6s}
+.orb.o3{width:300px;height:300px;background:#a35cff;left:40%;bottom:-160px;opacity:.28;animation-duration:26s;animation-delay:-12s}
+@keyframes orb{0%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,40px) scale(1.12)}100%{transform:translate(-40px,70px) scale(.95)}}
+/* 標題流光 */
+.hero h1 span{background:linear-gradient(90deg,#5ee0c7,#7aa8ff,#c08bff,#5ee0c7);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+@keyframes shine{to{background-position:300% 0}}
+/* 進場 */
+.intro > *{opacity:0;transform:translateY(18px);animation:up .8s cubic-bezier(.2,.8,.2,1) forwards}
+.intro > *:nth-child(1){animation-delay:.05s}.intro > *:nth-child(2){animation-delay:.15s}.intro > *:nth-child(3){animation-delay:.28s}
+.intro > *:nth-child(4){animation-delay:.4s}.intro > *:nth-child(5){animation-delay:.52s}
+.hero-card.intro-card{opacity:0;animation:up .9s .35s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.rv{opacity:0;transform:translateY(28px) scale(.98);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none}
+/* 3D 卡片 */
+.hero-card{transform-style:preserve-3d;transition:transform .25s ease-out;will-change:transform}
+.hero-card .float{animation:bob 5s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+/* 跟著滑鼠的光 */
+.card,.ct,.bopt,.faq details{background-image:radial-gradient(360px circle at var(--mx,-999px) var(--my,-999px),rgba(94,224,199,.10),transparent 45%)}
+.card,.ct{transition:transform .3s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s}
+.feat .card:hover,.steps .card:hover,.ct:hover{transform:translateY(-6px);border-color:rgba(94,224,199,.45);box-shadow:0 18px 40px -22px rgba(94,224,199,.55)}
+.feat .card .ic{transition:transform .4s cubic-bezier(.3,1.6,.5,1)}
+.feat .card:hover .ic{transform:rotate(-8deg) scale(1.15)}
+/* 按鈕掃光 */
+.btn,button{position:relative;overflow:hidden}
+.btn.primary::before,button.primary::before,.btn.discord::before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:left .6s}
+.btn.primary:hover::before,button.primary:hover::before,.btn.discord:hover::before{left:130%}
+.hero .cta .btn.primary{animation:glow 2.8s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 6px rgba(94,224,199,.12),0 10px 30px -8px rgba(94,224,199,.6)}}
+.status i{animation:ping 1.8s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 9px rgba(79,209,139,0)}100%{box-shadow:0 0 0 0 rgba(79,209,139,0)}}
+/* 跑馬燈 */
+.ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(14,19,36,.7);overflow:hidden;white-space:nowrap;padding:13px 0;font-weight:700;color:#c3cbea;font-size:14.5px;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ticker .tk{display:inline-flex;gap:46px;animation:tk 32s linear infinite;padding-right:46px}
+.ticker:hover .tk{animation-play-state:paused}
+.ticker em{font-style:normal;color:var(--accent);margin-right:8px}
+@keyframes tk{to{transform:translateX(-100%)}}
+/* 共鳴度示範條 */
+.demo{margin-bottom:16px;padding:12px 14px;border-radius:14px;background:rgba(8,11,22,.6);border:1px solid var(--line)}
+.demo .top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:7px}
+.demo .top b{color:var(--accent);font-family:"JetBrains Mono",monospace}
+.demo .lv{color:var(--text);font-weight:900}
+.demo .track{height:10px;border-radius:99px;background:#1b2140;overflow:hidden;position:relative}
+.demo .fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#45d7ff,#5ee0c7);box-shadow:0 0 14px rgba(94,224,199,.8);position:relative}
+.demo .fill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);background-size:60px 100%;background-repeat:no-repeat;animation:sweep 1.4s linear infinite}
+@keyframes sweep{from{background-position:-60px 0}to{background-position:calc(100% + 60px) 0}}
+.lvup{position:absolute;left:50%;top:-6px;transform:translate(-50%,0);font-weight:900;font-size:22px;letter-spacing:2px;background:linear-gradient(90deg,#ffe28a,#ffb648);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,200,97,.7));pointer-events:none;opacity:0}
+.lvup.go{animation:lvup 1.3s ease-out forwards}
+@keyframes lvup{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}25%{opacity:1;transform:translate(-50%,-14px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-44px) scale(1)}}
+/* 數字跳動 */
+.bump{animation:bump .45s cubic-bezier(.3,1.7,.5,1)}
+@keyframes bump{40%{transform:scale(1.12);color:var(--accent)}}
+/* FAQ 展開 */
+.faq details p{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.faq details:hover{border-color:var(--line2)}
+/* 價目表 */
+table.pt tr{transition:background .2s}
+table.pt tr:hover td{background:rgba(94,224,199,.05)}
+/* 回到頂端 */
+#toTop{position:fixed;right:20px;bottom:22px;width:46px;height:46px;border-radius:50%;padding:0;background:var(--panel2);border:1px solid var(--line2);font-size:18px;z-index:40;opacity:0;transform:translateY(20px);transition:.3s;pointer-events:none}
+#toTop.show{opacity:1;transform:none;pointer-events:auto}
+/* 彩帶 */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:70}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  .rv,.intro > *,.hero-card.intro-card{opacity:1 !important;transform:none !important}
+  #fx{display:none}
+}
 </style>
 </head>
 <body>
+<canvas id="fx"></canvas><div id="progress"></div><canvas id="confetti"></canvas>
+<button id="toTop" aria-label="回到頂端">↑</button>
 <svg width="0" height="0" style="position:absolute"><defs>
   <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee0c7"/><stop offset="1" stop-color="#7aa8ff"/></linearGradient>
   <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="url(#lg)"/><path d="M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z" fill="#0b1220"/></symbol>
@@ -183,22 +270,26 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
 </div></header>
 
 <!-- ===== Hero ===== -->
-<section class="hero" id="top"><div class="wrap">
-  <div>
+<section class="hero" id="top">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="wrap">
+  <div class="intro">
     <span class="status" id="openBadge"><i></i><span>接單中</span></span>
     <h1>艾爾之光<br><span>共鳴等級代練</span></h1>
-    <p class="lead" id="tagline">專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由專人在 Discord 與你聯繫。</p>
+    <p class="lead" id="tagline">專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由工作人員在 Discord 私訊與你聯繫。</p>
     <div class="cta">
       <a class="btn primary" href="#order">💰 立即報價下單</a>
       <a class="btn discord" id="heroDc" href="#contact"><svg width="20" height="20"><use href="#dc"/></svg>Discord 私訊我們</a>
     </div>
     <div class="stats">
       <div><b class="mono" id="stLow">$30</b><span>每等最低價</span></div>
-      <div><b>200%</b><span>吊牌方案更划算</span></div>
+      <div><b class="mono" data-count="200" data-suffix="%">200%</b><span>吊牌方案更划算</span></div>
       <div><b>即時</b><span>線上自動報價</span></div>
     </div>
   </div>
-  <div class="hero-card">
+  <div class="hero-card intro-card" id="heroCard">
+    <div class="demo float"><div class="top"><span>共鳴度 <span class="lv" id="demoLv">Lv.99</span></span><b id="demoPct">0.0%</b></div>
+      <div class="track"><div class="fill" id="demoFill"></div></div><div class="lvup" id="lvup">LEVEL UP!</div></div>
     <h3>⚡ 快速試算</h3>
     <div class="muted" style="color:var(--muted);font-size:13.5px">輸入你的共鳴等級，馬上知道價格</div>
     <div class="mini">
@@ -212,6 +303,8 @@ footer a{color:var(--dim)} footer a:hover{color:var(--muted)}
     </div>
   </div>
 </div></section>
+
+<div class="ticker" aria-hidden="true"><div class="tk" id="tk"></div></div>
 
 <!-- ===== 服務介紹 ===== -->
 <section class="s" id="about"><div class="wrap">
@@ -333,7 +426,7 @@ const DEFAULT_PRICES = [
 const DEFAULT_SITE = {
   open: true, openText: '',
   announce: { on: false, text: '' },
-  tagline: '專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由專人在 Discord 與你聯繫。',
+  tagline: '專人代練・進度透明・價格清楚。線上輸入等級就能立即報價，下單後由工作人員在 Discord 私訊與你聯繫。',
   intro: '我們是專注艾爾之光共鳴等級的代練團隊，由代練師親自操作練功，每一等的時間都有系統紀錄，練到哪裡隨時回報給你。',
   features: [
     { icon:'🎮', t:'專人親自代練', d:'由團隊代練師親自操作練功，有問題隨時找得到人。' },
@@ -424,9 +517,21 @@ function renderPrices(){
 }
 function heroCalc(){
   const a = +$('#hFrom').value, b = +$('#hTo').value;
-  if (!(b > a)){ $('#hPrice').textContent = '--'; return; }
+  if (!(b > a)){ $('#hPrice').textContent = '--'; $('#hPrice').dataset.v = ''; return; }
   const c = calcPrice(a, b, $('#hTag').checked);
-  $('#hPrice').textContent = money(c.total) + (c.unknown ? '+' : '');
+  roll($('#hPrice'), c.total, c.unknown ? '+' : '');
+}
+// 金額滾動動畫
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function roll(el, to, suffix = ''){
+  if (!el) return;
+  const from = +el.dataset.v || 0; el.dataset.v = to;
+  if (reduce || from === to){ el.textContent = money(to) + suffix; return; }
+  const t0 = performance.now(), dur = 600;
+  cancelAnimationFrame(el._raf);
+  const step = t => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = money(from + (to - from) * e) + suffix; if (k < 1) el._raf = requestAnimationFrame(step); else { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } };
+  el._raf = requestAnimationFrame(step);
 }
 ['hFrom','hTo','hTag'].forEach(id => $('#'+id).oninput = heroCalc);
 $('#hGo').onclick = () => { const f = $('#fOrder'); f.from.value = $('#hFrom').value; f.to.value = $('#hTo').value; f.tag.checked = $('#hTag').checked; renderQuote(); };
@@ -438,8 +543,10 @@ function renderQuote(){
   q.innerHTML = `<div style="font-weight:700;margin-bottom:8px">🧾 報價明細</div>
     ${c.parts.map(p => `<div class="row"><span>${p.key}　${p.n} 等 × ${money(p.v)}</span><span class="mono">${money(p.n*p.v)}</span></div>`).join('')}
     ${c.unknown ? `<div class="row" style="color:var(--gold)"><span>私訊報價區間　${c.unknown} 等</span><span>另議</span></div>` : ''}
-    <div class="total"><span style="color:var(--muted)">共鳴 ${a} → ${b}・${tag ? '有吊牌' : '無吊牌'}・${b-a} 等</span><b class="mono">${money(c.total)}${c.unknown ? '<span style="font-size:15px;color:var(--gold)"> + 私訊</span>' : ''}</b></div>`;
+    <div class="total"><span style="color:var(--muted)">共鳴 ${a} → ${b}・${tag ? '有吊牌' : '無吊牌'}・${b-a} 等</span><b class="mono"><span id="qTotal" data-v="${lastQ}">${money(lastQ)}</span>${c.unknown ? '<span style="font-size:15px;color:var(--gold)"> + 私訊</span>' : ''}</b></div>`;
+  roll($('#qTotal'), c.total); lastQ = c.total;
 }
+let lastQ = 0;
 ['from','to','tag'].forEach(n => $('#fOrder')[n].addEventListener('input', renderQuote));
 
 // ---------------- 下單 ----------------
@@ -467,6 +574,7 @@ $('#fOrder').addEventListener('submit', async e => {
     $('#reqNo').textContent = id.slice(0, 6).toUpperCase(); $('#reqDc').textContent = discord;
     $('#reqBooster').innerHTML = booster ? (booster.auto ? `系統已為你分配代練師 <b>${esc(booster.name)}</b>。` : `你指定的代練師是 <b>${esc(booster.name)}</b>。`) : '';
     f.style.display = 'none'; $('#doneBox').classList.add('show');
+    setTimeout(() => { const r = $('#doneBox').getBoundingClientRect(); burst(r.left + r.width / 2, r.top + 60); burst(innerWidth * .2, innerHeight * .3, 60); burst(innerWidth * .8, innerHeight * .3, 60); }, 350);
     $('#order').scrollIntoView({ behavior: 'smooth' });
   } catch(err){
     console.error(err); $('#submitErr').textContent = '送出失敗，請稍後再試，或直接在 Discord 私訊我們的工作人員（' + (err.code || err.message || '') + '）';
@@ -491,6 +599,117 @@ window.Front = {
   }
 };
 renderSite(); renderPrices();
+
+// =====================================================================
+//  動畫特效
+// =====================================================================
+(function fx(){
+  // 跑馬燈
+  const items = ['<em>⚡</em>線上即時報價', '<em>🎮</em>專人親自代練', '<em>📊</em>進度隨時回報', '<em>💰</em>價格公開透明', '<em>🏷️</em>吊牌方案更划算', '<em>💬</em>Discord 一對一私訊', '<em>🏦</em>銀行轉帳・PayPal'];
+  const tk = $('#tk'); tk.innerHTML = items.map(t => `<span>${t}</span>`).join(''); tk.parentElement.appendChild(tk.cloneNode(true));
+
+  // 捲動進度、導覽列、回到頂端、目前區塊
+  const prog = $('#progress'), nav = $('.nav'), top = $('#toTop'), links = [...document.querySelectorAll('.nav nav a')];
+  const secs = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function onScroll(){
+    const h = document.documentElement, sc = h.scrollTop, max = h.scrollHeight - h.clientHeight;
+    prog.style.width = (max > 0 ? sc / max * 100 : 0) + '%';
+    nav.classList.toggle('scrolled', sc > 20); top.classList.toggle('show', sc > 700);
+    let cur = null; secs.forEach(s => { if (s.getBoundingClientRect().top < 140) cur = s.id; });
+    links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + cur));
+  }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  top.onclick = () => scrollTo({ top: 0, behavior: 'smooth' });
+
+  // 捲動浮現（同一區塊內依序出現）
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12, rootMargin: '0px 0px -40px 0px' }) : null;
+  function reveal(root = document){
+    root.querySelectorAll('section.s .s-h, .feat .card, .price-grid > *, .order > *, .steps .card, .faq details, .ct, .howadd').forEach(el => {
+      if (el.classList.contains('rv')) return;
+      const sib = [...el.parentElement.children].filter(x => x.tagName === el.tagName);
+      el.style.setProperty('--d', Math.min(sib.indexOf(el), 6) * 0.08 + 's');
+      el.classList.add('rv'); io ? io.observe(el) : el.classList.add('in');
+    });
+  }
+  reveal(); window.revealFx = reveal;
+  let rvQ = false; new MutationObserver(() => { if (rvQ) return; rvQ = true; requestAnimationFrame(() => { rvQ = false; reveal(); }); }).observe(document.body, { childList: true, subtree: true });
+
+  // 滑鼠跟隨光
+  document.addEventListener('pointermove', e => {
+    const el = e.target.closest && e.target.closest('.card,.ct,.bopt,.faq details'); if (!el) return;
+    const r = el.getBoundingClientRect(); el.style.setProperty('--mx', (e.clientX - r.left) + 'px'); el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  }, { passive: true });
+
+  // 數字計數
+  function countUp(el){ const to = +el.dataset.count, suf = el.dataset.suffix || ''; if (reduce) return;
+    const t0 = performance.now(); const st = t => { const k = Math.min(1, (t - t0) / 1200); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))) + suf; if (k < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); }
+  document.querySelectorAll('[data-count]').forEach(el => setTimeout(() => countUp(el), 500));
+  setTimeout(() => { const el = $('#stLow'), v = +String(el.textContent).replace(/[^\d]/g, ''); if (v){ el.dataset.v = 0; roll(el, v); } }, 600);
+
+  if (reduce) { $('#demoFill').style.width = '64%'; $('#demoPct').textContent = '64.0%'; return; }
+
+  // 首頁卡片 3D 傾斜
+  const card = $('#heroCard'), hero = $('.hero');
+  card.addEventListener('animationend', e => { if (e.animationName === 'up') card.classList.remove('intro-card'); });
+  hero.addEventListener('pointermove', e => { if (innerWidth < 900) return;
+    const r = card.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    card.style.transform = `perspective(900px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateZ(0)`; });
+  hero.addEventListener('pointerleave', () => card.style.transform = '');
+
+  // 共鳴度示範條：慢慢集滿 → LEVEL UP
+  let lv = 99, pct = Math.random() * 40 + 30, last = performance.now();
+  const fill = $('#demoFill'), pctEl = $('#demoPct'), lvEl = $('#demoLv'), up = $('#lvup');
+  (function tickBar(t){
+    const dt = Math.min(.1, (t - last) / 1000); last = t;
+    if (!document.hidden){
+      pct += dt * (6 + Math.random() * 10);
+      if (pct >= 100){ pct = Math.random() * 4; lv++; if (lv > 230) lv = 99; lvEl.textContent = 'Lv.' + lv;
+        up.classList.remove('go'); void up.offsetWidth; up.classList.add('go'); burst(card.getBoundingClientRect().left + card.offsetWidth / 2, card.getBoundingClientRect().top + 40, 26); }
+      fill.style.width = pct + '%'; pctEl.textContent = pct.toFixed(1) + '%';
+    }
+    requestAnimationFrame(tickBar);
+  })(last);
+
+  // 背景粒子
+  const cv = $('#fx'), cx = cv.getContext('2d'); let W, H, dpr, ps = [];
+  function size(){ dpr = Math.min(2, devicePixelRatio || 1); W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
+    const n = Math.round(Math.min(70, innerWidth / 18)); ps = Array.from({ length: n }, () => mk(true)); }
+  function mk(any){ return { x: Math.random() * W, y: any ? Math.random() * H : H + 20, r: (Math.random() * 1.8 + .6) * dpr, v: (Math.random() * .25 + .08) * dpr,
+    s: Math.random() * .6 + .2, h: Math.random() < .6 ? '94,224,199' : (Math.random() < .5 ? '122,168,255' : '192,139,255'), p: Math.random() * 6.28 }; }
+  addEventListener('resize', size); size();
+  let mx = -1e4, my = -1e4; addEventListener('pointermove', e => { mx = e.clientX * dpr; my = e.clientY * dpr; }, { passive: true });
+  (function draw(){
+    if (!document.hidden){
+      cx.clearRect(0, 0, W, H);
+      for (const q of ps){
+        q.y -= q.v; q.p += .02; q.x += Math.sin(q.p) * .25 * dpr;
+        const dx = q.x - mx, dy = q.y - my, d2 = dx*dx + dy*dy; if (d2 < (120*dpr)**2){ const f = 1 - Math.sqrt(d2) / (120*dpr); q.x += dx * f * .03; q.y += dy * f * .03; }
+        if (q.y < -20) Object.assign(q, mk(false));
+        const a = q.s * (.6 + .4 * Math.sin(q.p * 2));
+        cx.beginPath(); cx.fillStyle = `rgba(${q.h},${a})`; cx.shadowColor = `rgba(${q.h},.9)`; cx.shadowBlur = 8 * dpr; cx.arc(q.x, q.y, q.r, 0, 6.28); cx.fill();
+      }
+    }
+    requestAnimationFrame(draw);
+  })();
+})();
+
+// 彩帶 / 爆發粒子
+const cf = $('#confetti'), cfx = cf.getContext('2d'); let bits = [], cfOn = false;
+function burst(x, y, n = 140){
+  if (reduce) return;
+  const dpr = Math.min(2, devicePixelRatio || 1); cf.width = innerWidth * dpr; cf.height = innerHeight * dpr; cfx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cols = ['#5ee0c7','#7aa8ff','#ffc861','#ff6b81','#c08bff','#ffffff'];
+  for (let i = 0; i < n; i++){ const a = Math.random() * 6.28, sp = Math.random() * (n > 60 ? 9 : 4) + 2;
+    bits.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - (n > 60 ? 4 : 2), g: .18, w: Math.random() * 7 + 4, h: Math.random() * 4 + 3, r: Math.random() * 6.28, vr: (Math.random() - .5) * .3, c: cols[i % cols.length], life: 1 }); }
+  if (!cfOn){ cfOn = true; requestAnimationFrame(cfDraw); }
+}
+function cfDraw(){
+  cfx.clearRect(0, 0, innerWidth, innerHeight);
+  bits = bits.filter(b => b.life > 0);
+  for (const b of bits){ b.vy += b.g; b.vx *= .99; b.x += b.vx; b.y += b.vy; b.r += b.vr; b.life -= .008;
+    cfx.save(); cfx.globalAlpha = Math.max(0, b.life); cfx.translate(b.x, b.y); cfx.rotate(b.r); cfx.fillStyle = b.c; cfx.fillRect(-b.w/2, -b.h/2, b.w, b.h); cfx.restore(); }
+  if (bits.length) requestAnimationFrame(cfDraw); else { cfOn = false; cfx.clearRect(0, 0, innerWidth, innerHeight); }
+}
 </script>
 
 <script type="module">
