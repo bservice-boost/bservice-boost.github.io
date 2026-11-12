@@ -5,4 +5,6 @@
 - 後台（工作室）：https://bservice-boost.github.io/admin.html
   總覽儀表板、新委託、代練單、共鳴度螢幕辨識、計時工具、價目表與報價、前台設定、成員管理、操作紀錄
 
+- 付款頁：https://bservice-boost.github.io/pay.html?t=（專屬連結，由後台產生）
+
 後端：Firebase Authentication + Cloud Firestore（規則見 firestore.rules）

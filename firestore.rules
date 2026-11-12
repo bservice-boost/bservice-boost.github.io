@@ -25,7 +25,7 @@ service cloud.firestore {
 
     // 設定：價目表與前台文字「所有人」都能看（前台要用），只有管理員能改
     match /settings/{docId} {
-      allow read:  if docId in ['prices', 'site'] || isMember();
+      allow read:  if docId in ['prices', 'site', 'pay'] || isMember();
       allow write: if isAdmin();
     }
 
@@ -47,6 +47,24 @@ service cloud.firestore {
                     && request.resource.data.created is int;
       allow read, update: if isMember();
       allow delete: if isAdmin();
+    }
+
+    // 付款連結：知道專屬連結（隨機 ID）的人才讀得到單筆；不能列出全部
+    // 客人只能把狀態改成「已回報」並填回報內容，不能改金額；其他修改只有成員能做
+    match /payments/{payId} {
+      allow get: if true;
+      allow list, create: if isMember();
+      allow delete: if isAdmin();
+      allow update: if isMember() || (
+        resource.data.status in ['pending', 'reported']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'report'])
+        && request.resource.data.status == 'reported'
+        && request.resource.data.report.keys().hasOnly(['method', 'ref', 'name', 'at'])
+        && request.resource.data.report.method in ['bank', 'paypal']
+        && request.resource.data.report.ref is string
+        && request.resource.data.report.ref.size() >= 5 && request.resource.data.report.ref.size() <= 40
+        && request.resource.data.report.name is string && request.resource.data.report.name.size() <= 30
+        && request.resource.data.report.at is int);
     }
 
     // 操作紀錄：只有管理員能看；成員能新增（只能用自己的名義）；任何人都不能修改或刪除

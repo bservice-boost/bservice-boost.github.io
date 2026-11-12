@@ -308,6 +308,7 @@ body.is-admin a.admin-only{display:flex !important}
     <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
     <symbol id="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"/></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
   </defs>
 </svg>
@@ -368,6 +369,7 @@ body.is-admin a.admin-only{display:flex !important}
       <a href="#dashboard" data-v="dashboard"><svg><use href="#i-dash"/></svg>總覽</a>
       <a href="#requests" data-v="requests"><svg><use href="#i-inbox"/></svg>新委託<span class="badge hot" id="bReq" style="display:none"></span></a>
       <a href="#orders" data-v="orders"><svg><use href="#i-list"/></svg>代練單<span class="badge" id="bOrders">0</span></a>
+      <a href="#pay" data-v="pay"><svg><use href="#i-card"/></svg>收款<span class="badge hot" id="bPay" style="display:none"></span></a>
       <div class="grp">練功</div>
       <a href="#scan" data-v="scan"><svg><use href="#i-scan"/></svg>共鳴度辨識<span class="badge" id="bScan" style="display:none"></span></a>
       <a href="#tools" data-v="tools"><svg><use href="#i-tool"/></svg>計時工具<span class="badge hot" id="bTools" style="display:none">!</span></a>
@@ -571,6 +573,22 @@ body.is-admin a.admin-only{display:flex !important}
         <div class="orders" id="reqList"></div>
       </section>
 
+      <!-- ===== 收款 ===== -->
+      <section class="view" id="v-pay">
+        <div class="help" data-help="pay"></div>
+        <div class="grid g4" id="payKpi" style="margin-bottom:16px"></div>
+        <div class="toolbar">
+          <div class="seg" id="pSeg">
+            <button data-f="reported" class="act">待對帳<span class="n" id="pnReported"></span></button>
+            <button data-f="pending">等待付款<span class="n" id="pnPending"></span></button>
+            <button data-f="paid">已收款<span class="n" id="pnPaid"></span></button>
+            <button data-f="cancelled">已取消<span class="n" id="pnCancelled"></span></button>
+          </div>
+          <span class="hint">付款連結在「代練單」卡片右上角 ••• →「💳 付款連結」產生</span>
+        </div>
+        <div class="orders" id="payList"></div>
+      </section>
+
       <!-- ===== 前台設定 ===== -->
       <section class="view" id="v-site">
         <div class="help" data-help="site"></div>
@@ -604,6 +622,22 @@ body.is-admin a.admin-only{display:flex !important}
               <div class="field"><label>Discord 邀請連結（https:// 開頭）<input id="stDc" maxlength="200" placeholder="https://discord.gg/xxxxxx"></label><div class="err" id="stDcErr"></div></div>
               <div class="field" style="margin-top:10px"><label>聯絡區文字<input id="stContact" maxlength="80"></label></div>
               <div class="hint" style="margin-top:8px">沒填連結的話，前台的 Discord 按鈕會先隱藏。</div>
+            </div>
+            <div class="card">
+              <div class="card-h"><h3>💳 付款方式</h3><small class="muted">顯示在客人的付款頁</small></div>
+              <div class="fgrid">
+                <div class="field"><label>銀行名稱<input id="pyBank" maxlength="30" placeholder="例：中國信託"></label></div>
+                <div class="field"><label>銀行代碼<input id="pyCode" maxlength="5" placeholder="例：822"></label></div>
+                <div class="field"><label>分行<input id="pyBranch" maxlength="30" placeholder="選填"></label></div>
+                <div class="field"><label>戶名<input id="pyHolder" maxlength="30"></label></div>
+                <div class="field full"><label>帳號<input id="pyAcct" maxlength="30"></label></div>
+                <div class="field full"><label>銀行轉帳備註<input id="pyBankNote" maxlength="120" placeholder="例：轉帳後請回報帳號後五碼"></label></div>
+                <div class="field full"><label>PayPal.me 連結<input id="pyPP" maxlength="120" placeholder="https://paypal.me/yourname"></label><div class="err" id="pyPPErr"></div></div>
+                <div class="field"><label>PayPal 自動帶入金額<select id="pyCur"><option value="">不帶入（客人自己輸入）</option><option value="TWD">帶入新台幣 TWD</option></select></label></div>
+                <div class="field"><label>PayPal 備註<input id="pyPPNote" maxlength="120" placeholder="例：請選「親友付款」"></label></div>
+              </div>
+              <button class="sm" id="pySave" style="margin-top:12px">儲存付款方式</button>
+              <div class="hint" style="margin-top:8px">只會顯示在專屬付款連結裡，不會出現在前台首頁。留空的方式不會顯示。</div>
             </div>
             <div class="card">
               <button class="primary" id="stSave" style="width:100%;justify-content:center">儲存並更新前台</button>
@@ -662,6 +696,12 @@ body.is-admin a.admin-only{display:flex !important}
     <div class="foot"><button class="ghost" data-close type="button">取消</button><button class="warn" id="cOk" type="button">確定</button></div></div>
 </div>
 
+<div class="modal-bg" id="mPay">
+  <div class="modal"><h3>💳 付款連結</h3><div class="sub" id="pmSub"></div>
+    <div id="pmBody"></div>
+    <div class="foot" id="pmFoot"></div></div>
+</div>
+
 <div class="modal-bg" id="mReport">
   <div class="modal"><h3>📋 進度回報</h3><div class="sub">複製後貼給委託人（LINE / Discord）</div>
     <textarea id="reportText" rows="10" style="width:100%"></textarea>
@@ -706,6 +746,7 @@ try {
 } catch(e){}
 if (!['active','mine','none','done','trash'].includes(state.filter)) state.filter = 'active';
 let backend = null, me = null, members = {}, logs = [], requests = [], site = null, siteDirty = false, reqFilter = 'new', reqSeen = null;
+let payments = [], payCfg = null, payFilter = 'reported', paySeen = null;
 let dataReady = false;
 const synced = new Map();
 const DEFAULT_PRICES = [
@@ -844,7 +885,7 @@ function stats(o){
 const VIEWS = {
   dashboard:{ t:'總覽', s:'工作室即時營運狀況' }, orders:{ t:'代練單', s:'所有委託與進度' },
   scan:{ t:'共鳴度辨識', s:'分享遊戲畫面，自動讀取共鳴度' }, tools:{ t:'計時工具', s:'加成倒數・副本單趟' },
-  requests:{ t:'新委託', s:'客人從前台送出的委託' }, site:{ t:'前台設定', s:'修改前台網站的文字與狀態', admin:true },
+  requests:{ t:'新委託', s:'客人從前台送出的委託' }, pay:{ t:'收款', s:'付款連結與對帳' }, site:{ t:'前台設定', s:'修改前台網站的文字與狀態', admin:true },
   prices:{ t:'價目表與報價', s:'共鳴代練每等價格' }, team:{ t:'成員管理', s:'團隊帳號與權限', admin:true }, logs:{ t:'操作紀錄', s:'誰在什麼時候做了什麼', admin:true },
 };
 let view = 'dashboard';
@@ -873,7 +914,8 @@ function render(){
   if (view === 'team' && isAdmin()) renderTeam();
   if (view === 'logs' && isAdmin()) renderLogs();
   if (view === 'requests') renderRequests();
-  if (view === 'site' && isAdmin() && !siteDirty) renderSiteForm();
+  if (view === 'pay') renderPayments();
+  if (view === 'site' && isAdmin() && !siteDirty){ renderSiteForm(); fillPayForm(); }
   tick();
 }
 function renderBadges(){
@@ -881,6 +923,8 @@ function renderBadges(){
   $('#bOrders').textContent = act.length;
   const pend = Object.values(members).filter(m => m.role === 'pending').length;
   $('#bTeam').style.display = isAdmin() && pend ? '' : 'none'; $('#bTeam').textContent = pend;
+  const pn = payments.filter(x => x.status === 'reported').length;
+  $('#bPay').style.display = pn ? '' : 'none'; $('#bPay').textContent = pn;
   const rn = requests.filter(r => r.status === 'new').length;
   $('#bReq').style.display = rn ? '' : 'none'; $('#bReq').textContent = rn;
 }
@@ -919,6 +963,10 @@ const HELP = {
     ['收到委託', ['客人在前台填單送出後，會<b>即時出現</b>在「新委託」並響提示音，左側選單會亮紅點', '卡片上有客人的 Discord、角色、職業、等級區間、方案與<b>系統報價</b>', '按 <b>📋 複製 Discord</b> 到 Discord 加好友或私訊']],
     ['處理流程', ['聯絡後按 <b>💬 標記已聯絡</b>，其他人就知道有人在處理', '客人確認後按 <b>✅ 轉成代練單</b>：會自動帶入資料開新單，委託移到「已成交」', '不接的委託按 <b>婉拒</b>（可以再改回新委託）', '「已成交」的卡片可以點「查看代練單」']],
   ], tip:'客人填的報價是依當時的價目表算的；轉單時會用現在的價目表重算，可以在單子上調整總價。' },
+  pay: { title:'收款流程', cols:[
+    ['產生付款連結', ['在 Discord 跟客人確認好報價', '到「代練單」卡片右上角 <b>•••</b> → <b>💳 付款連結</b>，確認金額後按「產生」', '按 <b>複製訊息</b>，貼到 Discord 傳給客人（每張連結都是專屬的，別人猜不到）', '客人打開會看到金額、銀行帳號、PayPal 按鈕']],
+    ['對帳', ['客人付完會回報「帳號後五碼」或「PayPal 交易編號」，這裡會亮紅點並響提示音', '到網銀或 PayPal 後台核對金額與後五碼／交易編號', '核對無誤按 <b>✅ 確認收款</b>（管理員），客人的付款頁會自動顯示「已確認收款」', '對不上可以按「退回」，客人頁面會回到等待付款']],
+  ], tip:'付款方式（銀行帳號、PayPal.me）在「前台設定」→「付款方式」填寫。系統不會自動扣款或驗證，一定要以銀行／PayPal 實際入帳為準。' },
   site: { title:'前台設定（管理員）', cols:[
     ['可以改什麼', ['<b>接單狀態</b>：暫停時前台會顯示「暫停接單」，表單不能送出', '<b>公告</b>：顯示在前台最上方的黃色橫條', '<b>標語、介紹、四個特色、常見問題</b>：前台各區塊的文字', '<b>Discord 邀請連結</b>：前台所有「加入 Discord」按鈕會連到這裡']],
     ['小提醒', ['改完按右邊 <b>儲存並更新前台</b>，客人重新整理就會看到', '價目表在「價目表與報價」修改，前台自動同步', '按「開啟前台預覽」看實際效果']],
@@ -973,7 +1021,7 @@ function renderDashboard(){
   live().forEach(o => o.levels.forEach(l => { if (l.at >= t0) today += orderValue(o, l.from, l.to); }));
   const mon = new Date().getMonth() + 1;
   $('#kpis').innerHTML = `
-    <div class="card kpi"><div class="k">💵 ${mon} 月練出價值</div><div class="v mono">${money(m.revenue)}</div><div class="d">今日 ${money(today)}</div></div>
+    <div class="card kpi"><div class="k">💵 ${mon} 月練出價值</div><div class="v mono">${money(m.revenue)}</div><div class="d">今日 ${money(today)}・本月已收款 ${money(payments.filter(x => x.status === 'paid' && (x.paidAt||0) >= monthStart()).reduce((a,x) => a + (+x.amount||0), 0))}</div></div>
     <div class="card kpi"><div class="k">⏱️ ${mon} 月練功時數</div><div class="v mono" data-live="mhours">${fmtH(m.hours)}</div><div class="d">全團隊合計</div></div>
     <div class="card kpi"><div class="k">✅ ${mon} 月完成單數</div><div class="v mono">${m.doneN}</div><div class="d">進行中 ${act.length} 張・練功中 ${running.length} 張</div></div>
     <div class="card kpi"><div class="k">📦 待練金額</div><div class="v mono">${money(pending)}</div><div class="d">未完成單尚未練出的價值</div></div>`;
@@ -1072,10 +1120,11 @@ function cardHTML(o){
   <div class="oc ${o.runningSince?'running':''} ${o.done?'done':''} ${isB?'bound':''}" data-id="${o.id}">
     <div class="oc-top">
       <div style="min-width:0"><div class="oc-name">${esc(o.client)}<span class="job">${esc(o.job)}</span></div>
-        <div class="oc-tags">${status}${who}${tag}${due}${isB?'<span class="tag link">📡 連動中</span>':''}</div></div>
+        <div class="oc-tags">${status}${who}${tag}${due}${payTag(o)}${isB?'<span class="tag link">📡 連動中</span>':''}</div></div>
       <div class="menu"><button class="ghost sm" data-act="menu" aria-label="更多">•••</button>
         <div class="menu-pop">
           <button data-act="report">📋 進度回報</button>
+          <button data-act="pay">💳 付款連結</button>
           <button data-act="edit">✏️ 編輯</button>
           ${o.done?'':`<button data-act="lvN">⬆ 升多等…</button>`}
           <button data-act="undo" ${o.levels.length?'':'disabled'}>↶ 撤銷升等</button>
@@ -1127,6 +1176,7 @@ $('#orders').addEventListener('click', e => {
   if (act === 'lvN') return askNumber(`${o.client} 升了幾等？`, `目前 Lv.${o.curLv}，目標 Lv.${o.targetLv}`, 2, o.targetLv - o.curLv, n => { levelUp(o, n); save(); render(); });
   if (act === 'edit') return openOrder(o);
   if (act === 'report') return openReport(o);
+  if (act === 'pay') return openPayModal(o);
   if (act === 'del') return confirmBox(`把「${o.client}」移到回收桶？`, '之後可以在「回收桶」復原。', () => softDelete(o));
   save(); render();
 });
@@ -1778,6 +1828,138 @@ function onRequests(list){
 }
 
 // =====================================================================
+//  收款
+// =====================================================================
+const PST = { pending:['等待付款','gold'], reported:['待對帳','link'], paid:['已收款','done'], cancelled:['已取消',''] };
+const payUrl = id => location.origin + location.pathname.replace(/[^/]*$/, '') + 'pay.html?t=' + id;
+function newToken(){ const a = new Uint8Array(16); crypto.getRandomValues(a); return [...a].map(b => b.toString(36).padStart(2,'0')).join('').slice(0, 24); }
+const paysOf = o => payments.filter(x => x.orderId === o.id && x.status !== 'cancelled');
+function payTag(o){
+  const ps = paysOf(o); if (!ps.length) return '';
+  const paid = ps.filter(x => x.status === 'paid').reduce((a,x) => a + (+x.amount||0), 0);
+  if (ps.some(x => x.status === 'reported')) return '<span class="tag link">💳 待對帳</span>';
+  if (paid >= (o.price||0) && paid > 0) return '<span class="tag done">💳 已付款</span>';
+  if (paid > 0) return `<span class="tag gold">💳 已付 ${money(paid)}</span>`;
+  return '<span class="tag gold">💳 待付款</span>';
+}
+function payMsg(x){
+  return `【B服代練工作室｜付款通知】\n${x.client} 您好，以下是您的專屬付款連結：\n${payUrl(x.id)}\n\n金額：NT$ ${Math.round(x.amount).toLocaleString()}${x.desc ? `\n項目：${x.desc}` : ''}\n可使用銀行轉帳或 PayPal，付款後請在連結頁面回報，我們對帳後會通知您，謝謝！`;
+}
+let payOrder = null;
+function openPayModal(o){
+  payOrder = o;
+  const ps = payments.filter(x => x.orderId === o.id).sort((a,b) => (b.created||0) - (a.created||0));
+  const paid = ps.filter(x => x.status === 'paid').reduce((a,x) => a + (+x.amount||0), 0);
+  const open = ps.filter(x => x.status === 'pending' || x.status === 'reported').reduce((a,x) => a + (+x.amount||0), 0);
+  const def = Math.max(0, (o.price||0) - paid - open);
+  $('#pmSub').textContent = `${o.client}・總價 ${money(o.price)}・已收 ${money(paid)}`;
+  const desc = `共鳴 Lv.${o.startLv0} → ${o.targetLv}（${o.hasTag === false ? '無吊牌' : '有吊牌'}）`;
+  const noCfg = !payCfg || (!(payCfg.bank && payCfg.bank.account) && !payCfg.paypalMe);
+  $('#pmBody').innerHTML = `
+    ${noCfg ? `<div class="warnbox" style="display:block">還沒設定付款方式，客人打開連結會看不到帳號。${isAdmin() ? '請先到「前台設定」→「付款方式」填寫。' : '請管理員到「前台設定」填寫。'}</div>` : ''}
+    ${ps.length ? `<div class="hint" style="margin-bottom:6px">這張單的付款連結</div>${ps.map(x => `<div class="live"><span class="tag ${PST[x.status][1]}">${PST[x.status][0]}</span>
+      <div style="flex:1;min-width:0"><b class="mono">${money(x.amount)}</b> <span class="hint">${ago(x.created||0)}</span></div>
+      ${x.status !== 'cancelled' ? `<button class="xs" data-pm-copy="${x.id}">複製訊息</button>` : ''}</div>`).join('')}<hr style="border:0;border-top:1px solid var(--line);margin:14px 0">` : ''}
+    <div class="fgrid">
+      <div class="field"><label>這次收款金額（元）<input id="pmAmt" type="number" min="1" value="${def || o.price || ''}"></label></div>
+      <div class="field"><label>顯示名稱<input id="pmClient" maxlength="30" value="${esc(o.client)}"></label></div>
+      <div class="field full"><label>項目說明<input id="pmDesc" maxlength="60" value="${esc(desc)}"></label></div>
+      <div class="field full"><label>給客人的備註（選填）<input id="pmNote" maxlength="120" placeholder="例：訂金 50%，完成後付尾款"></label></div>
+    </div>`;
+  $('#pmFoot').innerHTML = '<button class="ghost" data-close-pm type="button">關閉</button><button class="primary" id="pmCreate" type="button">產生付款連結</button>';
+  show('#mPay');
+}
+$('#mPay').addEventListener('click', e => {
+  if (e.target.closest('[data-close-pm]')) return hide('#mPay');
+  const c = e.target.closest('[data-pm-copy]'); if (c){ const x = payments.find(p => p.id === c.dataset.pmCopy); if (x) copyText(payMsg(x), '已複製付款訊息，貼到 Discord 給客人'); return; }
+  if (e.target.id !== 'pmCreate') return;
+  const o = payOrder, amt = Math.round(+$('#pmAmt').value);
+  if (!(amt > 0)) return toast('請輸入金額', 'err');
+  const id = newToken();
+  const data = { amount: amt, client: $('#pmClient').value.trim() || o.client, desc: $('#pmDesc').value.trim(), note: $('#pmNote').value.trim(),
+    orderId: o.id, contact: o.contact || '', status: 'pending', created: now(), createdBy: me.name, createdByUid: me.uid };
+  e.target.disabled = true;
+  backend.createPayment(id, data).then(() => {
+    const x = { ...data, id };
+    log('pay', `產生付款連結 ${o.client} ${money(amt)}`, o.id);
+    $('#pmBody').innerHTML = `<div class="infobox">✅ 已產生付款連結</div>
+      <div class="field" style="margin-top:12px"><label>連結<input readonly value="${esc(payUrl(id))}" onclick="this.select()"></label></div>
+      <textarea readonly rows="7" style="width:100%;margin-top:12px">${esc(payMsg(x))}</textarea>`;
+    $('#pmFoot').innerHTML = `<a class="btn" href="${esc(payUrl(id))}" target="_blank" rel="noopener" style="text-decoration:none">預覽付款頁 ↗</a><button class="primary" id="pmCopyNew" type="button">複製訊息</button>`;
+    $('#pmCopyNew').onclick = () => copyText(payMsg(x), '已複製付款訊息，貼到 Discord 給客人');
+  }).catch(err => { e.target.disabled = false; syncErr(err); });
+});
+function renderPayments(){
+  const ms = monthStart(), sum = (arr) => arr.reduce((a,x) => a + (+x.amount||0), 0);
+  const by = k => payments.filter(x => x.status === k);
+  $('#payKpi').innerHTML = `
+    <div class="card kpi"><div class="k">🔔 待對帳</div><div class="v mono">${by('reported').length}</div><div class="d">${money(sum(by('reported')))}</div></div>
+    <div class="card kpi"><div class="k">⏳ 等待付款</div><div class="v mono">${by('pending').length}</div><div class="d">${money(sum(by('pending')))}</div></div>
+    <div class="card kpi"><div class="k">✅ 本月已收款</div><div class="v mono">${money(sum(by('paid').filter(x => (x.paidAt||0) >= ms)))}</div><div class="d">${by('paid').filter(x => (x.paidAt||0) >= ms).length} 筆</div></div>
+    <div class="card kpi"><div class="k">📦 尚未收款</div><div class="v mono">${money(live().reduce((a,o) => a + Math.max(0, (o.price||0) - sum(paysOf(o).filter(x => x.status === 'paid'))), 0))}</div><div class="d">所有單總價扣掉已收款</div></div>`;
+  ['pending','reported','paid','cancelled'].forEach(k => $('#pn' + k[0].toUpperCase() + k.slice(1)).textContent = by(k).length || '');
+  $$('#pSeg button').forEach(b => b.classList.toggle('act', b.dataset.f === payFilter));
+  const list = by(payFilter).sort((a,b) => ((b.report && b.report.at) || b.paidAt || b.created || 0) - ((a.report && a.report.at) || a.paidAt || a.created || 0));
+  $('#payList').innerHTML = list.length ? list.map(x => {
+    const st = PST[x.status] || PST.pending, o = state.orders.find(y => y.id === x.orderId), r = x.report;
+    return `<div class="oc" data-pid="${esc(x.id)}">
+      <div class="oc-top"><div style="min-width:0"><div class="oc-name">${esc(x.client)}<span class="job">${esc(x.desc)}</span></div>
+        <div class="oc-tags"><span class="tag ${st[1]}">${st[0]}</span><span class="tag">建立 ${ago(x.created||0)}・${esc(x.createdBy||'')}</span>${x.contact ? `<span class="tag">Discord：${esc(x.contact)}</span>` : ''}</div></div>
+        <div class="mono" style="font-size:24px;font-weight:700">${money(x.amount)}</div></div>
+      ${r ? `<div class="note" style="margin-top:12px;border:1px solid rgba(122,168,255,.35)">客人回報（${ago(r.at||0)}）：<b>${r.method === 'bank' ? '🏦 銀行轉帳・後五碼' : '🅿️ PayPal・交易編號'}</b> <b class="mono" style="color:var(--text);font-size:15px">${esc(r.ref)}</b>${r.name ? `・付款人 ${esc(r.name)}` : ''}</div>` : ''}
+      ${x.status === 'paid' ? `<div class="hint" style="margin-top:10px">✅ ${esc(x.paidBy||'')} 於 ${dt(x.paidAt||0)} 確認收款</div>` : ''}
+      ${x.note ? `<div class="note">📝 ${esc(x.note)}</div>` : ''}
+      <div class="oc-act" style="margin-top:12px">
+        ${x.status === 'reported' && isAdmin() ? '<button class="sm primary" data-p="paid">✅ 確認收款</button><button class="sm" data-p="pending">退回（對不上）</button>' : ''}
+        ${x.status === 'reported' && !isAdmin() ? '<span class="hint">等待管理員對帳</span>' : ''}
+        ${x.status === 'pending' || x.status === 'reported' ? '<button class="sm" data-p="copy">📋 複製付款訊息</button>' : ''}
+        <a class="btn sm" href="${esc(payUrl(x.id))}" target="_blank" rel="noopener" style="text-decoration:none;padding:5px 10px;font-size:13px">開啟付款頁 ↗</a>
+        ${o ? '<button class="sm ghost" data-p="order">查看代練單</button>' : ''}
+        <span class="sp"></span>
+        ${x.status === 'pending' ? '<button class="sm ghost danger" data-p="cancel">取消連結</button>' : ''}
+        ${x.status === 'paid' && isAdmin() ? '<button class="xs ghost danger" data-p="unpaid">改回未對帳</button>' : ''}
+      </div></div>`; }).join('')
+    : `<div class="empty" style="grid-column:1/-1"><div class="ico">💳</div>${{ reported:'目前沒有待對帳的付款', pending:'沒有等待付款的連結', paid:'還沒有已收款紀錄', cancelled:'沒有已取消的連結' }[payFilter]}</div>`;
+}
+$('#pSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; payFilter = b.dataset.f; renderPayments(); };
+$('#payList').addEventListener('click', e => {
+  const btn = e.target.closest('[data-p]'); if (!btn) return;
+  const x = payments.find(p => p.id === btn.closest('[data-pid]').dataset.pid); if (!x) return;
+  const act = btn.dataset.p;
+  if (act === 'copy') return copyText(payMsg(x), '已複製付款訊息');
+  if (act === 'order'){ const o = state.orders.find(y => y.id === x.orderId); state.filter = o && o.done ? 'done' : 'active'; $('#q').value = x.client; location.hash = 'orders'; return; }
+  const doIt = (patch, msg) => backend.updatePayment(x.id, patch).then(() => { toast(msg, 'ok'); log('pay', `${msg}：${x.client} ${money(x.amount)}`, x.orderId); }).catch(syncErr);
+  if (act === 'paid') return confirmBox(`確認已收到 ${money(x.amount)}？`, `請先確認網銀／PayPal 已入帳，並核對${x.report && x.report.method === 'bank' ? '帳號後五碼' : '交易編號'}「${x.report ? x.report.ref : ''}」。`,
+    () => doIt({ status:'paid', paidAt: now(), paidBy: me.name }, '已確認收款'));
+  if (act === 'pending') return confirmBox('退回這筆回報？', '客人的付款頁會回到「等待付款」，記得在 Discord 跟客人說明。', () => doIt({ status:'pending' }, '已退回為等待付款'));
+  if (act === 'cancel') return confirmBox('取消這個付款連結？', '客人打開連結會看到「已失效」。', () => doIt({ status:'cancelled', cancelledAt: now(), cancelledBy: me.name }, '已取消付款連結'));
+  if (act === 'unpaid') return confirmBox('改回待對帳？', '', () => doIt({ status:'reported', paidAt: null, paidBy: null }, '已改回待對帳'));
+});
+function onPayments(list){
+  const newly = paySeen ? list.filter(x => x.status === 'reported' && paySeen.get(x.id) !== 'reported') : [];
+  paySeen = new Map(list.map(x => [x.id, x.status])); payments = list;
+  if (newly.length){ beep(3); newly.forEach(x => toast(`💳 ${x.client} 回報已付款 ${money(x.amount)}`, 'ok', { label:'對帳', fn: () => { payFilter = 'reported'; location.hash = 'pay'; } })); }
+  renderBadges();
+  if (view === 'pay') renderPayments();
+  if (view === 'orders') renderOrders();
+}
+// 付款方式設定
+function fillPayForm(){
+  const c = payCfg || {}, b = c.bank || {};
+  $('#pyBank').value = b.name || ''; $('#pyCode').value = b.code || ''; $('#pyBranch').value = b.branch || ''; $('#pyHolder').value = b.holder || ''; $('#pyAcct').value = b.account || '';
+  $('#pyBankNote').value = c.bankNote || ''; $('#pyPP').value = c.paypalMe || ''; $('#pyCur').value = c.paypalCurrency || ''; $('#pyPPNote').value = c.paypalNote || ''; $('#pyPPErr').textContent = '';
+}
+$('#pySave').onclick = () => {
+  const pp = $('#pyPP').value.trim();
+  if (pp && !/^https:\/\/(www\.)?paypal\.me\/[A-Za-z0-9._-]+\/?$/i.test(pp)){ $('#pyPPErr').textContent = '請貼 PayPal.me 連結，例如 https://paypal.me/yourname'; return; }
+  const acct = $('#pyAcct').value.trim();
+  if (acct && !($('#pyBank').value.trim() && $('#pyHolder').value.trim())) return toast('填了帳號的話，銀行名稱和戶名也要填', 'err');
+  const data = { bank: { name: $('#pyBank').value.trim(), code: $('#pyCode').value.trim(), branch: $('#pyBranch').value.trim(), holder: $('#pyHolder').value.trim(), account: acct },
+    bankNote: $('#pyBankNote').value.trim(), paypalMe: pp.replace(/\/+$/, ''), paypalCurrency: $('#pyCur').value, paypalNote: $('#pyPPNote').value.trim(), updated: now(), updatedBy: me.name };
+  backend.putPayCfg(data).then(() => { toast('付款方式已儲存', 'ok'); log('site', '更新付款方式'); }).catch(syncErr);
+};
+
+// =====================================================================
 //  前台設定
 // =====================================================================
 const SITE_DEFAULT = {
@@ -1839,7 +2021,7 @@ $('#stSave').onclick = () => {
 //  操作紀錄
 // =====================================================================
 const LOGT = { create:['📝','新增'], edit:['✏️','編輯'], take:['🙋','接單'], start:['▶️','開始'], pause:['⏸️','暫停'], level:['⬆️','升等'], auto:['📡','自動升等'],
-  undo:['↶','撤銷'], request:['📨','委託'], site:['🌐','前台'], done:['🎉','完成'], delete:['🗑️','刪除'], restore:['♻️','復原'], purge:['❌','永久刪除'], price:['💰','價目表'], member:['👥','成員'], import:['📥','匯入'] };
+  undo:['↶','撤銷'], request:['📨','委託'], pay:['💳','收款'], site:['🌐','前台'], done:['🎉','完成'], delete:['🗑️','刪除'], restore:['♻️','復原'], purge:['❌','永久刪除'], price:['💰','價目表'], member:['👥','成員'], import:['📥','匯入'] };
 function renderLogs(){
   const who = $('#logWho'), typ = $('#logType'), wv = who.value, tv = typ.value;
   const names = [...new Set(logs.map(l => l.name))];
@@ -1988,7 +2170,7 @@ function applyRole(){
   if (!adm && unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; logs = []; }
   if (!adm && VIEWS[view] && VIEWS[view].admin) location.hash = 'dashboard';
 }
-function stopData(){ requests = []; reqSeen = null; site = null; if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
+function stopData(){ requests = []; reqSeen = null; site = null; payments = []; paySeen = null; payCfg = null; if (unsubLogs){ try { unsubLogs(); } catch(e){} unsubLogs = null; } document.body.classList.remove('is-admin'); unsubs.forEach(u => { try{ u(); }catch(e){} }); unsubs = []; synced.clear(); state.orders = []; members = {}; logs = []; dataReady = false; }
 function startData(){
   if (unsubs.length) return;
   unsubs.push(backend.watchOrders(list => {
@@ -2003,6 +2185,8 @@ function startData(){
   unsubs.push(backend.watchMembers(m => { members = m; render(); }, () => {}));
   unsubs.push(backend.watchRequests(onRequests, e => console.warn('requests', e)));
   unsubs.push(backend.watchSite(v => { site = v; if (view === 'site' && !siteDirty) renderSiteForm(); }, () => {}));
+  unsubs.push(backend.watchPayments(onPayments, e => console.warn('payments', e)));
+  unsubs.push(backend.watchPayCfg(v => { payCfg = v; if (view === 'site') fillPayForm(); }, () => {}));
 
 }
 window.App = {
@@ -2101,6 +2285,11 @@ else {
       deleteRequest: id => F.deleteDoc(F.doc(db,'requests',id)),
       watchSite: (cb, err) => F.onSnapshot(F.doc(db,'settings','site'), s => cb(s.exists() ? s.data() : null), err),
       putSite: data => F.setDoc(F.doc(db,'settings','site'), data),
+      watchPayments: (cb, err) => F.onSnapshot(F.collection(db,'payments'), qs => cb(qs.docs.map(d => ({ ...d.data(), id: d.id }))), err),
+      createPayment: (id, data) => F.setDoc(F.doc(db,'payments',id), data),
+      updatePayment: (id, patch) => F.updateDoc(F.doc(db,'payments',id), patch),
+      watchPayCfg: (cb, err) => F.onSnapshot(F.doc(db,'settings','pay'), s => cb(s.exists() ? s.data() : null), err),
+      putPayCfg: data => F.setDoc(F.doc(db,'settings','pay'), data),
       watchLogs: (cb, err) => F.onSnapshot(F.query(F.collection(db,'logs'), F.orderBy('at','desc'), F.limit(300)), qs => cb(qs.docs.map(d => d.data())), err),
     });
   } catch(e){ console.error(e); App.loadFailed(e); }
