@@ -113,11 +113,14 @@ function render(){
     <p class="hint">請在 Discord 向我們索取新的付款連結。</p></div>`);
 
   const bank = PAY && PAY.bank && PAY.bank.account ? PAY.bank : null;
-  const pp = PAY && /^https:\/\/(www\.)?paypal\.me\//i.test(PAY.paypalMe || '') ? PAY.paypalMe.replace(/\/+$/, '') : '';
+  const ppRaw = (PAY && PAY.paypalMe) || '';
+  const isNcp = /^https:\/\/(www\.)?paypal\.com\/ncp\/payment\/[A-Za-z0-9]+/i.test(ppRaw);
+  const pp = /^https:\/\/(www\.)?paypal\.me\//i.test(ppRaw) || isNcp ? ppRaw.replace(/\/+$/, '') : '';
+  const code = token.slice(0, 6).toUpperCase();
   if (!bank && !pp) return view(head + `<div class="card center"><p class="hint">工作室還沒設定付款方式，請在 Discord 與我們確認付款方式。</p></div>`);
   if (tab === 'bank' && !bank) tab = 'paypal';
   if (tab === 'paypal' && !pp) tab = 'bank';
-  const ppAmt = PAY.paypalCurrency ? `/${Math.round(P.amount)}${PAY.paypalCurrency}` : '';
+  const ppAmt = !isNcp && PAY.paypalCurrency ? `/${Math.round(P.amount)}${PAY.paypalCurrency}` : '';
 
   const bankHtml = bank ? `
     <div class="kv"><span>銀行</span><b>${esc(bank.name)}${bank.code ? `（代碼 <span class="mono">${esc(bank.code)}</span>）` : ''}<button class="copy" data-c="${esc(bank.code || bank.name)}">複製</button></b></div>
@@ -125,10 +128,15 @@ function render(){
     <div class="kv"><span>戶名</span><b>${esc(bank.holder)}</b></div>
     <div class="kv"><span>帳號</span><b class="mono" style="font-size:18px">${esc(bank.account)}<button class="copy" data-c="${esc(bank.account.replace(/[\s-]/g,''))}">複製</button></b></div>
     <div class="kv"><span>金額</span><b class="mono">${money(P.amount)}<button class="copy" data-c="${Math.round(P.amount)}">複製</button></b></div>
+    <div class="kv"><span>付款編號（可填在轉帳備註）</span><b class="mono">${code}<button class="copy" data-c="${code}">複製</button></b></div>
     ${PAY.bankNote ? `<div class="note" style="margin-top:12px">${esc(PAY.bankNote)}</div>` : ''}` : '';
-  const ppHtml = pp ? `
+  const ppHtml = pp ? (isNcp ? `
+    <p class="hint" style="margin-top:0">點下方按鈕會開啟 PayPal 付款頁，請照下面填寫：</p>
+    <div class="kv"><span>金額（輸入）</span><b class="mono" style="font-size:18px">${Math.round(P.amount).toLocaleString()}<button class="copy" data-c="${Math.round(P.amount)}">複製</button></b></div>
+    <div class="kv"><span>付款編號（填在帳單編號／備註）</span><b class="mono" style="font-size:18px">${code}<button class="copy" data-c="${code}">複製</button></b></div>
+    <a class="btn pp" href="${esc(pp)}" target="_blank" rel="noopener" style="margin-top:12px">前往 PayPal 付款 ↗</a>` : `
     <p class="hint" style="margin-top:0">點下方按鈕會開啟 PayPal 付款頁${ppAmt ? '，金額已自動帶入' : `，請輸入金額 <b class="mono" style="color:var(--text)">${money(P.amount)}</b>`}。</p>
-    <a class="btn pp" href="${esc(pp + ppAmt)}" target="_blank" rel="noopener">前往 PayPal 付款 ↗</a>
+    <a class="btn pp" href="${esc(pp + ppAmt)}" target="_blank" rel="noopener">前往 PayPal 付款 ↗</a>`) + `
     <div class="hint" style="margin-top:10px">付款完成後，請在 PayPal 的交易明細找到「交易編號」（Transaction ID），填在下方回報。</div>
     ${PAY.paypalNote ? `<div class="note" style="margin-top:12px">${esc(PAY.paypalNote)}</div>` : ''}` : '';
 

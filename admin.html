@@ -661,7 +661,8 @@ html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
                 <div class="field"><label>戶名<input id="pyHolder" maxlength="30"></label></div>
                 <div class="field full"><label>帳號<input id="pyAcct" maxlength="30"></label></div>
                 <div class="field full"><label>銀行轉帳備註<input id="pyBankNote" maxlength="120" placeholder="例：轉帳後請回報帳號後五碼"></label></div>
-                <div class="field full"><label>PayPal.me 連結<input id="pyPP" maxlength="120" placeholder="https://paypal.me/yourname"></label><div class="err" id="pyPPErr"></div></div>
+                <div class="field full"><label>PayPal 連結（PayPal.me 或商家「付款連結」）<input id="pyPP" maxlength="160" placeholder="https://paypal.me/yourname 或 https://www.paypal.com/ncp/payment/XXXX"></label><div class="err" id="pyPPErr"></div>
+                  <div class="hint" id="pyPPHint" style="margin-top:4px"></div></div>
                 <div class="field"><label>PayPal 自動帶入金額<select id="pyCur"><option value="">不帶入（客人自己輸入）</option><option value="TWD">帶入新台幣 TWD</option></select></label></div>
                 <div class="field"><label>PayPal 備註<input id="pyPPNote" maxlength="120" placeholder="例：請選「親友付款」"></label></div>
               </div>
@@ -996,7 +997,7 @@ const HELP = {
   ], tip:'客人填的報價是依當時的價目表算的；轉單時會用現在的價目表重算，可以在單子上調整總價。' },
   pay: { title:'收款流程', cols:[
     ['產生付款連結', ['在 Discord 跟客人確認好報價', '到「代練單」卡片右上角 <b>•••</b> → <b>💳 付款連結</b>，確認金額後按「產生」', '按 <b>複製訊息</b>，貼到 Discord 傳給客人（每張連結都是專屬的，別人猜不到）', '客人打開會看到金額、銀行帳號、PayPal 按鈕']],
-    ['對帳', ['客人付完會回報「帳號後五碼」或「PayPal 交易編號」，這裡會亮紅點並響提示音', '到網銀或 PayPal 後台核對金額與後五碼／交易編號', '核對無誤按 <b>✅ 確認收款</b>（管理員），客人的付款頁會自動顯示「已確認收款」', '對不上可以按「退回」，客人頁面會回到等待付款']],
+    ['對帳', ['客人付完會回報「帳號後五碼」或「PayPal 交易編號」，這裡會亮紅點並響提示音', '到網銀或 PayPal 後台核對金額與後五碼／交易編號', '每筆付款都有 6 碼<b>付款編號</b>（卡片上的 #XXXXXX），客人會填在 PayPal 帳單編號或轉帳備註，方便對帳', '核對無誤按 <b>✅ 確認收款</b>（管理員），客人的付款頁會自動顯示「已確認收款」', '對不上可以按「退回」，客人頁面會回到等待付款']],
   ], tip:'付款方式（銀行帳號、PayPal.me）在「前台設定」→「付款方式」填寫。系統不會自動扣款或驗證，一定要以銀行／PayPal 實際入帳為準。' },
   site: { title:'前台設定（管理員）', cols:[
     ['可以改什麼', ['<b>接單狀態</b>：暫停時前台會顯示「暫停接單」，表單不能送出', '<b>公告</b>：顯示在前台最上方的黃色橫條', '<b>標語、介紹、四個特色、常見問題</b>：前台各區塊的文字', '<b>Discord 聯絡人</b>：前台列出的工作人員 Discord 帳號，客人複製後加好友私訊']],
@@ -1949,7 +1950,7 @@ function payTag(o){
   return '<span class="tag gold">💳 待付款</span>';
 }
 function payMsg(x){
-  return `【B服代練工作室｜付款通知】\n${x.client} 您好，以下是您的專屬付款連結：\n${payUrl(x.id)}\n\n金額：NT$ ${Math.round(x.amount).toLocaleString()}${x.desc ? `\n項目：${x.desc}` : ''}\n可使用銀行轉帳或 PayPal，付款後請在連結頁面回報，我們對帳後會通知您，謝謝！`;
+  return `【B服代練工作室｜付款通知】\n${x.client} 您好，以下是您的專屬付款連結：\n${payUrl(x.id)}\n\n金額：NT$ ${Math.round(x.amount).toLocaleString()}\n付款編號：${String(x.id).slice(0,6).toUpperCase()}${x.desc ? `\n項目：${x.desc}` : ''}\n可使用銀行轉帳或 PayPal，付款後請在連結頁面回報，我們對帳後會通知您，謝謝！`;
 }
 let payOrder = null;
 function openPayModal(o){
@@ -2010,7 +2011,7 @@ function renderPayments(){
     const st = PST[x.status] || PST.pending, o = state.orders.find(y => y.id === x.orderId), r = x.report;
     return `<div class="oc" data-pid="${esc(x.id)}">
       <div class="oc-top"><div style="min-width:0"><div class="oc-name">${esc(x.client)}<span class="job">${esc(x.desc)}</span></div>
-        <div class="oc-tags"><span class="tag ${st[1]}">${st[0]}</span><span class="tag">建立 ${ago(x.created||0)}・${esc(x.createdBy||'')}</span>${x.contact ? `<span class="tag">Discord：${esc(x.contact)}</span>` : ''}</div></div>
+        <div class="oc-tags"><span class="tag ${st[1]}">${st[0]}</span><span class="tag mono">#${esc(String(x.id).slice(0,6).toUpperCase())}</span><span class="tag">建立 ${ago(x.created||0)}・${esc(x.createdBy||'')}</span>${x.contact ? `<span class="tag">Discord：${esc(x.contact)}</span>` : ''}</div></div>
         <div class="mono" style="font-size:24px;font-weight:700">${money(x.amount)}</div></div>
       ${r ? `<div class="note" style="margin-top:12px;border:1px solid rgba(122,168,255,.35)">客人回報（${ago(r.at||0)}）：<b>${r.method === 'bank' ? '🏦 銀行轉帳・後五碼' : '🅿️ PayPal・交易編號'}</b> <b class="mono" style="color:var(--text);font-size:15px">${esc(r.ref)}</b>${r.name ? `・付款人 ${esc(r.name)}` : ''}</div>` : ''}
       ${x.status === 'paid' ? `<div class="hint" style="margin-top:10px">✅ ${esc(x.paidBy||'')} 於 ${dt(x.paidAt||0)} 確認收款</div>` : ''}
@@ -2050,19 +2051,30 @@ function onPayments(list){
   if (view === 'orders') renderOrders();
 }
 // 付款方式設定
-function fillPayForm(){
+let payDirty = false;
+function fillPayForm(force){
+  if (payDirty && !force) return;
   const c = payCfg || {}, b = c.bank || {};
   $('#pyBank').value = b.name || ''; $('#pyCode').value = b.code || ''; $('#pyBranch').value = b.branch || ''; $('#pyHolder').value = b.holder || ''; $('#pyAcct').value = b.account || '';
   $('#pyBankNote').value = c.bankNote || ''; $('#pyPP').value = c.paypalMe || ''; $('#pyCur').value = c.paypalCurrency || ''; $('#pyPPNote').value = c.paypalNote || ''; $('#pyPPErr').textContent = '';
+  ppHint();
 }
+function ppHint(){
+  const v = $('#pyPP').value.trim(), ncp = /paypal\.com\/ncp\/payment\//i.test(v);
+  $('#pyPPHint').innerHTML = ncp ? '⚠️ 付款連結請在 PayPal 設成「<b>客人自訂價格</b>」、幣別 <b>TWD</b>，並開啟「帳單編號（Invoice ID）」欄位，客人才能輸入金額與付款編號。這種連結無法自動帶入金額，下方「自動帶入金額」會被忽略。' : '';
+  $('#pyCur').disabled = ncp;
+}
+$('#pyPP').addEventListener('input', ppHint);
+['pyBank','pyCode','pyBranch','pyHolder','pyAcct','pyBankNote','pyPP','pyCur','pyPPNote'].forEach(id => $('#'+id).addEventListener('input', () => { payDirty = true; }));
 $('#pySave').onclick = () => {
   const pp = $('#pyPP').value.trim();
-  if (pp && !/^https:\/\/(www\.)?paypal\.me\/[A-Za-z0-9._-]+\/?$/i.test(pp)){ $('#pyPPErr').textContent = '請貼 PayPal.me 連結，例如 https://paypal.me/yourname'; return; }
+  if (pp && !/^https:\/\/(www\.)?paypal\.me\/[A-Za-z0-9._-]+\/?$/i.test(pp) && !/^https:\/\/(www\.)?paypal\.com\/ncp\/payment\/[A-Za-z0-9]+\/?$/i.test(pp)){
+    $('#pyPPErr').textContent = '請貼 PayPal.me 連結（https://paypal.me/…）或 PayPal 付款連結（https://www.paypal.com/ncp/payment/…）'; return; }
   const acct = $('#pyAcct').value.trim();
   if (acct && !($('#pyBank').value.trim() && $('#pyHolder').value.trim())) return toast('填了帳號的話，銀行名稱和戶名也要填', 'err');
   const data = { bank: { name: $('#pyBank').value.trim(), code: $('#pyCode').value.trim(), branch: $('#pyBranch').value.trim(), holder: $('#pyHolder').value.trim(), account: acct },
     bankNote: $('#pyBankNote').value.trim(), paypalMe: pp.replace(/\/+$/, ''), paypalCurrency: $('#pyCur').value, paypalNote: $('#pyPPNote').value.trim(), updated: now(), updatedBy: me.name };
-  backend.putPayCfg(data).then(() => { toast('付款方式已儲存', 'ok'); log('site', '更新付款方式'); }).catch(syncErr);
+  backend.putPayCfg(data).then(() => { payDirty = false; toast('付款方式已儲存', 'ok'); log('site', '更新付款方式'); }).catch(syncErr);
 };
 
 // =====================================================================
