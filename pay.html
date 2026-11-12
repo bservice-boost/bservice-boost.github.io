@@ -57,6 +57,21 @@ label{display:block;font-size:13.5px;color:var(--muted);margin-bottom:12px}
 @keyframes r{to{transform:rotate(360deg)}}
 footer{text-align:center;color:var(--dim);font-size:12.5px;margin-top:26px}
 footer a{color:var(--dim)}
+
+/* ============ 換頁過場 ============ */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:vtOut .3s cubic-bezier(.4,0,.2,1) both}
+::view-transition-new(root){animation:vtIn .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes vtOut{to{opacity:0;transform:scale(.985);filter:blur(8px)}}
+@keyframes vtIn{from{opacity:0;transform:scale(1.02);filter:blur(8px)}}
+.pt-curtain{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;transition:opacity .28s ease;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(600px 400px at 50% 45%,rgba(94,224,199,.16),transparent 70%),#0a0e1a}
+.pt-curtain svg{width:58px;height:58px;filter:drop-shadow(0 0 18px rgba(94,224,199,.6));transform:scale(.8);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+html.pt-leave .pt-curtain{opacity:1;pointer-events:auto}
+html.pt-leave .pt-curtain svg{transform:scale(1)}
+html.pt-enter .pt-curtain{opacity:1;transition:none}
+html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
+@media (prefers-reduced-motion: reduce){::view-transition-old(root),::view-transition-new(root){animation:none}.pt-curtain{display:none}}
 </style>
 </head>
 <body>
@@ -192,6 +207,27 @@ else {
     report: (id, report) => F.updateDoc(F.doc(db, 'payments', id), { status: 'reported', report }),
   });
 }
+</script>
+<script>
+// 換頁過場：支援的瀏覽器（Chrome / Edge / Comet）用原生 View Transitions，其他瀏覽器用淡出淡入
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if ('CSSViewTransitionRule' in window) return;
+  const cur = document.createElement('div'); cur.className = 'pt-curtain';
+  cur.innerHTML = '<svg viewBox="0 0 64 64"><defs><linearGradient id="ptg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee0c7"/><stop offset="1" stop-color="#7aa8ff"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#ptg)"/><path d="M22 16h13c6 0 10 3 10 8 0 3-2 6-5 7 4 1 7 4 7 8 0 6-5 9-11 9H22z M30 23v7h4c2 0 3-1 3-3.5S36 23 34 23z M30 37v8h5c2.5 0 4-1.5 4-4s-1.5-4-4-4z" fill="#0b1220"/></svg>';
+  document.body.appendChild(cur);
+  const H = document.documentElement;
+  H.classList.add('pt-enter'); requestAnimationFrame(() => requestAnimationFrame(() => H.classList.add('pt-go')));
+  setTimeout(() => H.classList.remove('pt-enter', 'pt-go'), 700);
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank' || a.hasAttribute('download')) return;
+    const u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search)) return;
+    e.preventDefault(); H.classList.add('pt-leave'); setTimeout(() => { location.href = u.href; }, 280);
+  });
+  addEventListener('pageshow', e => { if (e.persisted) H.classList.remove('pt-leave'); });
+})();
 </script>
 </body>
 </html>
