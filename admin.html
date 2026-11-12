@@ -1239,6 +1239,7 @@ function trBanner(o){
   return `<div class="infobox" style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px"><span style="flex:1;min-width:180px">${txt}<span class="hint">・${ago(r.at||0)}</span></span>${btns}</div>`;
 }
 let trSeen = null, pubBoosters = undefined, pubTimer = null;
+let pubLastWrite = 0;
 // 前台要看的「代練師狀態」：只放名字、單量、是否練功中（不含任何客人資料）
 function boostersNow(){
   return Object.entries(members).filter(([,m]) => (m.role === 'member' || m.role === 'admin') && m.listed !== false)
@@ -1250,8 +1251,12 @@ function syncBoosters(){
   if (!me || isGuest() || !dataReady || pubBoosters === undefined || !Object.keys(members).length) return;
   clearTimeout(pubTimer);
   pubTimer = setTimeout(() => {
+    // 用固定欄位順序比較（資料庫回傳的欄位順序和本機不同，直接比字串會永遠不相等）
+    const norm = l => JSON.stringify((l || []).map(x => [x.uid, x.name || '', x.intro || '', x.active || 0, !!x.running]).sort((p, q) => String(p[0]).localeCompare(String(q[0]))));
     const cur = boostersNow();
-    if (JSON.stringify(cur) !== JSON.stringify(pubBoosters || [])){ pubBoosters = cur; backend.putBoosters(cur).catch(e => console.warn('boosters', e)); }
+    if (norm(cur) === norm(pubBoosters)) return;
+    if (now() - pubLastWrite < 20000){ pubTimer = setTimeout(syncBoosters, 20000); return; }   // 保險：最多 20 秒寫一次
+    pubLastWrite = now(); pubBoosters = cur; backend.putBoosters(cur).catch(e => console.warn('boosters', e));
   }, 1500);
 }
 function checkTransfers(){
