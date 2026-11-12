@@ -240,6 +240,15 @@ details.hist[open] summary::before{content:"▾ "}
 .warnbox{background:rgba(255,107,129,.1);border:1px solid rgba(255,107,129,.5);color:#ffd0d7;border-radius:12px;padding:11px 14px;font-size:13px;margin-bottom:14px;display:none}
 .infobox{background:rgba(122,168,255,.08);border:1px solid rgba(122,168,255,.3);border-radius:12px;padding:11px 14px;font-size:13px;color:#cfdcff}
 
+/* ---------- 練等歷史 ---------- */
+.lh-chart{display:flex;align-items:flex-end;gap:3px;height:120px;margin-top:14px;padding:10px 4px 0;border-bottom:1px solid var(--line);overflow-x:auto}
+.lh-chart .b{flex:1 0 10px;max-width:26px;min-width:8px;border-radius:5px 5px 1px 1px;background:var(--grad);opacity:.85;position:relative;cursor:default;transition:opacity .15s}
+.lh-chart .b:hover{opacity:1}
+.lh-chart .b.est{background:repeating-linear-gradient(45deg,#7aa8ff55 0 4px,#7aa8ff22 4px 8px)}
+.lh-chart .b.fast{background:linear-gradient(135deg,#4fd18b,#5ee0c7)}
+.lh-chart .b.slow{background:linear-gradient(135deg,#ffb648,#ff6b81)}
+.lh-chart .avg{position:absolute;left:0;right:0;border-top:1px dashed var(--muted);pointer-events:none}
+.lh-wrap{position:relative}
 /* ---------- 紀錄 ---------- */
 .log{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start}
 .log:last-child{border-bottom:0}
@@ -521,6 +530,14 @@ html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
             <div class="hint mono" id="dbg" style="margin-top:8px;font-size:11px"></div>
           </div>
         </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-h"><h3>📜 練等歷史紀錄 <small>每次共鳴度滿條自動記錄（存在這台電腦）</small></h3>
+            <div class="row"><select id="lhRange"><option value="today">今天</option><option value="7d">近 7 天</option><option value="all">全部</option></select>
+              <button class="sm" id="lhCsv">匯出 CSV</button><button class="sm ghost danger" id="lhClear">清空</button></div></div>
+          <div class="grid g4" id="lhKpi"></div>
+          <div class="lh-chart" id="lhChart"></div>
+          <div class="tbl-wrap" style="margin-top:12px;max-height:360px;overflow:auto"><table class="t" id="lhTbl"></table></div>
+        </div>
       </section>
 
       <!-- ===== 工具 ===== -->
@@ -768,7 +785,7 @@ const initial = s => (String(s||'?').trim()[0] || '?').toUpperCase();
 //  狀態：本機（這台電腦）＋ 團隊（雲端）
 // =====================================================================
 const KEY = 'bstudio-local-v1';
-let state = { orders: [], buffs: [], laps: [], lapStart: null, boundId: null, region: null, filter:'active', sort:'new', rankBy:'money',
+let state = { orders: [], buffs: [], laps: [], lvHist: [], lapStart: null, boundId: null, region: null, filter:'active', sort:'new', rankBy:'money',
               opt: { win: 10, idle: true, idleMin: 3, lost: true, lostSec: 60, resume: true, ocr: true } };
 try {
   const s = JSON.parse(localStorage.getItem(KEY)) || JSON.parse(localStorage.getItem('elsword-leveling-timer-team-v1'));
@@ -939,7 +956,7 @@ function render(){
   renderBadges();
   if (view === 'dashboard') renderDashboard();
   if (view === 'orders') renderOrders();
-  if (view === 'scan') renderBindSel();
+  if (view === 'scan'){ renderBindSel(); renderLvHist(); }
   if (view === 'tools') { renderBuffs(); renderLaps(); }
   if (view === 'prices') { renderPriceTbl(state.prices); renderQuote(); }
   if (view === 'team' && isAdmin()) renderTeam();
@@ -1627,6 +1644,56 @@ function readBar(data, w, h){
   const pct = end<0 ? 0 : Math.min(100,(end-x0+1)/(x1-x0+1)*100);
   return { pct:Math.round(pct*10)/10, dbg:`row=${y} 條=${x0}-${x1} 填滿=${end}`, x0, x1, end };
 }
+// ---------- 練等歷史 ----------
+function recordLvUp(o, pctAfter){
+  const t = now(), S = scan.sess;
+  let ms = null, est = false;
+  if (scan.lastRoll){ ms = t - scan.lastRoll; }
+  else if (S && S.pct < 95){ ms = (t - S.t) * 100 / (100 - S.pct); est = true; }   // 從一半開始：依速度推算整等
+  const e = { at: t, ms: ms == null ? null : Math.round(ms), est, lost: S ? Math.round(S.lost) : 0,
+    lv: o ? o.curLv : null, client: o ? o.client : '', carry: Math.round((pctAfter || 0) * 10) / 10 };
+  state.lvHist = (state.lvHist || []).concat(e).slice(-1000);
+  scan.lastRoll = t; scan.sess = { t, pct: 0, lost: 0 };
+  save(); if (view === 'scan') renderLvHist();
+}
+function lhList(){
+  const r = $('#lhRange').value, t0 = r === 'today' ? dayStart() : r === '7d' ? now() - 7*86400000 : 0;
+  return (state.lvHist || []).filter(e => e.at >= t0);
+}
+function fmtDur(ms){ if (!isFinite(ms) || ms < 0) return '--'; const t = Math.round(ms/1000), h = Math.floor(t/3600), m = Math.floor(t%3600/60), sec = t%60;
+  return h ? `${h} 時 ${m} 分` : m ? `${m} 分 ${String(sec).padStart(2,'0')} 秒` : `${sec} 秒`; }
+function renderLvHist(){
+  const L = lhList(), full = L.filter(e => e.ms && !e.est), use = full.length ? full : L.filter(e => e.ms);
+  const ms = use.map(e => e.ms), avg = ms.length ? ms.reduce((a,b) => a+b, 0) / ms.length : NaN;
+  const fast = ms.length ? Math.min(...ms) : NaN, slow = ms.length ? Math.max(...ms) : NaN;
+  const cur = scan.lastRoll && scan.pct != null ? now() - scan.lastRoll : NaN;
+  $('#lhKpi').innerHTML = `
+    <div class="card kpi"><div class="k">⬆️ 升等次數</div><div class="v mono">${L.length}</div><div class="d">${{today:'今天', '7d':'近 7 天', all:'全部'}[$('#lhRange').value]}</div></div>
+    <div class="card kpi"><div class="k">⏱️ 平均每等</div><div class="v mono">${fmtDur(avg)}</div><div class="d">${full.length} 筆完整紀錄</div></div>
+    <div class="card kpi"><div class="k">⚡ 最快 / 🐢 最慢</div><div class="v mono" style="font-size:20px">${fmtDur(fast)} / ${fmtDur(slow)}</div><div class="d">　</div></div>
+    <div class="card kpi"><div class="k">⏳ 這一等已花</div><div class="v mono">${isFinite(cur) ? fmtDur(cur) : '--'}</div><div class="d">${isFinite(cur) && isFinite(avg) ? (cur > avg ? '比平均慢 ' + fmtDur(cur - avg) : '比平均快 ' + fmtDur(avg - cur)) : '滿條一次後開始計算'}</div></div>`;
+  const show = L.slice(-60), mx = Math.max(1, ...show.map(e => e.ms || 0));
+  $('#lhChart').innerHTML = show.length ? `<div class="lh-wrap" style="display:flex;align-items:flex-end;gap:3px;height:100%;width:100%">${show.map(e => {
+      const cls = !e.ms ? '' : e.est ? 'est' : e.ms === fast ? 'fast' : e.ms === slow && show.length > 2 ? 'slow' : '';
+      return `<div class="b ${cls}" style="height:${e.ms ? Math.max(4, e.ms / mx * 100) : 4}%" title="${dt(e.at)}${e.lv ? '・Lv.' + e.lv : ''}・${e.ms ? (e.est ? '約 ' : '') + fmtDur(e.ms) : '不明'}${e.lost > 5000 ? '（含過圖 ' + Math.round(e.lost/1000) + ' 秒）' : ''}"></div>`; }).join('')}
+      ${isFinite(avg) ? `<div class="avg" style="bottom:${avg / mx * 100}%"></div>` : ''}</div>` : '<div class="hint" style="margin:auto">還沒有紀錄：分享遊戲畫面後，每次共鳴度滿條都會記一筆</div>';
+  $('#lhTbl').innerHTML = L.length ? `<tr><th>時間</th><th>等級</th><th>這一等耗時</th><th>和平均比</th><th>連動的單</th><th>備註</th></tr>` + L.slice().reverse().map((e, i, arr) => `
+    <tr><td class="mono">${dt(e.at)}</td><td class="mono">${e.lv ? 'Lv.' + e.lv : '-'}</td>
+      <td class="mono"><b>${e.ms ? (e.est ? '約 ' : '') + fmtDur(e.ms) : '-'}</b></td>
+      <td class="mono">${e.ms && isFinite(avg) && !e.est ? (e.ms <= avg ? `<span class="ok">快 ${fmtDur(avg - e.ms)}</span>` : `<span style="color:var(--warn)">慢 ${fmtDur(e.ms - avg)}</span>`) : '-'}</td>
+      <td>${esc(e.client || '-')}</td>
+      <td class="hint">${e.est ? '從半條開始，依速度推算' : ''}${e.lost > 5000 ? `${e.est ? '・' : ''}含過圖／離開 ${fmtDur(e.lost)}` : ''}</td></tr>`).join('') : '';
+}
+$('#lhRange').onchange = renderLvHist;
+$('#lhClear').onclick = () => confirmBox('清空這台電腦的練等歷史？', '代練單上的升等紀錄不受影響。', () => { state.lvHist = []; scan.lastRoll = null; save(); renderLvHist(); });
+$('#lhCsv').onclick = () => {
+  const L = lhList(); if (!L.length) return toast('沒有紀錄', 'err');
+  const rows = [['時間','等級','耗時（分）','推算','含過圖（秒）','連動的單']].concat(L.map(e => [new Date(e.at).toLocaleString('zh-TW',{hour12:false}), e.lv || '', e.ms ? (e.ms/60000).toFixed(1) : '', e.est ? '是' : '', Math.round((e.lost||0)/1000), (e.client||'').replace(/,/g,' ')]));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + rows.map(r => r.join(',')).join('\n')], { type:'text/csv' }));
+  a.download = '練等歷史_' + new Date().toLocaleDateString('sv') + '.csv'; a.click();
+};
+setInterval(() => { if (view === 'scan' && me) renderLvHist(); }, 10000);
+
 function resetScanSegment(){ scan.hist = []; scan.segStart = null; scan.segT0 = null; scan.rate = 0; scan.idleSince = now(); scan.idleWarned = false; drawChart(); }
 function updateScanChip(){
   const c = $('#scanChip'), o = bound();
@@ -1682,6 +1749,7 @@ function scanStep(){
   if (scan.raw.length < 2){ updateScanChip(); return; }
   if (scan.lostSince){
     const gone = now() - scan.lostSince;
+    if (scan.sess) scan.sess.lost += gone;
     scan.lostSince = null; scan.idleSince = now(); scan.idleWarned = false;   // 過圖時間不算進「沒增加」
     if (scan.autoPaused){
       const po = state.orders.find(x => x.id === scan.autoPaused); scan.autoPaused = null;
@@ -1699,8 +1767,10 @@ function scanStep(){
   if (scan.lowN >= 2){
     scan.lowN = 0; rolled = true; beep(3);
     if (o && o.runningSince && o.autoLv){ levelUp(o, 1, true); save(); render(); } else toast('🎉 共鳴度滿條！', 'ok');
+    recordLvUp(o, r.pct);
   }
   if (scan.last == null || r.pct > scan.last + 0.05 || rolled){ scan.idleSince = now(); scan.idleWarned = false; }
+  if (!scan.sess) scan.sess = { t: now(), pct: r.pct, lost: 0 };
   scan.last = r.pct; scan.pct = r.pct; updateScanChip();
   if (state.opt.idle && o && o.runningSince && !scan.idleWarned && now() - scan.idleSince > state.opt.idleMin*60000){
     scan.idleWarned = true; beep(2); toast(`⚠️ 已 ${state.opt.idleMin} 分鐘共鳴度沒增加，角色還在打嗎？`, 'err');
