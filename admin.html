@@ -498,7 +498,7 @@ html.pt-enter.pt-go .pt-curtain{opacity:0;transition:opacity .45s ease .05s}
         <div class="grid g-main">
           <div class="card">
             <div class="card-h"><h3>🎮 遊戲畫面</h3>
-              <div class="row"><button class="primary sm" id="btnShare">① 分享遊戲視窗</button><button class="sm" id="btnAuto" disabled>🔍 自動偵測</button><button class="sm ghost" id="btnPick" disabled>手動框選</button></div></div>
+              <div class="row"><button class="primary sm" id="btnShare">① 分享遊戲視窗</button><button class="sm" id="btnAuto" disabled>🔍 自動偵測</button><button class="sm ghost" id="btnPick" disabled>手動框選</button><button class="sm" id="btnScanPause">⏸ 暫停辨識</button></div></div>
             <div class="stage"><div class="ph" id="ph">按「① 分享遊戲視窗」，選擇<b style="color:var(--text)">艾爾之光的視窗</b><br>系統會自動找到左下角的<b style="color:var(--text)">共鳴度條</b></div><canvas id="view" style="display:none"></canvas></div>
             <ol class="steps" style="margin-top:16px">
               <li><span>分享時選「<b>視窗</b>」分頁比整個螢幕清楚；遊戲請用視窗或無邊框模式。</span></li>
@@ -998,7 +998,7 @@ const HELP = {
   scan: { title:'共鳴度辨識怎麼用', cols:[
     ['第一次設定', ['用電腦版 <b>Chrome 或 Edge</b> 開網站，遊戲設成<b>視窗或無邊框</b>模式', '按 <b>① 分享遊戲視窗</b> → 選「視窗」分頁 → 選艾爾之光', '系統會<b>自動在左下角找到共鳴度條</b>，右邊顯示讀到的 %，和遊戲裡差不多就成功了', '找不到時：確認條上有一點藍色進度，再按 <b>🔍 自動偵測</b>；還是不行就按「手動框選」拖曳框住整條']],
     ['開始自動升等', ['到「代練單」在要練的單按 <b>📡 連動</b>（或在右邊選單選）', '按那張單的 <b>▶ 開始</b>', '共鳴度從滿條掉回低點時，那張單會<b>自動 +1 等</b>並響提示音', '右邊會顯示每小時速度與預估滿條時間（<b>沒有連動單子也會計算速度</b>，可以先測哪張圖比較快）']],
-    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），位置會自動記住', '改了遊戲視窗大小會自動重新偵測', '系統會<b>讀條旁邊的數字（例如 34.8%）自動校正</b>，誤差約 0.1%；數字讀不到時可以在下方「手動校正」輸入遊戲顯示的 %', '<b>過圖</b>時條會暫時消失，畫面會顯示「過圖中… N 秒」，不會誤判升等；消失超過設定秒數（預設 60 秒）會自動暫停，條回來後自動繼續', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '網頁可以縮成小視窗放旁邊，但<b>不要最小化</b>']],
+    ['小提醒', ['<b>每次開網頁都要重新按一次「分享」</b>（瀏覽器規定），位置會自動記住', '改了遊戲視窗大小會自動重新偵測', '系統會<b>讀條旁邊的數字（例如 34.8%）自動校正</b>，誤差約 0.1%；數字讀不到時可以在下方「手動校正」輸入遊戲顯示的 %', '<b>過圖</b>時條會暫時消失，畫面會顯示「過圖中… N 秒」，不會誤判升等；消失超過設定秒數（預設 60 秒）會自動暫停，條回來後自動繼續', '共鳴度 3 分鐘沒增加會提醒（角色卡住或斷線）', '要休息或做別的事時按 <b>⏸ 暫停辨識</b>：暫停期間不讀畫面、不算進速度和每等耗時，連動的單也會一起暫停，按「繼續辨識」恢復', '網頁可以縮成小視窗放旁邊，但<b>不要最小化</b>']],
   ], tip:'放大條下方的橘線是條的頭尾、紅線是目前填到哪裡；位置不對時按「🔍 自動偵測」重新找。' },
   tools: { title:'計時工具', cols:[
     ['加成／藥水倒數', ['吃了經驗藥水或加成，按對應按鈕開始倒數', '要其他時間按 <b>＋ 自訂</b>', '剩 1 分鐘變紅；時間到會響提示音、瀏覽器分頁標題閃爍、左側選單亮紅點', '<b>+5 分</b> 延長、<b>✕</b> 刪除']],
@@ -1010,7 +1010,7 @@ const HELP = {
   ], tip:'只有管理員可以修改價目表；改價後只影響之後新建的單，已經建好的單維持原價。' },
   team: { title:'成員管理（管理員）', cols:[
     ['核准新成員', ['請新人打開網站，自己按「<b>註冊新帳號</b>」', '他會出現在下方列表，身分是「⏳ 待核准」，左側選單會亮紅點', '把身分改成 <b>成員</b>，對方畫面會自動進入系統']],
-    ['身分說明', ['<b>成員（代練師）</b>：接單、計時、升等、回報、看價目表與總覽', '<b>管理員</b>：以上全部，加上修改價目表、核准成員、看操作紀錄、永久刪除單', '<b>移除</b>：對方立刻失去存取權，要重新註冊並等核准']],
+    ['身分說明', ['<b>成員（代練師）</b>：接單、計時、升等、回報、看價目表與總覽', '<b>管理員</b>：以上全部，加上修改價目表、核准成員、看操作紀錄、永久刪除單', '<b>訪客</b>：登入後只看得到示範資料，只能使用共鳴度辨識（看不到真實的單子與客人資料）', '<b>移除</b>：對方立刻失去存取權，要重新註冊並等核准']],
     ['前台可被指定', ['勾選「顯示」的成員會出現在前台下單表單，客人可以指定他', '前台只看得到名字、介紹和「空閒／進行中幾張／練功中」，看不到任何客人資料', '不接單的管理員可以取消勾選']],
   ], tip:'表格裡的「本月時數／練出」可以當作薪資或分潤的參考。' },
   requests: { title:'處理前台委託', cols:[
@@ -1705,13 +1705,37 @@ function resetScanSegment(){ scan.hist = []; scan.segStart = null; scan.segT0 = 
 function updateScanChip(){
   const c = $('#scanChip'), o = bound();
   if (scan.pct == null && !vid.videoWidth){ c.style.display = 'none'; $('#bScan').style.display = 'none'; return; }
+  if (scan.paused){ c.style.display = ''; c.innerHTML = '⏸ <b>辨識已暫停</b>'; $('#bScan').style.display = ''; $('#bScan').textContent = '⏸'; return; }
   c.style.display = ''; c.innerHTML = `📡 <b class="mono">${scan.pct != null ? scan.pct.toFixed(1) + '%' : '讀取中'}</b>${scan.rate > 0.01 ? `<span class="mono">・${scan.rate.toFixed(1)}%/時</span>` : ''}${o ? '・' + esc(o.client) : ''}`;
   $('#bScan').style.display = ''; $('#bScan').textContent = scan.pct != null ? scan.pct.toFixed(0) + '%' : '…';
 }
 $('#scanChip').onclick = () => location.hash = 'scan';
 $('#btnRateReset').onclick = () => { resetScanSegment(); ['#sRate','#sAvg','#sPer','#sEta','#sGain','#sTime'].forEach(x => $(x).textContent = '--'); toast('已重設練等速度', 'ok'); };
+function setScanPaused(p){
+  if (p === !!scan.paused) return;
+  const btn = $('#btnScanPause');
+  if (p){
+    if (!vid.videoWidth) return toast('還沒有分享遊戲畫面', 'err');
+    scan.paused = now(); btn.textContent = '▶ 繼續辨識'; btn.classList.add('warn');
+    $('#pct').textContent = '⏸ 已暫停'; $('#pct').classList.add('bad');
+    const o = bound();
+    if (o && o.runningSince){ pauseOrder(o, '暫停辨識'); scan.pausedOrder = o.id; save(); render(); }
+    toast('已暫停共鳴度辨識' + (scan.pausedOrder ? '，連動的單也一起暫停計時' : ''), 'ok');
+  } else {
+    const d = now() - scan.paused; scan.paused = null; btn.textContent = '⏸ 暫停辨識'; btn.classList.remove('warn');
+    // 暫停的時間不算進速度、每等耗時、沒增加提醒
+    scan.hist.forEach(h => h[0] += d); if (scan.segT0) scan.segT0 += d; if (scan.lastRoll) scan.lastRoll += d; if (scan.sess) scan.sess.t += d;
+    scan.idleSince = now(); scan.idleWarned = false; scan.lostSince = null; scan.raw = []; scan.lowN = 0; scan.recal = true;
+    const o = scan.pausedOrder && state.orders.find(x => x.id === scan.pausedOrder); scan.pausedOrder = null;
+    if (o && o === bound() && !o.runningSince && !o.done){ startOrder(o); save(); render(); }
+    toast('繼續辨識' + (o ? '，連動的單也繼續計時' : ''), 'ok');
+  }
+  updateScanChip();
+}
+$('#btnScanPause').onclick = () => setScanPaused(!scan.paused);
 function scanStep(){
   if (sharing) return;
+  if (scan.paused){ updateScanChip(); return; }
   if (vid.videoWidth && scan.region && scan.region.vw && (scan.region.vw !== vid.videoWidth || scan.region.vh !== vid.videoHeight)){
     if (autoDetect(false)) toast('遊戲視窗大小改變，已重新找到共鳴度條', 'ok'); else { scan.region = null; toast('遊戲視窗大小改變，請按「🔍 自動偵測」', 'err'); }
   }
@@ -1923,7 +1947,7 @@ $('#qCreate').onclick = () => openOrder(null, { from:+$('#qFrom').value, to:+$('
 // =====================================================================
 //  成員
 // =====================================================================
-const ROLE = { pending:'⏳ 待核准', member:'成員', admin:'管理員' };
+const ROLE = { pending:'⏳ 待核准', guest:'👀 訪客', member:'成員', admin:'管理員' };
 function renderTeam(){
   const adm = isAdmin();
   $('#teamHint').textContent = adm ? '你是管理員，可以核准與調整身分' : '只有管理員可以修改身分';
@@ -1934,7 +1958,7 @@ function renderTeam(){
     <tr data-uid="${u}">
       <td><div class="row" style="flex-wrap:nowrap"><div class="avatar sm">${esc(initial(m.name))}</div><div><b>${esc(m.name)}</b>${u===me.uid?' <span class="tag link">我</span>':''}<div class="hint">${esc(m.email)}</div></div></div></td>
       <td>${adm && u !== me.uid ? `<select data-role>${Object.entries(ROLE).map(([k,v]) => `<option value="${k}" ${m.role===k?'selected':''}>${v}</option>`).join('')}</select>`
-        : `<span class="tag ${m.role==='admin'?'gold':m.role==='pending'?'red':''}">${ROLE[m.role]||m.role}</span>`}</td>
+        : `<span class="tag ${m.role==='admin'?'gold':m.role==='pending'?'red':m.role==='guest'?'link':''}">${ROLE[m.role]||m.role}</span>`}</td>
       <td>${m.role === 'member' || m.role === 'admin' ? (adm ? `<label class="inline"><input type="checkbox" data-listed ${m.listed !== false ? 'checked' : ''}> 顯示</label>
           <input data-pubname value="${esc(m.publicName || '')}" placeholder="前台顯示名稱" maxlength="16" style="width:150px;margin-top:4px;padding:4px 8px;font-size:12.5px;${m.listed !== false && !m.publicName ? 'border-color:var(--warn)' : ''}">
           <input data-intro value="${esc(m.intro || '')}" placeholder="前台介紹（選填）" maxlength="30" style="width:150px;margin-top:4px;padding:4px 8px;font-size:12.5px">
@@ -2448,22 +2472,30 @@ function guestBackend(){
     setRole: no, updateMember: no, removeMember: no, logout: async () => exitGuest(),
   };
 }
-function enterGuest(){
+let guestAcct = null;
+function enterGuest(acct){
   realBackend = realBackend || backend;
+  guestAcct = acct && acct.uid ? acct : null;
   stopData(); backend = guestBackend();
-  me = { uid:'guest', name:'訪客', role:'guest' };
-  $('#meName').textContent = '訪客'; $('#meRole').textContent = '示範資料'; $('#meAv').textContent = '👀';
+  me = { uid: guestAcct ? guestAcct.uid : 'guest', name: guestAcct ? guestAcct.name : '訪客', role:'guest' };
+  $('#meName').textContent = me.name; $('#meRole').textContent = '訪客・示範資料'; $('#meAv').textContent = '👀';
+  $('#guestExit').textContent = guestAcct ? '登出' : '登入 / 註冊';
   $('#guestBar').style.display = 'flex'; document.body.classList.add('is-guest');
   showScreen('App'); startData(); applyRole();
   location.hash = 'scan'; route();
   toast('已進入訪客模式：示範資料，只能使用共鳴度辨識', 'ok');
 }
-function exitGuest(){
-  stopData(); me = null; if (realBackend) backend = realBackend;
+function cleanupGuest(){
+  if (!document.body.classList.contains('is-guest')) return;
+  stopData(); me = null; if (realBackend) backend = realBackend; guestAcct = null;
   $('#guestBar').style.display = 'none'; document.body.classList.remove('is-guest');
-  showScreen('Auth');
 }
-$('#btnGuest').onclick = enterGuest;
+function exitGuest(){
+  const acct = guestAcct, rb = realBackend;
+  cleanupGuest();
+  if (acct && rb) rb.logout(); else showScreen('Auth');
+}
+$('#btnGuest').onclick = () => enterGuest();
 $('#guestExit').onclick = exitGuest;
 // 訪客只能用：切換分頁、篩選／排序／搜尋、說明、查看回報，以及「共鳴度辨識」頁的所有功能
 const GUEST_OK = ['#nav a', '#hamb', '#scrim', '#btnHelp', '[data-help-close]', '#btnLogout', '#guestExit', '#guestBar a', '.seg button', '#sortSel', '#q',
@@ -2488,7 +2520,7 @@ window.App = {
     backend = b;
     b.onAuth(user => {
       if (unsubMe){ unsubMe(); unsubMe = null; }
-      stopData(); me = null;
+      cleanupGuest(); stopData(); me = null;
       if (!user){ showScreen('Auth'); return; }
       showScreen('Loading');
       unsubMe = b.watchMe(user.uid, m => {
@@ -2496,6 +2528,8 @@ window.App = {
           b.createMe(user.uid, { name: user.displayName || user.email.split('@')[0], email: user.email, role:'pending', created: now() }).catch(() => {});
           $('#pendEmail').textContent = user.email; showScreen('Pending'); return;
         }
+        if (m.role === 'guest'){ if (!(isGuest() && me.uid === user.uid)) enterGuest({ uid: user.uid, name: m.name }); return; }
+        cleanupGuest();
         const wasIn = !!me;
         me = { uid: user.uid, ...m };
         if (m.role !== 'member' && m.role !== 'admin'){ stopData(); me = null; $('#pendEmail').textContent = user.email; showScreen('Pending'); return; }
