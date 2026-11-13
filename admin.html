@@ -1338,7 +1338,7 @@ function cardHTML(o){
   <div class="oc ${o.runningSince?'running':''} ${o.done?'done':''} ${isB?'bound':''}" data-id="${o.id}">
     <div class="oc-top">
       <div style="min-width:0"><div class="oc-name">${esc(o.client)}<span class="job">${esc(o.job)}</span></div>
-        <div class="oc-tags">${status}${who}${tag}${due}${payTag(o)}${isB?'<span class="tag link">📡 連動中</span>':''}</div></div>
+        <div class="oc-tags">${status}${who}${tag}${due}${payTag(o)}${isB?(scan.paused?'<span class="tag pause">⏸ 辨識暫停中</span>':'<span class="tag link">📡 連動中</span>'):''}</div></div>
       <div class="menu"><button class="ghost sm" data-act="menu" aria-label="更多">•••</button>
         <div class="menu-pop">
           <button data-act="report">📋 進度回報</button>
@@ -1419,7 +1419,7 @@ $('#orders').addEventListener('click', e => {
       save(); render(); toast(`已轉給 ${m.name}`, 'ok'); };
     show('#mInput'); return;
   }
-  if (act === 'start') startOrder(o);
+  if (act === 'start'){ startOrder(o); if (scan.paused && state.boundId === o.id){ scan.pausedOrder = null; setScanPaused(false); } }
   if (act === 'pause'){ pauseOrder(o); if (scan.autoPaused === o.id) scan.autoPaused = null; }
   if (act === 'lv1') levelUp(o, 1);
   if (act === 'undo') undoLevel(o);
