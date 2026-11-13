@@ -1802,16 +1802,26 @@ function lhList(){
 }
 function fmtDur(ms){ if (!isFinite(ms) || ms < 0) return '--'; const t = Math.round(ms/1000), h = Math.floor(t/3600), m = Math.floor(t%3600/60), sec = t%60;
   return h ? `${h} 時 ${m} 分` : m ? `${m} 分 ${String(sec).padStart(2,'0')} 秒` : `${sec} 秒`; }
+let lhAvg = NaN;
+// 這一等已經花多久：暫停辨識時停住；讀不到條（過圖）時照常計時
+function lhCur(){ return scan.lastRoll ? (scan.paused || now()) - scan.lastRoll : NaN; }
+function lhCurNote(cur, avg){
+  if (!isFinite(cur)) return '滿條一次後開始計算';
+  if (scan.paused) return '辨識暫停中，時間停止';
+  if (!isFinite(avg)) return '還沒有平均可以比較';
+  return cur > avg ? '已超過平均 ' + fmtDur(cur - avg) : '距離平均還有 ' + fmtDur(avg - cur);
+}
+setInterval(() => { if (view !== 'scan' || !me) return; const v = $('#lhCurV'); if (!v) return; const c = lhCur(); v.textContent = isFinite(c) ? fmtDur(c) : '--'; $('#lhCurD').textContent = lhCurNote(c, lhAvg); }, 1000);
 function renderLvHist(){
   const L = lhList(), full = L.filter(e => e.ms && !e.est), use = full.length ? full : L.filter(e => e.ms);
   const ms = use.map(e => e.ms), avg = ms.length ? ms.reduce((a,b) => a+b, 0) / ms.length : NaN;
   const fast = ms.length ? Math.min(...ms) : NaN, slow = ms.length ? Math.max(...ms) : NaN;
-  const cur = scan.lastRoll && scan.pct != null ? now() - scan.lastRoll : NaN;
+  const cur = lhCur(); lhAvg = avg;
   $('#lhKpi').innerHTML = `
     <div class="card kpi"><div class="k">⬆️ 升等次數</div><div class="v mono">${L.length}</div><div class="d">${{today:'今天', '7d':'近 7 天', all:'全部'}[$('#lhRange').value]}</div></div>
     <div class="card kpi"><div class="k">⏱️ 平均每等</div><div class="v mono">${fmtDur(avg)}</div><div class="d">${full.length} 筆完整紀錄</div></div>
     <div class="card kpi"><div class="k">⚡ 最快 / 🐢 最慢</div><div class="v mono" style="font-size:20px">${fmtDur(fast)} / ${fmtDur(slow)}</div><div class="d">　</div></div>
-    <div class="card kpi"><div class="k">⏳ 這一等已花</div><div class="v mono">${isFinite(cur) ? fmtDur(cur) : '--'}</div><div class="d">${isFinite(cur) && isFinite(avg) ? (cur > avg ? '比平均慢 ' + fmtDur(cur - avg) : '比平均快 ' + fmtDur(avg - cur)) : '滿條一次後開始計算'}</div></div>`;
+    <div class="card kpi"><div class="k">⏳ 這一等已花</div><div class="v mono" id="lhCurV">${isFinite(cur) ? fmtDur(cur) : '--'}</div><div class="d" id="lhCurD">${lhCurNote(cur, avg)}</div></div>`;
   const show = L.slice(-60), mx = Math.max(1, ...show.map(e => e.ms || 0));
   $('#lhChart').innerHTML = show.length ? `<div class="lh-wrap" style="display:flex;align-items:flex-end;gap:3px;height:100%;width:100%">${show.map(e => {
       const cls = !e.ms ? '' : e.est ? 'est' : e.ms === fast ? 'fast' : e.ms === slow && show.length > 2 ? 'slow' : '';
